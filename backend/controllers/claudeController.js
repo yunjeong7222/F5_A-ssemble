@@ -1,0 +1,130 @@
+const Anthropic = require("@anthropic-ai/sdk");
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// 1차 호출: 카테고리 추천
+const suggest = async (req, res) => {
+  const { user_input } = req.body;
+
+  if (!user_input) {
+    return res.status(400).json({ success: false, message: "user_input은 필수입니다." });
+  }
+
+  const systemPrompt = `
+너는 영상 크리에이터를 위한 AI 툴 워크플로우 추천 전문가야.
+사용자의 자연어 입력을 분석해서 아래 JSON 형식으로만 응답해.
+다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
+
+카테고리는 반드시 아래 7개 중에서만 선택해.
+사용자 요청에 필요한 카테고리만 골라서 반환해. 전부 쓸 필요 없어.
+
+사용 가능한 카테고리:
+- 기획 및 스크립트
+- 영상 소스 생성
+- 이미지 소스 생성
+- 성우 / TTS
+- BGM
+- 편집 / 숏폼 변환
+- 업로드 최적화
+
+응답 형식:
+{
+  "purpose": "숏폼 제작",
+  "recommended_categories": ["기획 및 스크립트", "영상 소스 생성", "편집 / 숏폼 변환"],
+  "reason": "숏폼 제작에 필요한 핵심 단계예요"
+}
+`;
+
+  try {
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: [
+        {
+          role: "user",
+          content: user_input,
+        },
+      ],
+    });
+
+    const raw = message.content[0].text.trim().replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(raw);
+
+    return res.status(200).json({ success: true, data: parsed });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: "Claude API 오류" });
+  }
+};
+
+// 2차 호출: 워크플로우 생성
+const generateWorkflow = async (req, res) => {
+  const { user_input, selected_tools } = req.body;
+
+  if (!user_input || !selected_tools || selected_tools.length === 0) {
+    return res.status(400).json({ success: false, message: "user_input과 selected_tools는 필수입니다." });
+  }
+
+  const systemPrompt = `
+너는 영상 크리에이터를 위한 AI 툴 워크플로우 전문가야.
+사용자가 선택한 AI 툴 조합으로 단계별 워크플로우를 만들어줘.
+AI를 처음 쓰는 초보자도 바로 따라할 수 있게 쉽고 구체적으로 작성해.
+다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
+
+응답 형식:
+{
+  "title": "숏폼 영상 제작 워크플로우",
+  "total_time": "약 40분",
+  "steps": [
+    {
+      "step_order": 1,
+      "category": "기획 및 스크립트",
+      "tool_name": "ChatGPT",
+      "task": "숏폼 스크립트 작성",
+      "prompt_example": "30초 숏폼용 스크립트를 작성해줘. 주제는 [주제], 톤은 친근하게.",
+      "duration": "10분",
+      "tip": "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
+      "caution": "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
+    }
+  ]
+}
+
+주의사항:
+- steps 배열은 사용자가 선택한 툴 수만큼만 만들어
+- step_order는 워크플로우 진행 순서대로
+- prompt_example은 실제로 복붙해서 쓸 수 있게 구체적으로
+- duration은 초보자 기준으로 작성
+- tip과 caution은 초보자가 자주 하는 실수 기반으로
+`;
+
+  const userPrompt = `
+사용자 목적: "${user_input}"
+선택한 툴 조합:
+${selected_tools.map((t) => `- ${t.category}: ${t.name}`).join("\n")}
+`;
+
+  try {
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: [
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+    });
+
+    const raw = message.content[0].text.trim();
+    const parsed = JSON.parse(raw);
+
+    return res.status(200).json({ success: true, data: parsed });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: "Claude API 오류" });
+  }
+};
+
+module.exports = { suggest, generateWorkflow };
