@@ -15,8 +15,9 @@ import Signup from "./pages/Signup";
 function App() {
   return (
     <BrowserRouter>
+    <div className="app-wrapper">
       <Header />
-      <main>
+      <main className="app-main">
         <Routes>
           <Route path="/" element={<Main />} />
           <Route path="/tools" element={<Tools />} />
@@ -31,6 +32,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
+      </div>
     </BrowserRouter>
   );
 }

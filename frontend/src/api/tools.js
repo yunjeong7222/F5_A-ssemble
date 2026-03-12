@@ -1,3 +1,6 @@
-import api from "../config/axios";
+import api from '../config/axios';
 
-export const getTools = () => api.get("/api/tools");
+export const fetchTools = async () => {
+  const response = await api.get('/api/tools');
+  return response.data.data;
+};
