@@ -1,8 +1,12 @@
 const Anthropic = require("@anthropic-ai/sdk");
+const db = require("../config/db");
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// 1차 호출: 카테고리 추천
+// ✅ 이 줄 추가 — 테스트 중엔 true, 실제 배포 시 false//////////////////
+const USE_MOCK = true;
+
+// 1차 호출: 카테고리 + 툴 추천
 const suggest = async (req, res) => {
   const { user_input } = req.body;
 
@@ -10,7 +14,37 @@ const suggest = async (req, res) => {
     return res.status(400).json({ success: false, message: "user_input은 필수입니다." });
   }
 
-  const systemPrompt = `
+  // ✅ 이 블록 추가//////////////////////////////
+  if (USE_MOCK) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        purpose: "숏폼 제작",
+        recommended_categories: ["기획 및 스크립트", "편집 / 숏폼 변환"],
+        tools_by_category: {
+          "기획 및 스크립트": ["ChatGPT", "Claude"],
+          "편집 / 숏폼 변환": ["CapCut AI", "Vrew"]
+        },
+        reason: "숏폼 제작에 필요한 핵심 단계예요"
+      }
+    });
+  }
+  ////////////////////////////////////////
+  try {
+    // DB에서 툴 목록 먼저 조회
+    const [toolRows] = await db.promise().query(`
+      SELECT t.name, t.rating, t.difficulty, c.name AS category_name, tc.description
+      FROM tools t
+      JOIN tool_categories tc ON t.id = tc.tool_id
+      JOIN categories c ON tc.category_id = c.id
+      ORDER BY c.id, t.rating DESC
+    `);
+
+    const toolList = toolRows
+      .map(t => `- [${t.category_name}] ${t.name} (평점: ${t.rating}, 난이도: ${t.difficulty}): ${t.description}`)
+      .join("\n");
+
+    const systemPrompt = `
 너는 영상 크리에이터를 위한 AI 툴 워크플로우 추천 전문가야.
 사용자의 자연어 입력을 분석해서 아래 JSON 형식으로만 응답해.
 다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
@@ -27,31 +61,37 @@ const suggest = async (req, res) => {
 - 편집 / 숏폼 변환
 - 업로드 최적화
 
+아래는 사용 가능한 AI 툴 목록이야.
+각 카테고리에서 사용자 목적에 가장 적합한 툴을 최대 3개만 골라줘.
+평점과 난이도, 설명을 참고해서 사용자 수준에 맞게 추천해.
+
+${toolList}
+
 응답 형식:
 {
   "purpose": "숏폼 제작",
   "recommended_categories": ["기획 및 스크립트", "영상 소스 생성", "편집 / 숏폼 변환"],
+  "tools_by_category": {
+    "기획 및 스크립트": ["ChatGPT", "Claude"],
+    "영상 소스 생성": ["Kling AI"],
+    "편집 / 숏폼 변환": ["CapCut AI", "Vrew"]
+  },
   "reason": "숏폼 제작에 필요한 핵심 단계예요"
 }
 `;
 
-  try {
     const message = await client.messages.create({
       model: "claude-sonnet-4-5",
       max_tokens: 1024,
       system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: user_input,
-        },
-      ],
+      messages: [{ role: "user", content: user_input }],
     });
 
     const raw = message.content[0].text.trim().replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(raw);
 
     return res.status(200).json({ success: true, data: parsed });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: "Claude API 오류" });
@@ -65,6 +105,30 @@ const generateWorkflow = async (req, res) => {
   if (!user_input || !selected_tools || selected_tools.length === 0) {
     return res.status(400).json({ success: false, message: "user_input과 selected_tools는 필수입니다." });
   }
+
+  // ✅ 이 블록 추가/////////////////////
+  if (USE_MOCK) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        title: "숏폼 영상 제작 워크플로우",
+        total_time: "약 40분",
+        steps: [
+          {
+            step_order: 1,
+            category: "기획 및 스크립트",
+            tool_name: "ChatGPT",
+            task: "숏폼 스크립트 작성",
+            prompt_example: "30초 숏폼용 스크립트를 작성해줘. 주제는 AI 생산성 툴, 톤은 친근하게.",
+            duration: "10분",
+            tip: "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
+            caution: "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
+          }
+        ]
+      }
+    });
+  }
+///////////////////////////////////////////////
 
   const systemPrompt = `
 너는 영상 크리에이터를 위한 AI 툴 워크플로우 전문가야.
@@ -107,20 +171,16 @@ ${selected_tools.map((t) => `- ${t.category}: ${t.name}`).join("\n")}
   try {
     const message = await client.messages.create({
       model: "claude-sonnet-4-5",
-      max_tokens: 2048,
+      max_tokens: 4096,
       system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: userPrompt,
-        },
-      ],
+      messages: [{ role: "user", content: userPrompt }],
     });
 
-    const raw = message.content[0].text.trim();
+    const raw = message.content[0].text.trim().replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(raw);
 
     return res.status(200).json({ success: true, data: parsed });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: "Claude API 오류" });
