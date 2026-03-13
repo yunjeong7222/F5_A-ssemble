@@ -24,8 +24,7 @@ export default function Main() {
       </section>
  
       <hr />
- 
-      {/* ── 2. AI 툴 슬라이드 ── */}
+
       {/* ── 2. AI 툴 슬라이드 ── */}
     <section style={{ overflow: 'hidden' }}>
         <h2>지금 주목받는 AI 툴</h2>

@@ -11,6 +11,9 @@ import CommunityDetail from "./pages/CommunityDetail";
 import CommunityWrite from "./pages/CommunityWrite";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ProfileSetup from "./pages/ProfileSetup";
+import MyPage from "./pages/MyPage";
+
 
 function App() {
   return (
@@ -29,6 +32,10 @@ function App() {
           <Route path="/community/:id" element={<CommunityDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/profile-setup" element={<ProfileSetup />} />
+          <Route path="/mypage" element={
+            <PrivateRoute><MyPage /></PrivateRoute>
+          } />
         </Routes>
       </main>
       <Footer />
