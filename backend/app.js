@@ -11,6 +11,7 @@ const postsRouter = require("./routes/posts");
 const likesRouter = require("./routes/likes");
 const commentsRouter = require("./routes/comments");
 const claudeRouter = require("./routes/claude");
+const usersRouter = require('./routes/users');
 
 // CORS 오류 처리를 위한 미들웨어 적용 -> 배포시 해당 코드 지워야함
 // 기본적으로 전부 열어두는것은 원칙상 안됨.
@@ -20,13 +21,14 @@ app.use(express.urlencoded({extended : true}));
 app.use(express.json());
 
 app.use("/api/auth", authRouter);
+app.use('/api/users', usersRouter);
 app.use("/api/tools", toolsRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/workflows", workflowsRouter);
+app.use("/api/claude", claudeRouter);
 app.use("/api/posts", postsRouter);
 app.use("/api/likes", likesRouter);
 app.use("/api/comments", commentsRouter);
-app.use("/api/claude", claudeRouter);
 
 // 404 handler
 app.use((req, res, next) => {
