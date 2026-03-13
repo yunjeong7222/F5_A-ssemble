@@ -10,6 +10,12 @@ const conn = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
-conn.connect();
+conn.connect((err) => {
+  if (err) {
+    console.error("MySQL 연결 실패:", err.message);
+    return;
+  }
+  console.log("MySQL 연결 성공");
+});
 
 module.exports = conn;
