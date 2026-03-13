@@ -1,0 +1,64 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+:root {
+    /* 메인 컬러 */
+    --primary: #9c88ff;
+    --primary-hover: #8b75ff;
+    --secondary: #10b981;
+    --secondary-hover: #059669;
+
+    --yellow: #fffa95; /*노랑임시*/
+
+    /* 배경 */
+    --bg: #ffffff;
+    --surface: #f8fafc;
+    --surface-hover: #f1f5f9;
+
+    /* 테두리 */
+    --border: #e2e8f0;
+
+    /* 텍스트 */
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+
+    /* 사이즈 */
+    --max-width: 1440px;
+    --content-width: 1200px;
+    --header-height: 64px;
+
+    /* 라디우스 */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    /* 간격 */
+    --gap-sm: 8px;
+    --gap-md: 16px;
+    --gap-lg: 24px;
+    --gap-xl: 40px;
+
+    /* 텍스트사이즈 추가 필요 */
+}
+
+/* 초기화 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Pretendard', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* 공통 레이아웃 */
+.container {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 0 var(--gap-lg);
+}
