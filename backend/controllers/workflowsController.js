@@ -54,7 +54,7 @@ const getWorkflowById = async (req, res) => {
   try {
     const [results] = await db.promise().query(
       `SELECT w.*, 
-        t.id AS tool_id, t.name AS tool_name, t.thumbnail, t.url,
+        t.id AS tool_id, t.name AS tool_name, t.thumbnail, t.url, t.pros, t.cons, 
         wt.step_order
       FROM workflows w
       LEFT JOIN workflow_tools wt ON w.id = wt.workflow_id
@@ -87,6 +87,8 @@ const getWorkflowById = async (req, res) => {
           tool_name: r.tool_name,
           thumbnail: r.thumbnail,
           url: r.url,
+          pros: r.pros,          
+          cons: r.cons,
         })),
     };
 
