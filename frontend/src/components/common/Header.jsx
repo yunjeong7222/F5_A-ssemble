@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import '../../styles/Header.css';
+import { logout as logoutAPI } from '../../api/auth';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -14,9 +15,16 @@ export default function Header() {
     { label: '커뮤니티',  path: '/community' },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    const refreshToken = useAuthStore.getState().refreshToken;
+    try{
+      await logoutAPI(refreshToken); // 서버에 폐기 요청
+    } catch (err) {
+      console.error('logout error :', err);
+    } finally {
+      logout();
+      navigate('/login');
+    }
   };
 
   return (

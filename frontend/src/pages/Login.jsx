@@ -19,8 +19,8 @@ const Login = () => {
 
     try {
       const res = await login({ email, password });
-      const { token, user } = res.data.data;
-      loginStore(user, token);
+      const { accessToken, refreshToken, user } = res.data.data;
+      loginStore(user, accessToken, refreshToken);
       navigate('/');
     } catch (err) {
       setMessage(err.response?.data?.message || '로그인에 실패했습니다.');
