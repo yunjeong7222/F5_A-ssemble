@@ -80,6 +80,10 @@ const ToolSelector = () => {
                     key={tool.id} 
                     onClick={() => toggleSelectedTool(tool.id)}
                     style={{ 
+                      display: 'flex',        
+                      flexDirection: 'column',
+                      height: '100%',         
+                      boxSizing: 'border-box',
                       backgroundColor: isSelected ? '#faf5ff' : '#ffffff',
                       border: isSelected ? '2px solid #8b5cf6' : '1px solid #e2e8f0', 
                       borderRadius: '24px',
