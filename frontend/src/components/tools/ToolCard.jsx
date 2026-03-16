@@ -8,14 +8,18 @@ const CAT_COLORS = {
     '업로드 최적화': '#f97316',
 };
 
-const ToolCard = ({tool, onDetail}) => {
+const ToolCard = ({tool, showDescription = true, showDetail = true, onDetail}) => {
     const cat = tool.categories?.[0];
     const catName = cat?.category_name || '';
     const desc = cat?.description || '';
     const catColor = CAT_COLORS[catName] || '#9c88ff';
 
+    const handleClick = () => {
+        if (showDetail && onDetail) onDetail(tool);
+    };
+
     return (
-        <div className="tool-card" onClick={() => onDetail(tool)}>
+        <div className="tool-card" onClick={handleClick}>
             {/* 상단: 썸네일 + 이름 + 뱃지 */}
             <div className="card-top">
                 {tool.thumbnail ? (
@@ -38,7 +42,7 @@ const ToolCard = ({tool, onDetail}) => {
             </div>
 
             {/* 설명 */}
-            <p className="card-desc">{desc}</p>
+            {showDescription && <p className="card-desc">{desc}</p>}
 
             {/* 하단: 평점 + 자세히 보기 */}
             <div className="card-bottom">
@@ -46,15 +50,17 @@ const ToolCard = ({tool, onDetail}) => {
                     <span className="star">★</span>
                     {tool.rating ?? '-'}
                 </div>
-                <button
-                    className="card-detail-btn"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onDetail(tool);
-                    }}
-                >
-                    자세히 보기 →
-                </button>
+                {showDetail && (
+                    <button
+                        className="card-detail-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (onDetail) onDetail(tool);
+                        }}
+                    >
+                        자세히 보기 →
+                    </button>
+                )}
             </div>
         </div>
     );
