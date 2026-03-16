@@ -1,6 +1,84 @@
 import React, { useState } from 'react';
 import useWorkflowStore from '../../store/workflowStore';
 
+
+// ⭐ 7번 배포/최적화 전용 애니메이션 컴포넌트 (초당 60프레임 부드러운 숫자 카운팅)
+const OptimizationVisualizer = () => {
+  const [views, setViews] = React.useState(0);
+  const [ctr, setCtr] = React.useState(0);
+  const [seo, setSeo] = React.useState(0);
+  const [time, setTime] = React.useState(0);
+
+  React.useEffect(() => {
+    let animationFrame;
+    const animate = () => {
+      const duration = 2500; // 2.5초 동안 파바박! 상승
+      const pause = 2500; // 2.5초 동안 멈춰서 결과 감상
+      const totalCycle = duration + pause;
+      
+      const now = performance.now();
+      const cycleTime = now % totalCycle;
+      
+      if (cycleTime < duration) {
+        const progress = cycleTime / duration;
+        // easeOutExpo 효과: 처음엔 미친듯이 빠르고 끝에서 엄청 부드럽게 멈춤
+        const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        
+        setViews(Math.floor(easeOut * 2541388));
+        setCtr((easeOut * 8.5).toFixed(1));
+        setSeo(Math.floor(easeOut * 100));
+        setTime(Math.floor(easeOut * 48));
+      } else {
+        setViews(2541388);
+        setCtr((8.5).toFixed(1));
+        setSeo(100);
+        setTime(48);
+      }
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, []);
+
+  return (
+    <div style={{
+      backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', height: '220px', padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '24px', position: 'relative'
+    }}>
+      <style>{`
+        @keyframes blinkDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
+        .tb-counter { font-variant-numeric: tabular-nums; }
+      `}</style>
+
+      {[
+        { label: 'Total Views', icon: '👀', iconBg: '#dcfce3', iconColor: '#16a34a', val: views.toLocaleString(), unit: '', trend: '+573%', trendColor: '#10b981' },
+        { label: 'Click-Thru', icon: '🖱️', iconBg: '#dbeafe', iconColor: '#2563eb', val: ctr, unit: '%', trend: '+433%', trendColor: '#10b981' },
+        { label: 'SEO Score', icon: '🎯', iconBg: '#fef08a', iconColor: '#ca8a04', val: seo, unit: '/100', trend: 'Top 1%', trendColor: '#ca8a04' },
+        { label: 'Time Saved', icon: '⚡', iconBg: '#fce7f3', iconColor: '#db2777', val: time, unit: 'hrs', trend: 'Monthly', trendColor: '#db2777' },
+      ].map((item, idx) => (
+        <div key={idx} style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: '12px', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ width: '36px', height: '36px', backgroundColor: item.iconBg, color: item.iconColor, borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>{item.icon}</div>
+            {idx === 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#fee2e2', padding: '4px 8px', borderRadius: '12px', fontSize: '0.65rem', color: '#dc2626', fontWeight: 'bold' }}>
+                <span style={{ width: '6px', height: '6px', backgroundColor: '#dc2626', borderRadius: '50%', animation: 'blinkDot 1.2s infinite' }}></span> LIVE
+              </div>
+            )}
+          </div>
+          <div>
+            <div style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '600', marginBottom: '4px' }}>{item.label}</div>
+            <div style={{ color: '#0f172a', fontSize: '1.6rem', fontWeight: '800', letterSpacing: '-0.04em', display: 'flex', alignItems: 'baseline' }}>
+              <span className="tb-counter">{item.val}</span>
+              {item.unit && <span style={{ fontSize: '0.9rem', marginLeft: '4px', color: '#64748b', fontWeight: '700' }}>{item.unit}</span>}
+            </div>
+          </div>
+          <div style={{ fontSize: '0.75rem', color: item.trendColor, fontWeight: '600', display: 'flex', alignItems: 'center', gap: '2px' }}>
+            {item.trend.includes('+') ? '↗' : ''} {item.trend}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 // 🎨 카테고리별 시각화 컴포넌트
 const CategoryVisualizer = ({ category }) => {
 
@@ -121,51 +199,9 @@ const CategoryVisualizer = ({ category }) => {
   }
 
   // 7. ⭐ [배포 · 최적화]
+  // 7. ⭐ [배포 · 최적화]
   if (category === '배포 · 최적화') {
-    return (
-      <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', height: '220px', padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '24px', position: 'relative' }}>
-        <style>{`
-          @keyframes countViewsFinal { 0%, 20% { content: "0"; } 22% { content: "42,150"; } 24% { content: "150,200"; } 26% { content: "490,400"; } 28% { content: "950,000"; } 30% { content: "1,550,800"; } 32% { content: "2,100,500"; } 34% { content: "2,350,200"; } 36% { content: "2,480,100"; } 38% { content: "2,510,400"; } 40% { content: "2,530,200"; } 42% { content: "2,538,100"; } 44% { content: "2,540,500"; } 46% { content: "2,541,300"; } 48% { content: "2,541,350"; } 50% { content: "2,541,384"; } 52% { content: "2,541,385"; } 54% { content: "2,541,386"; } 56% { content: "2,541,387"; } 58%, 100% { content: "2,541,388"; } }
-          @keyframes countCTRFinal { 0%, 20% { content: "0.0"; } 24% { content: "1.2"; } 28% { content: "3.5"; } 32% { content: "5.2"; } 36% { content: "6.8"; } 40% { content: "7.5"; } 44% { content: "7.9"; } 48% { content: "8.1"; } 52% { content: "8.2"; } 54% { content: "8.3"; } 56% { content: "8.4"; } 58%, 100% { content: "8.5"; } }
-          @keyframes countSEOFinal { 0%, 20% { content: "0"; } 24% { content: "24"; } 28% { content: "51"; } 32% { content: "73"; } 36% { content: "85"; } 40% { content: "91"; } 44% { content: "94"; } 48% { content: "96"; } 52% { content: "97"; } 54% { content: "98"; } 56% { content: "99"; } 58%, 100% { content: "100"; } }
-          @keyframes countTimeFinal { 0%, 20% { content: "0"; } 24% { content: "12"; } 28% { content: "25"; } 32% { content: "34"; } 36% { content: "40"; } 40% { content: "43"; } 44% { content: "44"; } 48% { content: "45"; } 52% { content: "46"; } 54% { content: "47"; } 56%, 100% { content: "48"; } }
-          @keyframes blinkDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
-          .tb-counter { font-variant-numeric: tabular-nums; }
-          .count-views::after { content: "0"; animation: countViewsFinal 5s infinite; }
-          .count-ctr::after { content: "0.0"; animation: countCTRFinal 5s infinite; }
-          .count-seo::after { content: "0"; animation: countSEOFinal 5s infinite; }
-          .count-time::after { content: "0"; animation: countTimeFinal 5s infinite; }
-        `}</style>
-
-        {[
-          { label: 'Total Views', icon: '👀', iconBg: '#dcfce3', iconColor: '#16a34a', class: 'count-views', unit: '', trend: '+573%', trendColor: '#10b981' },
-          { label: 'Click-Thru', icon: '🖱️', iconBg: '#dbeafe', iconColor: '#2563eb', class: 'count-ctr', unit: '%', trend: '+433%', trendColor: '#10b981' },
-          { label: 'SEO Score', icon: '🎯', iconBg: '#fef08a', iconColor: '#ca8a04', class: 'count-seo', unit: '/100', trend: 'Top 1%', trendColor: '#ca8a04' },
-          { label: 'Time Saved', icon: '⚡', iconBg: '#fce7f3', iconColor: '#db2777', class: 'count-time', unit: 'hrs', trend: 'Monthly', trendColor: '#db2777' },
-        ].map((item, idx) => (
-          <div key={idx} style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: '12px', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ width: '36px', height: '36px', backgroundColor: item.iconBg, color: item.iconColor, borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>{item.icon}</div>
-              {idx === 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#fee2e2', padding: '4px 8px', borderRadius: '12px', fontSize: '0.65rem', color: '#dc2626', fontWeight: 'bold' }}>
-                  <span style={{ width: '6px', height: '6px', backgroundColor: '#dc2626', borderRadius: '50%', animation: 'blinkDot 1.2s infinite' }}></span> LIVE
-                </div>
-              )}
-            </div>
-            <div>
-              <div style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '600', marginBottom: '4px' }}>{item.label}</div>
-              <div style={{ color: '#0f172a', fontSize: '1.6rem', fontWeight: '800', letterSpacing: '-0.04em', display: 'flex', alignItems: 'baseline' }}>
-                <span className={`tb-counter ${item.class}`}></span>
-                {item.unit && <span style={{ fontSize: '0.9rem', marginLeft: '4px', color: '#64748b', fontWeight: '700' }}>{item.unit}</span>}
-              </div>
-            </div>
-            <div style={{ fontSize: '0.75rem', color: item.trendColor, fontWeight: '600', display: 'flex', alignItems: 'center', gap: '2px' }}>
-              {item.trend.includes('+') ? '↗' : ''} {item.trend}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return <OptimizationVisualizer />;
   }
 
   return null;
@@ -222,7 +258,16 @@ const WorkflowResult = ({ workflowResult }) => {
 
   const getToolInfo = (toolName, stepCategory) => {
     if (toolDirectory[toolName]) return toolDirectory[toolName];
-    return { domain: 'google.com/search?q=' + toolName, category: stepCategory || '기획 · 아이디어', desc: `${toolName} 도구를 활용하여 작업을 최적화합니다.` };
+    
+    // ⭐ 리스트에 없는 툴일 경우: 아이콘용 도메인과 클릭용 링크를 분리합니다.
+    const guessedDomain = `${toolName.toLowerCase().replace(/\s/g, '')}.com`; // 예: "Notion AI" -> "notionai.com"
+    
+    return { 
+      domain: guessedDomain, // 아이콘을 불러올 때 사용할 추측 도메인
+      link: `https://www.google.com/search?q=${toolName} AI`, // 클릭 시 이동할 구글 검색 링크
+      category: stepCategory || '기획 · 아이디어', 
+      desc: `${toolName} 도구를 활용하여 작업을 최적화합니다.` 
+    };
   };
 
   // ⭐ 카테고리별로 '이 단계 결과물' 텍스트를 다르게 반환하는 함수
@@ -260,9 +305,11 @@ const WorkflowResult = ({ workflowResult }) => {
           50% { transform: translateY(-12px); box-shadow: 0 20px 30px rgba(0,0,0,0.15); }
           100% { transform: translateY(0px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         }
-        /* 가로 스크롤바 숨기기 (워크플로우 플로우용) */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* ⭐ 예쁘고 얇은 가로 스크롤바 추가 (잘림 방지 및 스크롤 인지용) */
+        .workflow-scroll::-webkit-scrollbar { height: 8px; }
+        .workflow-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 4px; }
+        .workflow-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .workflow-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
 
       {/* ⭐ 2. 메인 퍼플 배너 (요구사항 1, 2 반영) */}
@@ -340,32 +387,32 @@ const WorkflowResult = ({ workflowResult }) => {
       <div style={{ border: '1px solid #e2e8f0', borderRadius: '20px', padding: '30px', backgroundColor: '#fafaf9', marginBottom: '50px' }}>
         <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#8b5cf6', margin: '0 0 24px 0', letterSpacing: '0.05em' }}>WORKFLOW FLOW</h4>
         
-        {/* 가로로 스크롤 가능하도록 flex 컨테이너 설정 */}
-        <div className="hide-scrollbar" style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', paddingBottom: '10px', gap: '16px' }}>
+        {/* 가로로 스크롤 가능하도록 flex 컨테이너 설정 + 얇은 스크롤바 클래스 적용 */}
+        <div className="workflow-scroll" style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', paddingBottom: '16px', gap: '16px' }}>
           
           {displayData.steps.map((step, index) => {
             const toolInfo = getToolInfo(step.tool, step.category);
             return (
               <React.Fragment key={index}>
-                {/* 툴 카드 */}
-                <div style={{ minWidth: '120px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                  <img src={`https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`} alt={step.tool} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+                {/* 툴 카드 (flexShrink: 0 추가하여 찌그러짐 방지) */}
+                <div style={{ minWidth: '120px', flexShrink: 0, backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                  <img src={`https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`} alt={step.tool} style={{ width: '40px', height: '40px', objectFit: 'contain' }} onError={(e) => { e.target.style.display='none'; }} />
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#1e293b' }}>{step.tool}</div>
                     <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#10b981', marginTop: '4px' }}>{toolInfo.category.split('·')[0].trim()} 특화</div>
                   </div>
                 </div>
 
-                {/* 화살표 */}
-                <div style={{ color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
+                {/* 화살표 (flexShrink: 0 추가) */}
+                <div style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </div>
               </React.Fragment>
             );
           })}
 
-          {/* 최종 결과물 카드 */}
-          <div style={{ minWidth: '120px', backgroundColor: '#dcfce3', border: '1px solid #bbf7d0', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          {/* 최종 결과물 카드 (flexShrink: 0 추가) */}
+          <div style={{ minWidth: '120px', flexShrink: 0, backgroundColor: '#dcfce3', border: '1px solid #bbf7d0', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
             <div style={{ width: '40px', height: '40px', backgroundColor: '#22c55e', color: '#ffffff', borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
@@ -509,17 +556,24 @@ const WorkflowResult = ({ workflowResult }) => {
         </div>
       </div>
 
-      {/* 하단 버튼 */}
+      {/* 하단 재생성/저장 버튼 */}
       <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f8fafc' }}>
         <div>
           <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem', color: '#0f172a' }}>이 워크플로우가 마음에 드셨나요?</h4>
           <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>저장하거나 직접 레시피로 등록해보세요</p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => setStep(1)} style={{ padding: '12px 24px', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '24px', color: '#475569', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          
+          {/* 👇 다시 복구된 '이전 단계' 버튼 👇 */}
+          <button onClick={() => setStep(2)} style={{ padding: '12px 24px', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '24px', color: '#475569', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', transition: 'all 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseOut={(e) => e.target.style.backgroundColor = '#ffffff'}>
+            ← 이전 단계
+          </button>
+          
+          <button onClick={() => setStep(1)} style={{ padding: '12px 24px', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '24px', color: '#475569', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', transition: 'all 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseOut={(e) => e.target.style.backgroundColor = '#ffffff'}>
             ↻ 다시 만들기
           </button>
-          <button style={{ padding: '12px 24px', backgroundColor: '#8b5cf6', border: 'none', borderRadius: '24px', color: '#ffffff', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          
+          <button style={{ padding: '12px 24px', backgroundColor: '#8b5cf6', border: 'none', borderRadius: '24px', color: '#ffffff', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', transition: 'all 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor = '#7c3aed'} onMouseOut={(e) => e.target.style.backgroundColor = '#8b5cf6'}>
             🚀 레시피로 저장
           </button>
         </div>

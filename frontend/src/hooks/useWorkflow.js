@@ -15,6 +15,8 @@ export const useWorkflow = () => {
     // 전체 툴 목록 가져오기
     const allTools = await fetchTools();
 
+    console.log("🔎 백엔드 원본 데이터:", allTools.find(t => t.name === 'CapCut AI'));
+
     // tools_by_category 이름 기준으로 매칭
     const filtered = [];
     recommended_categories.forEach(categoryName => {
@@ -31,6 +33,12 @@ export const useWorkflow = () => {
               category: cat.category_name,
               description: cat.description,
               rating: tool.rating,
+              pros: cat.pros || tool.pros,
+              cons: cat.cons || tool.cons,
+              thumbnail: tool.thumbnail,
+              url: tool.url,
+              free_plan: tool.free_plan,
+              difficulty: tool.difficulty
             });
           }
         });
