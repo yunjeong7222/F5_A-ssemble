@@ -17,27 +17,17 @@ const register = async (req, res) => {
   }
 
   try {
-    // 이메일 중복 체크
-    const [existingUser] = await db.promise().query(
-      "SELECT id FROM users WHERE email = ?",
-      [email]  // ? 자리에 들어갈 값 - Prepared Statement로 SQL Injection 방지
+    // 이메일/닉네임 중복 체크를 한 번의 쿼리로 병렬 처리하면 더 빠름
+    const [existing] = await db.promise().query(
+      "SELECT email, nickname FROM users WHERE email = ? OR nickname = ?",
+      [email, nickname]
     );
-    if (existingUser.length > 0) {
-      return res.status(409).json({  // 409 Conflict
-        success: false,
-        message: "이미 사용 중인 이메일입니다.",
-      });
-    }
 
-    // 닉네임 중복 체크 - 안하면 DB에서 에러
-    const [existingNickname] = await db.promise().query(
-      "SELECT id FROM users WHERE nickname = ?",
-      [nickname]
-    );
-    if (existingNickname.length > 0) {
+    if (existing.length > 0) {
+      const isEmailDup = existing.some(u => u.email === email);
       return res.status(409).json({
         success: false,
-        message: "이미 사용 중인 닉네임입니다.",
+        message: isEmailDup ? "이미 사용 중인 이메일입니다." : "이미 사용 중인 닉네임입니다.",
       });
     }
 
@@ -111,10 +101,24 @@ const login = async (req, res) => {
 
     // JWT 발급
     // authMiddleware에서 똑같이 { id, email, role } 추출하므로 반드시 일치해야 함
-    const token = jwt.sign(
+    const accessToken  = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" } 
+    );
+
+    // Refresh Token 발급 (7d)
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // Refresh Token DB 저장
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7일 후
+    await db.promise().query(
+      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
+      [user.id, refreshToken, expiresAt]
     );
 
     // 응답 반환
@@ -122,7 +126,8 @@ const login = async (req, res) => {
       success: true,
       message: "로그인 성공",
       data: {
-        token,
+        accessToken,
+        refreshToken,
         user: {
           id: user.id,
           email: user.email,
@@ -135,6 +140,118 @@ const login = async (req, res) => {
 
   } catch (err) {
     console.error("login error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
+};
+
+// Access Token 재발급
+// POST /api/auth/refresh
+const refresh = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({ success: false, message: "Refresh Token이 필요합니다." });
+  }
+
+  try {
+    // 1. JWT 서명 검증
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);  //jwt.verify(검증할토큰, 서명에사용한시크릿) 
+    } catch (err) {
+      return res.status(401).json({ success: false, message: "유효하지 않은 Refresh Token입니다." });
+    }
+
+    // 2. DB에서 토큰 존재 여부 + 만료 + 폐기 여부 확인
+    const [rows] = await db.promise().query(
+      `SELECT id FROM refresh_tokens 
+       WHERE token = ? 
+         AND is_revoked = FALSE 
+         AND expires_at > NOW()`,
+      [refreshToken]
+    );
+
+    // 이미 폐기된 토큰으로 요청 시 → 탈취 가능성 → 해당 유저 토큰 전체 폐기
+    if (rows.length === 0) {
+      await db.promise().query(
+        "UPDATE refresh_tokens SET is_revoked = TRUE WHERE user_id = ?",
+        [decoded.id]
+      );
+      return res.status(401).json({ success: false, message: "유효하지 않은 Refresh Token입니다. 다시 로그인해주세요." });
+    }
+
+    // 3. 유저 조회
+    const [users] = await db.promise().query(
+      "SELECT id, email, role FROM users WHERE id = ?",
+      [decoded.id]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ success: false, message: "유저를 찾을 수 없습니다." });
+    }
+
+    const user = users[0];
+
+    // 4. 기존 Refresh Token 폐기
+    await db.promise().query(
+      "UPDATE refresh_tokens SET is_revoked = TRUE WHERE token = ?",
+      [refreshToken]
+    );
+
+    // 5. 새 Access Token 발급
+    const newAccessToken = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // 6. 새 Refresh Token 발급 + DB 저장
+    const newRefreshToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await db.promise().query(
+      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
+      [user.id, newRefreshToken, expiresAt]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Access Token이 재발급되었습니다.",
+      data: { 
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+       },
+    });
+
+  } catch (err) {
+    console.error("refresh error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
+};
+
+
+// 로그아웃 (Refresh Token 폐기)
+// POST /api/auth/logout
+const logout = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({ success: false, message: "Refresh Token이 필요합니다." });
+  }
+
+  try {
+    await db.promise().query(
+      "UPDATE refresh_tokens SET is_revoked = TRUE WHERE token = ?",
+      [refreshToken]
+    );
+
+    return res.status(200).json({ success: true, message: "로그아웃 되었습니다." });
+  } catch (err) {
+    console.error("logout error:", err);
     return res.status(500).json({ success: false, message: "서버 오류" });
   }
 };
@@ -157,4 +274,4 @@ const getMe = async (req, res) => {
 };
 
 
-module.exports = { register, login, getMe }; // 라우터에서 사용할 수 있도록 내보내기     
+module.exports = { register, login, getMe, refresh, logout }; // 라우터에서 사용할 수 있도록 내보내기     

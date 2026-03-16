@@ -9,19 +9,47 @@ const api = axios.create({
 
 // 요청마다 토큰 자동 주입
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const accessToken = useAuthStore.getState().accessToken;
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
   return config;
 });
 
-// 401 → 자동 로그아웃
+// 응답 시 401 뜨면 자동으로 refresh 시도
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      useAuthStore.getState().logout();
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // 인증 관련 엔드포인트는 refresh 시도 안 함
+    const authUrls = ['/api/auth/login', '/api/auth/refresh', '/api/auth/logout', '/api/auth/signup'];
+    const isAuthUrl = authUrls.some(url => originalRequest.url.includes(url));
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthUrl) {
+      originalRequest._retry = true;
+
+      const refreshToken = useAuthStore.getState().refreshToken;
+      try {
+        // refresh 요청으로 새 토큰 발급
+        const response = await api.post('/api/auth/refresh', { refreshToken });
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
+
+        // 새 토큰으로 스토어 + localStorage 교체
+        useAuthStore.getState().setTokens(newAccessToken, newRefreshToken);
+
+        // 실패했던 원래 요청에 새 accessToken 달아서 재시도
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
+        
+      } catch (refreshError) {
+        useAuthStore.getState().logout();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
     }
-    return Promise.reject(err);
+
+    return Promise.reject(error);
   }
 );
 
