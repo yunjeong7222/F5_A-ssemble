@@ -15,7 +15,7 @@ export const useWorkflow = () => {
     // 전체 툴 목록 가져오기
     const allTools = await fetchTools();
 
-    console.log("🔎 백엔드 원본 데이터:", allTools.find(t => t.name === 'CapCut AI'));
+    // console.log("🔎 백엔드 원본 데이터:", allTools.find(t => t.name === 'CapCut AI'));
 
     // tools_by_category 이름 기준으로 매칭
     const filtered = [];

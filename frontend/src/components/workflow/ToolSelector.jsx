@@ -3,7 +3,7 @@ import useWorkflowStore from '../../store/workflowStore';
 
 const ToolSelector = () => {
   const { recommendedTools, selectedTools, toggleSelectedTool } = useWorkflowStore();
-  console.log("스토어에서 넘어온 데이터 확인:", recommendedTools[0]);
+  // console.log("스토어에서 넘어온 데이터 확인:", recommendedTools[0]);
   const categories = [...new Set(recommendedTools.map(tool => tool.category))];
 
   const getCategoryColor = (categoryName) => {
@@ -16,6 +16,20 @@ const ToolSelector = () => {
       '데이터 분석': '#0ea5e9',
     };
     return colors[categoryName] || '#64748b';
+  };
+  // ⭐ 요금제별 동적 스타일 함수
+  const getPricingStyle = (pricing) => {
+    return pricing === '무료 지원' 
+      ? { bg: '#e0f2fe', color: '#0369a1', icon: '✨' } // 파란색 (긍정적)
+      : { bg: '#f1f5f9', color: '#475569', icon: '💳' }; // 회색 (일반적/유료)
+  };
+
+  // ⭐ 난이도별 동적 스타일 함수
+  const getLevelStyle = (level) => {
+    if (level === '초급') return { bg: '#dcfce3', color: '#15803d', icon: '🌱' }; // 초록색 (쉬움)
+    if (level === '중급') return { bg: '#fef3c7', color: '#b45309', icon: '⭐' }; // 노란색 (보통)
+    if (level === '고급') return { bg: '#fee2e2', color: '#b91c1c', icon: '🔥' }; // 빨간색 (어려움)
+    return { bg: '#f3f4f6', color: '#374151', icon: '📌' }; // 기본값
   };
 
   return (
@@ -104,10 +118,23 @@ const ToolSelector = () => {
                           {tool.name}
                         </h4>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', whiteSpace: 'nowrap' }}>
+                          <span style={{ 
+                            backgroundColor: getPricingStyle(displayData.pricing).bg, 
+                            color: getPricingStyle(displayData.pricing).color, 
+                            fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', whiteSpace: 'nowrap',
+                            display: 'flex', alignItems: 'center', gap: '4px'
+                          }}>
+                            <span>{getPricingStyle(displayData.pricing).icon}</span>
                             {displayData.pricing}
                           </span>
-                          <span style={{ backgroundColor: '#dcfce3', color: '#15803d', fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', whiteSpace: 'nowrap' }}>
+                          
+                          <span style={{ 
+                            backgroundColor: getLevelStyle(displayData.level).bg, 
+                            color: getLevelStyle(displayData.level).color, 
+                            fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', whiteSpace: 'nowrap',
+                            display: 'flex', alignItems: 'center', gap: '4px'
+                          }}>
+                            <span>{getLevelStyle(displayData.level).icon}</span>
                             {displayData.level}
                           </span>
                         </div>
@@ -118,24 +145,32 @@ const ToolSelector = () => {
                       ✦ {displayData.specialized}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#10b981', marginBottom: '10px' }}>장점</div>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {displayData.pros.length > 0 ? displayData.pros.map((pro, i) => (
-                            <li key={i} style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'flex-start', gap: '4px', wordBreak: 'keep-all', lineHeight: '1.4' }}>
-                              <span style={{ color: '#10b981', fontWeight: 'bold' }}>+</span> <span>{pro}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {/* 장점 영역 */}
+                      <div style={{ width: '100%' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ backgroundColor: '#dcfce3', padding: '3px 8px', borderRadius: '6px' }}> 장점</span>
+                        </div>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {displayData.pros.length > 0 ? displayData.pros.slice(0, 3).map((pro, i) => (
+                            <li key={i} style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'flex-start', gap: '6px', wordBreak: 'keep-all', lineHeight: '1.5' }}>
+                              <span style={{ color: '#10b981', fontWeight: '900', marginTop: '1px' }}>+</span> 
+                              <span>{pro}</span>
                             </li>
                           )) : <li style={{ fontSize: '0.8rem', color: '#94a3b8' }}>정보 없음</li>}
                         </ul>
                       </div>
                       
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ef4444', marginBottom: '10px' }}>단점</div>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {displayData.cons.length > 0 ? displayData.cons.map((con, i) => (
-                            <li key={i} style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'flex-start', gap: '4px', wordBreak: 'keep-all', lineHeight: '1.4' }}>
-                              <span style={{ color: '#ef4444', fontWeight: 'bold' }}>-</span> <span>{con}</span>
+                      {/* 단점 영역 */}
+                      <div style={{ width: '100%' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ef4444', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ backgroundColor: '#fee2e2', padding: '3px 8px', borderRadius: '6px' }}> 단점</span>
+                        </div>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {displayData.cons.length > 0 ? displayData.cons.slice(0, 3).map((con, i) => (
+                            <li key={i} style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'flex-start', gap: '6px', wordBreak: 'keep-all', lineHeight: '1.5' }}>
+                              <span style={{ color: '#ef4444', fontWeight: '900', marginTop: '1px' }}>-</span> 
+                              <span>{con}</span>
                             </li>
                           )) : <li style={{ fontSize: '0.8rem', color: '#94a3b8' }}>정보 없음</li>}
                         </ul>
