@@ -1,1 +1,3 @@
-export default function CommunityWrite() { return <div>CommunityWrite</div> }
+export default function CommunityWrite() {
+    return <div>CommunityWrite</div>;
+}

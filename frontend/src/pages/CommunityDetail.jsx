@@ -1,1 +1,3 @@
-export default function CommunityDetail() { return <div>CommunityDetail</div> }
+export default function CommunityDetail() {
+    return <div>CommunityDetail</div>;
+}
