@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useWorkflowStore from '../../store/workflowStore';
 
 
@@ -210,6 +211,7 @@ const CategoryVisualizer = ({ category }) => {
 // --- 메인 컴포넌트 ---
 const WorkflowResult = ({ workflowResult }) => {
   const setStep = useWorkflowStore(state => state.setStep);
+  const navigate = useNavigate();
   
   // 아코디언 상태 관리 (1단계 기본 오픈)
   const [expandedSteps, setExpandedSteps] = useState([0]);
@@ -573,8 +575,10 @@ const WorkflowResult = ({ workflowResult }) => {
             ↻ 다시 만들기
           </button>
           
-          <button style={{ padding: '12px 24px', backgroundColor: '#8b5cf6', border: 'none', borderRadius: '24px', color: '#ffffff', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', transition: 'all 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor = '#7c3aed'} onMouseOut={(e) => e.target.style.backgroundColor = '#8b5cf6'}>
-            🚀 레시피로 저장
+          <button 
+            onClick={() => navigate('/community/123')}
+            style={{ padding: '12px 24px', backgroundColor: '#8b5cf6', border: 'none', borderRadius: '24px', color: '#ffffff', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center', transition: 'all 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor = '#7c3aed'} onMouseOut={(e) => e.target.style.backgroundColor = '#8b5cf6'}>
+              🚀 레시피로 저장
           </button>
         </div>
       </div>

@@ -16,7 +16,7 @@ const Workflow = () => {
   };
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '50px', backgroundColor: '#ffffff', borderRadius: '24px', fontFamily: "'Pretendard', -apple-system, sans-serif" }}>
+    <div style={{ maxWidth: '1440px', margin: '40px auto', padding: '50px', backgroundColor: '#ffffff', borderRadius: '24px', fontFamily: "'Pretendard', -apple-system, sans-serif" }}>
       
       {/* 상단 스텝 인디케이터 */}
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '60px' }}>
