@@ -1,9 +1,9 @@
 import React from 'react';
 import useWorkflowStore from '../../store/workflowStore';
+import '../../styles/Workflow.css'; // 💡 Workflow.css 가져오기
 
 const ToolSelector = () => {
   const { recommendedTools, selectedTools, toggleSelectedTool } = useWorkflowStore();
-  // console.log("스토어에서 넘어온 데이터 확인:", recommendedTools[0]);
   const categories = [...new Set(recommendedTools.map(tool => tool.category))];
 
   const getCategoryColor = (categoryName) => {
@@ -17,31 +17,28 @@ const ToolSelector = () => {
     };
     return colors[categoryName] || '#64748b';
   };
-  // ⭐ 요금제별 동적 스타일 함수
+
   const getPricingStyle = (pricing) => {
     return pricing === '무료 지원' 
-      ? { bg: '#e0f2fe', color: '#0369a1', icon: '✨' } // 파란색 (긍정적)
-      : { bg: '#f1f5f9', color: '#475569', icon: '💳' }; // 회색 (일반적/유료)
+      ? { bg: '#e0f2fe', color: '#0369a1', icon: '✨' } 
+      : { bg: '#f1f5f9', color: '#475569', icon: '💳' }; 
   };
 
-  // ⭐ 난이도별 동적 스타일 함수
   const getLevelStyle = (level) => {
-    if (level === '초급') return { bg: '#dcfce3', color: '#15803d', icon: '🌱' }; // 초록색 (쉬움)
-    if (level === '중급') return { bg: '#fef3c7', color: '#b45309', icon: '⭐' }; // 노란색 (보통)
-    if (level === '고급') return { bg: '#fee2e2', color: '#b91c1c', icon: '🔥' }; // 빨간색 (어려움)
-    return { bg: '#f3f4f6', color: '#374151', icon: '📌' }; // 기본값
+    if (level === '초급') return { bg: '#dcfce3', color: '#15803d', icon: '🌱' }; 
+    if (level === '중급') return { bg: '#fef3c7', color: '#b45309', icon: '⭐' }; 
+    if (level === '고급') return { bg: '#fee2e2', color: '#b91c1c', icon: '🔥' }; 
+    return { bg: '#f3f4f6', color: '#374151', icon: '📌' }; 
   };
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', fontFamily: "'Pretendard', -apple-system, sans-serif" }}>
+    <div className="ts-container">
       {categories.map(category => (
-        <div key={category} style={{ marginBottom: '40px' }}>
+        <div key={category} className="ts-category-section">
           
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#1e293b', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #f1f5f9' }}>
-            {category}
-          </h3>
+          <h3 className="ts-category-title">{category}</h3>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+          <div className="ts-grid">
             {recommendedTools
               .filter(tool => tool.category === category)
               .map(tool => {
@@ -65,79 +62,49 @@ const ToolSelector = () => {
                   }
                 };
 
-                // ⭐ 포장지 뜯는 복잡한 로직 다 지우고, 직관적으로 데이터 연결
                 const displayData = {
                   pricing: tool.free_plan ? '무료 지원' : '유료 전용',
                   level: tool.difficulty || '초급',
                   specialized: tool.description || '특화 분야 없음',
                   color: getCategoryColor(tool.category), 
-                  pros: safeParseArray(tool.pros), // 정상적으로 tools 테이블에서 꺼내온 데이터 연결
-                  cons: safeParseArray(tool.cons)  // 정상적으로 tools 테이블에서 꺼내온 데이터 연결
+                  pros: safeParseArray(tool.pros), 
+                  cons: safeParseArray(tool.cons)  
                 };
 
                 return (
                   <div 
                     key={tool.id} 
                     onClick={() => toggleSelectedTool(tool.id)}
-                    style={{ 
-                      display: 'flex',        
-                      flexDirection: 'column',
-                      height: '100%',         
-                      boxSizing: 'border-box',
-                      backgroundColor: isSelected ? '#faf5ff' : '#ffffff',
-                      border: isSelected ? '2px solid #8b5cf6' : '1px solid #e2e8f0', 
-                      borderRadius: '24px',
-                      padding: '24px',
-                      cursor: 'pointer',
-                      position: 'relative',
-                      transition: 'all 0.2s ease',
-                      boxShadow: isSelected ? '0 10px 25px rgba(139, 92, 246, 0.15)' : '0 4px 10px rgba(0,0,0,0.03)'
-                    }}
-                    onMouseOver={(e) => { if(!isSelected) e.currentTarget.style.transform = 'translateY(-4px)'; }}
-                    onMouseOut={(e) => { if(!isSelected) e.currentTarget.style.transform = 'translateY(0)'; }}
+                    className={`ts-card ${isSelected ? 'selected' : ''}`}
                   >
                     
-                    {isSelected && (
-                      <div style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: '#8b5cf6', color: '#ffffff', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1rem', fontWeight: 'bold' }}>✓</div>
-                    )}
+                    {isSelected && <div className="ts-check-icon">✓</div>}
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                      <div style={{ width: '64px', height: '64px', backgroundColor: '#f8fafc', borderRadius: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid #f1f5f9', flexShrink: 0 }}>
+                    <div className="ts-card-header">
+                      <div className="ts-icon-box">
                         {/* ⭐ 정규식 적용된 썸네일 방어 로직 */}
                         <img 
-                          // ⭐ DB에 썸네일이 있으면 쓰고, 없으면 툴의 진짜 url을 이용해 구글 아이콘을 가져옴
                           src={
                             tool.thumbnail || 
                             `https://www.google.com/s2/favicons?domain=${tool.url || tool.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + '.com'}&sz=128`
                           } 
                           alt={tool.name} 
-                          style={{ width: '40px', height: '40px', objectFit: 'contain' }} 
+                          className="ts-tool-img"
                           onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
                         />
-                        <span style={{ display: 'none', fontSize: '2rem' }}>🤖</span>
+                        <span className="ts-fallback-icon">🤖</span>
                       </div>
                       
-                      <div style={{ overflow: 'hidden' }}>
-                        <h4 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0f172a', margin: '0 0 8px 0', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                          {tool.name}
-                        </h4>
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ 
-                            backgroundColor: getPricingStyle(displayData.pricing).bg, 
-                            color: getPricingStyle(displayData.pricing).color, 
-                            fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', whiteSpace: 'nowrap',
-                            display: 'flex', alignItems: 'center', gap: '4px'
-                          }}>
+                      <div className="ts-title-wrap">
+                        <h4 className="ts-tool-title">{tool.name}</h4>
+                        <div className="ts-badges-wrap">
+                          {/* 뱃지 색상은 동적 데이터이므로 style 유지 */}
+                          <span className="ts-badge" style={{ backgroundColor: getPricingStyle(displayData.pricing).bg, color: getPricingStyle(displayData.pricing).color }}>
                             <span>{getPricingStyle(displayData.pricing).icon}</span>
                             {displayData.pricing}
                           </span>
                           
-                          <span style={{ 
-                            backgroundColor: getLevelStyle(displayData.level).bg, 
-                            color: getLevelStyle(displayData.level).color, 
-                            fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', whiteSpace: 'nowrap',
-                            display: 'flex', alignItems: 'center', gap: '4px'
-                          }}>
+                          <span className="ts-badge" style={{ backgroundColor: getLevelStyle(displayData.level).bg, color: getLevelStyle(displayData.level).color }}>
                             <span>{getLevelStyle(displayData.level).icon}</span>
                             {displayData.level}
                           </span>
@@ -145,38 +112,38 @@ const ToolSelector = () => {
                       </div>
                     </div>
 
-                    <div style={{ fontSize: '0.95rem', fontWeight: '800', color: displayData.color, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div className="ts-specialized" style={{ color: displayData.color }}>
                       ✦ {displayData.specialized}
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div className="ts-proscons-wrap">
                       {/* 장점 영역 */}
-                      <div style={{ width: '100%' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ backgroundColor: '#dcfce3', padding: '3px 8px', borderRadius: '6px' }}> 장점</span>
+                      <div className="ts-proscons-block">
+                        <div className="ts-pros-title">
+                          <span className="ts-pros-badge"> 장점</span>
                         </div>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <ul className="ts-list">
                           {displayData.pros.length > 0 ? displayData.pros.slice(0, 3).map((pro, i) => (
-                            <li key={i} style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'flex-start', gap: '6px', wordBreak: 'keep-all', lineHeight: '1.5' }}>
-                              <span style={{ color: '#10b981', fontWeight: '900', marginTop: '1px' }}>+</span> 
+                            <li key={i} className="ts-list-item">
+                              <span className="ts-pros-mark">+</span> 
                               <span>{pro}</span>
                             </li>
-                          )) : <li style={{ fontSize: '0.8rem', color: '#94a3b8' }}>정보 없음</li>}
+                          )) : <li className="ts-empty-info">정보 없음</li>}
                         </ul>
                       </div>
                       
                       {/* 단점 영역 */}
-                      <div style={{ width: '100%' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ef4444', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ backgroundColor: '#fee2e2', padding: '3px 8px', borderRadius: '6px' }}> 단점</span>
+                      <div className="ts-proscons-block">
+                        <div className="ts-cons-title">
+                          <span className="ts-cons-badge"> 단점</span>
                         </div>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <ul className="ts-list">
                           {displayData.cons.length > 0 ? displayData.cons.slice(0, 3).map((con, i) => (
-                            <li key={i} style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'flex-start', gap: '6px', wordBreak: 'keep-all', lineHeight: '1.5' }}>
-                              <span style={{ color: '#ef4444', fontWeight: '900', marginTop: '1px' }}>-</span> 
+                            <li key={i} className="ts-list-item">
+                              <span className="ts-cons-mark">-</span> 
                               <span>{con}</span>
                             </li>
-                          )) : <li style={{ fontSize: '0.8rem', color: '#94a3b8' }}>정보 없음</li>}
+                          )) : <li className="ts-empty-info">정보 없음</li>}
                         </ul>
                       </div>
                     </div>
