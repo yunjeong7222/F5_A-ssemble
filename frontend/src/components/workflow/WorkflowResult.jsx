@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useWorkflowStore from '../../store/workflowStore';
-import '../../styles/Workflow.css'; // 💡 Workflow.css 연결
+import '../../styles/Workflow.css';
 
 // ⭐ 7번 배포/최적화 전용 애니메이션 컴포넌트
 const OptimizationVisualizer = () => {
@@ -114,8 +114,26 @@ const CategoryVisualizer = ({ category }) => {
     );
   }
 
-  // 3. [성우 · TTS]
-  if (category === '성우 · TTS') {
+  // 3. 🎙️ [성우/TTS]
+  if (category === '성우/TTS' || category === '성우 · TTS' || category === '음성 생성') {
+    return (
+      <div className="wr-cat-media">
+        <video src="https://framerusercontent.com/assets/uws0xVIxSrruH3JROQ44TkSKUVE.mp4" autoPlay loop muted playsInline className="wr-cat-video" style={{ maxHeight: '350px' }} />
+      </div>
+    );
+  }
+
+  // 4. ✂️ [영상 편집]
+  if (category === '영상 편집') {
+    return (
+      <div className="wr-cat-media">
+        <video src="https://www.adobe.com/creativecloud/media_141358e1c6f03665f231c26f66738f5fbc3235a22.mp4" autoPlay loop muted playsInline className="wr-cat-video" />
+      </div>
+    );
+  }
+
+  // 5. 🎵 [BGM]
+  if (category === 'BGM' || category === '배경음악 생성' || category === '배경음악') {
     return (
       <div className="wr-cat-voice">
         <div className="wr-cat-voice-icon">
@@ -144,24 +162,6 @@ const CategoryVisualizer = ({ category }) => {
     );
   }
 
-  // 4. ✂️ [영상 편집]
-  if (category === '영상 편집') {
-    return (
-      <div className="wr-cat-media">
-        <video src="https://www.adobe.com/creativecloud/media_141358e1c6f03665f231c26f66738f5fbc3235a22.mp4" autoPlay loop muted playsInline className="wr-cat-video" />
-      </div>
-    );
-  }
-
-  // 5. [자막 · 번역]
-  if (category === '자막 · 번역') {
-    return (
-      <div className="wr-cat-media">
-        <video src="https://framerusercontent.com/assets/uws0xVIxSrruH3JROQ44TkSKUVE.mp4" autoPlay loop muted playsInline className="wr-cat-video" style={{ maxHeight: '350px' }} />
-      </div>
-    );
-  }
-
   // 6. ⭐ [썸네일 · 디자인]
   if (category === '썸네일 · 디자인') {
     return (
@@ -186,6 +186,15 @@ const WorkflowResult = ({ workflowResult }) => {
   
   const [expandedSteps, setExpandedSteps] = useState([0]);
 
+  // 방어 코드: workflowResult 데이터가 없거나 올바르지 않을 때 로딩/빈 화면 처리
+  if (!workflowResult || !workflowResult.steps) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontSize: '1.1rem', fontWeight: '600' }}>
+        워크플로우 데이터를 불러오는 중입니다...
+      </div>
+    );
+  }
+
   const toggleStep = (index) => {
     if (expandedSteps.includes(index)) {
       setExpandedSteps(expandedSteps.filter(i => i !== index));
@@ -194,21 +203,7 @@ const WorkflowResult = ({ workflowResult }) => {
     }
   };
 
-  const mockWorkflowResult = {
-    title: '유튜브 숏폼 자동화 마스터 플랜',
-    combination: '기획부터 배포까지',
-    steps: [
-      { step: 1, tool: 'ChatGPT', category: '기획 · 아이디어', estimated_time: '10분', prompt_example: '최신 트렌드를 반영한 숏폼 대본 3가지를 제안해 줘.', tip: '후킹한 오프닝을 강조하세요.', precautions: '거짓 정보 주의' },
-      { step: 2, tool: 'Sora', category: '영상 소스 생성', estimated_time: '5분', prompt_example: '미래 도시를 날아다니는 드론 시점 영상 (4K, Cinematic)', tip: '카메라 무빙을 구체적으로 적으세요.', precautions: '토큰 소모량 확인' },
-      { step: 3, tool: 'ElevenLabs', category: '성우 · TTS', estimated_time: '3분', prompt_example: '대본 텍스트 입력...', tip: '감정 태그를 적절히 섞어보세요.', precautions: '한국어 억양 어색함 주의' },
-      { step: 4, tool: 'CapCut', category: '영상 편집', estimated_time: '15분', prompt_example: '자동 캡션 기능 및 트랜지션 효과 적용', tip: '모바일 연동으로 빠른 편집 가능', precautions: '무료 버전 워터마크 주의' },
-      { step: 5, tool: 'Whisper', category: '자막 · 번역', estimated_time: '2분', prompt_example: '오디오 파일 업로드 후 SRT 변환', tip: '다국어 변환 시 정확도가 높습니다.', precautions: '고유명사 오탈자 검수 필수' },
-      { step: 6, tool: 'Midjourney', category: '썸네일 · 디자인', estimated_time: '5분', prompt_example: '사이버펑크 스타일 유튜브 썸네일 --ar 16:9 --v 6.0', tip: '색감을 쨍하게 설정하세요.', precautions: '프롬프트 순서에 따른 가중치' },
-      { step: 7, tool: 'TubeBuddy', category: '배포 · 최적화', estimated_time: '5분', prompt_example: '제목 및 태그 최적화 키워드 분석', tip: '경쟁도는 낮고 검색량은 높은 키워드 타겟', precautions: '알고리즘 변화 상시 체크' }
-    ]
-  };
-
-  const displayData = workflowResult || mockWorkflowResult;
+  const displayData = workflowResult;
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
@@ -220,9 +215,9 @@ const WorkflowResult = ({ workflowResult }) => {
     'Claude': { domain: 'anthropic.com', category: '기획 · 아이디어', desc: '뛰어난 문장력으로 대본 및 아이디어를 기획합니다.' },
     'Gemini': { domain: 'gemini.google.com', category: '기획 · 아이디어', desc: '강력한 AI 모델로 아이디어를 기획하고 분석합니다.' },
     'Sora': { domain: 'openai.com/sora', category: '영상 소스 생성', desc: '텍스트 프롬프트를 고품질 영상으로 변환합니다.' },
-    'ElevenLabs': { domain: 'elevenlabs.io', category: '성우 · TTS', desc: '실제 사람과 똑같은 감정선의 목소리를 만듭니다.' },
+    'ElevenLabs': { domain: 'elevenlabs.io', category: '성우/TTS', desc: '실제 사람과 똑같은 감정선의 목소리를 만듭니다.' },
     'CapCut': { domain: 'capcut.com', category: '영상 편집', desc: '다양한 템플릿과 트랜지션으로 숏폼 영상을 완성합니다.' },
-    'Whisper': { domain: 'openai.com/research/whisper', category: '자막 · 번역', desc: '강력한 음성 인식 기술로 오디오를 텍스트로 변환합니다.' },
+    'Whisper': { domain: 'openai.com/research/whisper', category: 'BGM', desc: '강력한 음성 인식 기술로 오디오를 텍스트로 변환합니다.' },
     'Midjourney': { domain: 'midjourney.com', category: '썸네일 · 디자인', desc: '압도적인 퀄리티의 배경 및 일러스트 이미지를 생성합니다.' },
     'TubeBuddy': { domain: 'tubebuddy.com', category: '배포 · 최적화', desc: '유튜브 SEO 최적화 및 키워드 분석 확장 프로그램.' }
   };
@@ -244,17 +239,14 @@ const WorkflowResult = ({ workflowResult }) => {
     switch (category) {
       case '기획 · 아이디어': return '주제, 핵심 키워드 및 대본 초안';
       case '영상 소스 생성': return '프롬프트에 맞춰 생성된 고해상도 영상 소스';
-      case '성우 · TTS': return '대본이 적용된 자연스러운 AI 목소리 파일';
+      case '성우/TTS': return '대본이 적용된 자연스러운 AI 목소리 파일';
       case '영상 편집': return '컷 편집과 트랜지션이 적용된 숏폼 영상';
-      case '자막 · 번역': return '정확한 타이밍에 맞춰진 자막 파일 (SRT 등)';
+      case 'BGM': return '영상 분위기에 어울리는 배경음악 파일';
       case '썸네일 · 디자인': return '시선을 끄는 맞춤형 썸네일 이미지';
       case '배포 · 최적화': return 'SEO가 적용된 클릭 유도형 제목과 태그';
       default: return '해당 단계의 작업 결과물';
     }
   };
-
-  const workflowTips = displayData.steps.filter(s => s.tip).map(s => s.tip);
-  const workflowPrecautions = displayData.steps.filter(s => s.precautions).map(s => s.precautions);
 
   return (
     <div className="wr-main-container">
@@ -272,11 +264,14 @@ const WorkflowResult = ({ workflowResult }) => {
 
         {/* 오른쪽 둥둥 떠다니는 카드 */}
         <div className="wr-float-wrap">
-          <div className="wr-float-rating">
-            <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ color: '#f59e0b' }}>★</span> 4.9 / 5.0
+          <div className="wr-float-time" style={{ top: '-20px', right: '-20px', bottom: 'auto', left: 'auto' }}>
+            <div style={{ color: '#eab308', fontSize: '1.2rem' }}>⚡</div>
+            <div>
+              <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a' }}>
+                총 {displayData.steps.reduce((acc, cur) => acc + (parseInt(cur.estimated_time) || 0), 0)}분 완성
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '500' }}>단계별 시간 포함</div>
             </div>
-            <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '600' }}>추천 레시피</div>
           </div>
 
           <div className="wr-float-card">
@@ -301,16 +296,6 @@ const WorkflowResult = ({ workflowResult }) => {
                   + {displayData.steps.length - 3}개의 단계 더보기
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="wr-float-time">
-            <div style={{ color: '#eab308', fontSize: '1.2rem' }}>⚡</div>
-            <div>
-              <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a' }}>
-                총 {displayData.steps.reduce((acc, cur) => acc + (parseInt(cur.estimated_time) || 0), 0)}분 완성
-              </div>
-              <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '500' }}>단계별 시간 포함</div>
             </div>
           </div>
         </div>
@@ -370,7 +355,7 @@ const WorkflowResult = ({ workflowResult }) => {
                     onClick={(e) => e.stopPropagation()} 
                     className="wr-step-link"
                   >
-                    <img src={`https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`} alt={`${step.tool} logo`} style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+                    <img src={`https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`} alt={`${step.tool} logo`} style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'contain' }} />
                   </a>
                   
                   <div>
@@ -433,6 +418,30 @@ const WorkflowResult = ({ workflowResult }) => {
                     </div>
                   </div>
 
+                  <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {step.tip && (
+                      <div style={{ border: '1px solid #fef08a', backgroundColor: '#fefce8', padding: '16px', borderRadius: '12px' }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#854d0e', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '1.1rem' }}>💡</span> 활용 팁
+                        </h4>
+                        <div style={{ color: '#854d0e', fontSize: '0.9rem', fontWeight: '500', lineHeight: '1.5' }}>
+                          {step.tip}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {step.precautions && (
+                      <div style={{ border: '1px solid #fecdd3', backgroundColor: '#fff1f2', padding: '16px', borderRadius: '12px' }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#9f1239', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '1.1rem' }}>⚠️</span> 주의사항
+                        </h4>
+                        <div style={{ color: '#9f1239', fontSize: '0.9rem', fontWeight: '500', lineHeight: '1.5' }}>
+                          {step.precautions}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               )}
             </div>
@@ -440,38 +449,7 @@ const WorkflowResult = ({ workflowResult }) => {
         })}
       </div>
 
-      {/* 4. 팁과 주의사항 모음 */}
-      <div className="wr-tips-wrap">
-        <div className="wr-tip-card">
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', marginTop: 0 }}>
-             <span style={{ fontSize: '1.4rem' }}>💡</span> 활용 팁
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {workflowTips.map((tip, idx) => (
-              <div key={idx} style={{ border: '1px solid #fef08a', backgroundColor: '#fefce8', padding: '16px', borderRadius: '12px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-                 <div style={{ width: '28px', height: '28px', backgroundColor: '#facc15', color: '#ffffff', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.9rem', fontWeight: '800', flexShrink: 0 }}>{idx + 1}</div>
-                 <div style={{ color: '#854d0e', fontSize: '0.95rem', fontWeight: '500', lineHeight: '1.5' }}>{tip}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="wr-tip-card">
-           <h3 style={{ fontSize: '1.2rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', marginTop: 0 }}>
-             <span style={{ fontSize: '1.4rem' }}>⚠️</span> 주의사항
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {workflowPrecautions.map((precaution, idx) => (
-              <div key={idx} style={{ border: '1px solid #fecdd3', backgroundColor: '#fff1f2', padding: '16px', borderRadius: '12px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-                 <div style={{ color: '#e11d48', fontWeight: '800', flexShrink: 0, fontSize: '1.1rem', width: '28px', textAlign: 'center' }}>!</div>
-                 <div style={{ color: '#9f1239', fontSize: '0.95rem', fontWeight: '500', lineHeight: '1.5' }}>{precaution}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 5. 하단 재생성/저장 버튼 */}
+      {/* 4. 하단 재생성/저장 버튼 */}
       <div className="wr-footer">
         <div>
           <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem', color: '#0f172a' }}>이 워크플로우가 마음에 드셨나요?</h4>
@@ -487,6 +465,7 @@ const WorkflowResult = ({ workflowResult }) => {
             ↻ 다시 만들기
           </button>
           
+          {/* 커뮤니티 저장 기능 */}
           <button onClick={() => navigate('/community/123')} className="wr-btn-primary">
             🚀 레시피로 저장
           </button>

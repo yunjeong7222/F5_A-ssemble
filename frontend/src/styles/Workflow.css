@@ -1,14 +1,7 @@
 /* src/styles/Workflow.css */
 
 /* 전체 컨테이너 */
-.workflow-container {
-  max-width: 1440px;
-  margin: 40px auto;
-  padding: 50px;
-  background-color: #ffffff;
-  border-radius: 24px;
-  font-family: 'Pretendard', -apple-system, sans-serif;
-}
+.workflow-container {width: 100%; max-width: 1200px; margin: 40px auto; padding: 50px; box-sizing: border-box; background-color: #ffffff; border-radius: 24px; font-family: 'Pretendard', -apple-system, sans-serif;}
 
 /* 상단 스텝 인디케이터 */
 .wf-step-indicator { display: flex; justify-content: center; align-items: center; margin-bottom: 60px; }
@@ -26,7 +19,7 @@
 .wf-step1-desc { color: #64748b; font-size: 1.1rem; margin-bottom: 50px; font-weight: 500; }
 
 /* 입력창(Input) 영역 */
-.wf-input-wrap { width: 100%; max-width: 750px; margin-bottom: 24px; }
+.wf-input-wrap { width: 100%; max-width: 100%; margin-bottom: 24px; }
 .wf-input-group { display: flex; gap: 12px; height: 60px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border-radius: 16px; }
 .wf-input-field { flex: 1; padding: 0 24px; border-radius: 16px; border: 1px solid #cbd5e1; font-size: 1.05rem; outline: none; background-color: #ffffff; color: #0f172a; font-weight: 500; transition: border-color 0.2s; }
 .wf-input-field:focus { border-color: #8b5cf6; }
@@ -40,16 +33,15 @@
 .wf-suggest-btn { padding: 8px 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 30px; color: #475569; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
 .wf-suggest-btn:hover { background-color: #f1f5f9; border-color: #cbd5e1; }
 
-/* 카테고리 그리드 및 카드 영역 */
-.wf-category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 900px; }
-.wf-category-card { border: 1px solid #e2e8f0; background-color: #ffffff; border-radius: 24px; padding: 36px 20px; text-align: center; position: relative; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-.wf-category-card:not(.selected):hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
-.wf-category-card.selected { border: 2px solid #8b5cf6; background-color: #f5f3ff; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15); }
-.wf-category-check { position: absolute; top: 16px; right: 16px; background-color: #8b5cf6; color: #ffffff; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; font-size: 0.9rem; font-weight: bold; }
-.wf-category-icon { font-size: 3rem; margin-bottom: 20px; transition: filter 0.2s; }
-.wf-category-card.selected .wf-category-icon { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
-.wf-category-title { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin: 0 0 10px 0; }
-.wf-category-desc { margin: 0; font-size: 0.95rem; color: #64748b; word-break: keep-all; font-weight: 500; }
+/* --- AI 툴 추천 로딩 애니메이션 --- */
+.wf-loading-wrap {display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 0; text-align: center;}
+
+.wf-spinner {width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top: 4px solid #8b5cf6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px;}
+
+@keyframes spin {0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}
+
+.wf-loading-text { font-size: 1.25rem; font-weight: 700; color: #0f172a; line-height: 1.6; margin: 0; }
+.wf-loading-sub { font-size: 0.95rem; font-weight: 500; color: #64748b; display: inline-block; margin-top: 12px; }
 
 /* STEP 2: 버튼 둥 */
 .wf-step2-title { font-size: 1.5rem; color: #0f172a; margin-bottom: 20px; font-weight: 800; }
@@ -64,7 +56,7 @@
 /* =========================================
    ToolSelector.jsx (툴 선택 카드 영역)
    ========================================= */
-.ts-container { max-width: 1000px; margin: 0 auto; font-family: 'Pretendard', -apple-system, sans-serif; }
+.ts-container {width: 100%; max-width: 1200px; margin: 0 auto; font-family: 'Pretendard', -apple-system, sans-serif; }
 .ts-category-section { margin-bottom: 40px; }
 .ts-category-title { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
 .ts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -79,7 +71,7 @@
 /* 툴 헤더 (아이콘 + 제목 + 뱃지) */
 .ts-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
 .ts-icon-box { width: 64px; height: 64px; background-color: #f8fafc; border-radius: 16px; display: flex; justify-content: center; align-items: center; border: 1px solid #f1f5f9; flex-shrink: 0; }
-.ts-tool-img { width: 40px; height: 40px; object-fit: contain; }
+.ts-tool-img { width: 60px; height: 60px; object-fit: contain; }
 .ts-fallback-icon { display: none; font-size: 2rem; }
 
 .ts-title-wrap { overflow: hidden; }
@@ -104,6 +96,37 @@
 .ts-pros-mark { color: #10b981; font-weight: 900; margin-top: 1px; }
 .ts-cons-mark { color: #ef4444; font-weight: 900; margin-top: 1px; }
 .ts-empty-info { font-size: 0.8rem; color: #94a3b8; }
+
+/* --- ToolSelector 워크플로우 플로우(상단 진행바) --- */
+.ts-flow-container {display: flex; align-items: center; justify-content: flex-start; gap: 16px; margin-bottom: 40px; padding: 24px 30px; background-color: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; overflow-x: auto;}
+
+/* 각 단계별 박스 */
+.ts-flow-step {display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 120px; padding: 16px 20px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease-in-out;}
+
+/* 툴을 하나라도 선택했을 때의 강조 스타일 */
+.ts-flow-step.selected {border-color: #8b5cf6; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);}
+
+.ts-flow-category {font-size: 0.85rem; font-weight: 700;}
+
+.ts-flow-tool {font-size: 1rem; font-weight: 800; color: #0f172a; text-align: center; word-break: keep-all;}
+
+/* 미선택 시 텍스트 스타일 */
+.ts-flow-empty {color: #94a3b8; font-weight: 500;}
+
+/* 화살표 아이콘 */
+.ts-flow-arrow {display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+
+/* --- ToolSelector 워크플로우 플로우 업데이트 --- */
+.ts-flow-step {cursor: pointer;}
+
+/* 현재 화면에 띄워진(활성화된) 단계 강조 */
+.ts-flow-step.active-view {border: 2px solid #0f172a; background-color: #ffffff; transform: scale(1.02);}
+.ts-flow-step:hover {background-color: #f1f5f9;}
+
+/* 화면이 교체될 때 부드럽게 나타나는 애니메이션 */
+.ts-fade-in {animation: fadeInStep 0.4s ease-out;}
+
+@keyframes fadeInStep {from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); }}
 
 /* =========================================
    WorkflowResult.jsx (결과 확인 페이지)
@@ -159,7 +182,8 @@
 .wr-cat-voice-icon { width: 100px; height: 100px; border-radius: 16px; background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%); display: flex; justify-content: center; align-items: center; flex-shrink: 0; animation: albumPulse 3s ease-in-out infinite; position: relative; border: 1px solid rgba(255,255,255,0.1); }
 
 /* 메인 컨테이너 및 배너 */
-.wr-main-container { max-width: 1000px; margin: 40px auto; padding: 50px; background: #ffffff; border-radius: 24px; font-family: 'Pretendard', -apple-system, sans-serif; }
+.wr-main-container { 
+  width: 100%; max-width: 1200px; margin: 40px auto; padding: 50px; box-sizing: border-box; background: #ffffff; border-radius: 24px; font-family: 'Pretendard', -apple-system, sans-serif;}
 .wr-banner { position: relative; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); border-radius: 24px; padding: 60px 50px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; overflow: hidden; }
 .wr-banner-deco { position: absolute; bottom: -50px; left: 30%; width: 250px; height: 250px; background-color: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(10px); }
 .wr-banner-text { color: #ffffff; z-index: 1; flex: 1; }
@@ -169,17 +193,23 @@
 
 /* 둥둥 떠다니는 카드 */
 .wr-float-wrap { position: relative; z-index: 1; width: 340px; animation: floatCard 4s ease-in-out infinite; }
-.wr-float-rating { position: absolute; top: -15px; right: -15px; background-color: #ffffff; padding: 10px 16px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; z-index: 2; }
 .wr-float-card { background-color: #ffffff; border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 .wr-float-time { position: absolute; bottom: -20px; left: -20px; background-color: #ffffff; padding: 12px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; z-index: 2; }
 
 /* 워크플로우 FLOW 영역 */
 .wr-flow-box { border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; background-color: #fafaf9; margin-bottom: 50px; }
 .wr-flow-title { font-size: 0.9rem; font-weight: 800; color: #8b5cf6; margin: 0 0 24px 0; letter-spacing: 0.05em; }
-.wr-flow-list { display: flex; align-items: center; overflow-x: auto; padding-bottom: 16px; gap: 16px; }
-.wr-flow-item { min-width: 120px; flex-shrink: 0; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-.wr-flow-final { min-width: 120px; flex-shrink: 0; background-color: #dcfce3; border: 1px solid #bbf7d0; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
 
+/* 스크롤바 제거 및 내부 아이템 크기 자동 맞춤 */
+/* 갯수가 적을 땐 예쁜 크기 유지, 많아질 때만 자동으로 줄어듦 */
+.wr-flow-list { display: flex; align-items: stretch; justify-content: flex-start; gap: 12px; width: 100%;}
+
+.wr-flow-item {flex: 0 1 130px; min-width: 0; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+
+.wr-flow-final {flex: 0 1 130px; min-width: 0; background-color: #dcfce3; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;}
+
+/* 좁아졌을 때 텍스트가 밖으로 튀어나가지 않도록 처리 */
+.wr-flow-item > div, .wr-flow-final > div {width: 100%; word-break: keep-all; overflow-wrap: break-word; text-align: center;}
 /* 아코디언 영역 */
 .wr-step-item { border-radius: 16px; background-color: #ffffff; overflow: hidden; transition: all 0.2s ease; }
 .wr-step-header { padding: 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -193,10 +223,6 @@
 .wr-copy-btn { background-color: #8b5cf6; color: #ffffff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: 0.9rem; font-weight: 600; flex-shrink: 0; display: flex; gap: 6px; align-items: center; transition: background-color 0.2s; }
 .wr-copy-btn:hover { background-color: #7c3aed; }
 .wr-result-box { margin-top: 16px; background-color: #dcfce3; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
-
-/* 팁 & 주의사항 */
-.wr-tips-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; }
-.wr-tip-card { flex: 1 1 45%; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; background-color: #ffffff; }
 
 /* 하단 버튼 */
 .wr-footer { border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; background-color: #f8fafc; }
