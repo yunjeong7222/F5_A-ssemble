@@ -99,7 +99,7 @@ const ToolModal = ({tool, onClose}) => {
 
                 {/* 푸터 */}
                 <div className="modal-footer">
-                    <a className="btn-primary" href={tool.url} target="_blank" rel="noreferrer">
+                    <a className="modal-btn-primary" href={tool.url} target="_blank" rel="noreferrer">
                         공식 사이트 바로가기 →
                     </a>
                     <button className="btn-outline" onClick={onClose}>

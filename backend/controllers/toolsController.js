@@ -12,7 +12,9 @@ const getTools = async (req, res) => {
         JSON_OBJECT(
           'category_id', c.id,
           'category_name', c.name,
-          'description', tc.description
+          'description', tc.description,
+          'pros', tc.pros,
+          'cons', tc.cons
         )
       ) AS categories
     FROM tools t
