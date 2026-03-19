@@ -43,22 +43,32 @@
 
 /* 초기화 */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* (추가됨) 리액트 프로젝트 시 자주 쓰이는 기본 태그 초기화 */
+a {
+  text-decoration: none; /* 링크 밑줄 제거 */
+  color: inherit; /* 링크 색상을 부모 요소와 통일 */
+}
+
+ul, ol, li {
+  list-style: none; /* 리스트 점/숫자 제거 */
+}
+
+button, input, textarea {
+  font-family: inherit; /* 버튼이나 입력창에도 프리텐다드 폰트가 상속되도록 설정 */
 }
 
 body {
-    background-color: var(--bg);
-    color: var(--text-primary);
-    font-family: 'Pretendard', sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-}
-body.snap-scroll {
-    scroll-snap-type: y mandatory;
-    overflow-y: scroll;
-    height: 100%;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  /* 프리텐다드 적용 및 운영체제별 폰트 깨짐 방지를 위한 폴백(Fallback) 설정 */
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* 공통 레이아웃 */

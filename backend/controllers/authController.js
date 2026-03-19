@@ -12,10 +12,10 @@ const redis = new Redis({
 });
 
 // 회원가입
-// POST /api/auth/register
+// post  /api/auth/register
 const register = async (req, res) => {
   const { email, password, nickname } = req.body;
-
+  // 필수값 검증
   if (!email || !password || !nickname) {
     return res.status(400).json({
       success: false,
@@ -57,11 +57,13 @@ const register = async (req, res) => {
   }
 };
 
+
 // 로그인
 // POST /api/auth/login
 const login = async (req, res) => {
   const { email, password } = req.body;
 
+  // 필수값 검증
   if (!email || !password) {
     return res.status(400).json({
       success: false,
@@ -257,4 +259,4 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, refresh, logout};
+module.exports = { register, login, getMe, refresh, logout}

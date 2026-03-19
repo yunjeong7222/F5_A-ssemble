@@ -1,7 +1,7 @@
 import useWorkflowStore from '../store/workflowStore';
 import { suggestTools, createWorkflow } from '../api/claude';
 import { saveWorkflow } from '../api/workflows';
-import { getTools } from '../api/tools';
+import { fetchTools } from '../api/tools';
 
 export const useWorkflow = () => {
   const { setStep, setRecommendedTools, setWorkflowResult, setIsLoading, recommendedTools } = useWorkflowStore();
@@ -13,7 +13,9 @@ export const useWorkflow = () => {
     const { recommended_categories, tools_by_category } = suggestData;
 
     // 전체 툴 목록 가져오기
-    const allTools = await getTools();
+    const allTools = await fetchTools();
+
+    // console.log("🔎 백엔드 원본 데이터:", allTools.find(t => t.name === 'CapCut AI'));
 
     // tools_by_category 이름 기준으로 매칭
     const filtered = [];
@@ -31,8 +33,12 @@ export const useWorkflow = () => {
               category: cat.category_name,
               description: cat.description,
               rating: tool.rating,
-              pros: cat.pros,    
-              cons: cat.cons, 
+              pros: cat.pros || tool.pros,
+              cons: cat.cons || tool.cons,
+              thumbnail: tool.thumbnail,
+              url: tool.url,
+              free_plan: tool.free_plan,
+              difficulty: tool.difficulty
             });
           }
         });

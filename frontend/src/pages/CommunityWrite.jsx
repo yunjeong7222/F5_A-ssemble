@@ -234,9 +234,9 @@ const CommunityWrite = () => {
                         <span className="write-prompt-cat">{step.category}</span>
                       </div>
                       <div className="write-prompt-desc">{step.description}</div>
-                      <textarea
-                        value={editablePrompts[step.step] || ''}
-                        onChange={(e) => handlePromptChange(step.step, e.target.value)}
+                      <textarea 
+                        value={editablePrompts[step.step] || ''} 
+                        onChange={(e) => handlePromptChange(step.step, e.target.value)} 
                         className="write-textarea-prompt"
                       />
                     </div>
@@ -249,7 +249,7 @@ const CommunityWrite = () => {
 
         <section className="write-section">
           <label className="write-label">워크플로우 설명</label>
-          <textarea
+          <textarea 
             value={postContent}
             onChange={(e) => setPostContent(e.target.value)}
             placeholder="이 워크플로우를 어떤 상황에서 쓰면 좋은지, 혹은 나만의 활용 꿀팁을 자유롭게 적어주세요!"

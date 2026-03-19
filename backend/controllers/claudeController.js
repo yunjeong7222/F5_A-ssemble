@@ -99,6 +99,7 @@ ${toolList}
     const parsed = JSON.parse(jsonMatch[0]);
 
     return res.status(200).json({ success: true, data: parsed });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: "Claude API 오류" });
@@ -138,56 +139,55 @@ const generateWorkflow = async (req, res) => {
   }
 ///////////////////////////////////////////////
 
-
   const systemPrompt = `
-너는 영상 크리에이터를 위한 AI 툴 워크플로우 전문가야.
-사용자가 선택한 AI 툴 조합으로 단계별 워크플로우를 만들어줘.
-AI를 처음 쓰는 초보자도 바로 따라할 수 있게 쉽고 구체적으로 작성해.
-다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
+    너는 영상 크리에이터를 위한 AI 툴 워크플로우 전문가야.
+    사용자가 선택한 AI 툴 조합으로 단계별 워크플로우를 만들어줘.
+    AI를 처음 쓰는 초보자도 바로 따라할 수 있게 쉽고 구체적으로 작성해.
+    다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
 
-응답 형식:
-{
-  "title": "숏폼 영상 제작 워크플로우",
-  "total_time": "약 40분",
-  "workflows_category": "영상제작",
-  "steps": [
+    응답 형식:
     {
-      "step_order": 1,
-      "category": "기획 및 스크립트",
-      "tool_name": "ChatGPT",
-      "task": "숏폼 스크립트 작성",
-      "prompt_example": "30초 숏폼용 스크립트를 작성해줘. 주제는 [주제], 톤은 친근하게.",
-      "duration": "10분",
-      "tip": "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
-      "caution": "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
+      "title": "숏폼 영상 제작 워크플로우",
+      "total_time": "약 40분",
+      "workflows_category": "영상제작",
+      "steps": [
+        {
+          "step_order": 1,
+          "category": "기획 및 스크립트",
+          "tool_name": "ChatGPT",
+          "task": "숏폼 스크립트 작성",
+          "prompt_example": "30초 숏폼용 스크립트를 작성해줘. 주제는 [주제], 톤은 친근하게.",
+          "duration": "10분",
+          "tip": "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
+          "caution": "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
+        }
+      ]
     }
-  ]
-}
 
-workflows_category 규칙:
-- 반드시 아래 5개 중 하나만 선택해. 다른 값은 절대 사용하지 마.
-  "스크립트" → 스크립트 작성, 기획, 아이디어 발굴, 카피라이팅 중심 워크플로우
-  "영상제작" → 영상 편집, 자막, 컷편집, 영상 생성 중심 워크플로우
-  "썸네일"  → 이미지 생성, 썸네일 디자인, 그래픽 중심 워크플로우
-  "보이스"  → 보이스오버, TTS, 음성 합성, 배경음악 중심 워크플로우
-  "배포"    → SNS 업로드, 스케줄링, 분석, 마케팅 중심 워크플로우
-- 워크플로우 전체 흐름에서 가장 비중이 큰 목적을 기준으로 1개만 선택해.
+    workflows_category 규칙:
+    - 반드시 아래 5개 중 하나만 선택해. 다른 값은 절대 사용하지 마.
+      "스크립트" → 스크립트 작성, 기획, 아이디어 발굴, 카피라이팅 중심 워크플로우
+      "영상제작" → 영상 편집, 자막, 컷편집, 영상 생성 중심 워크플로우
+      "썸네일"  → 이미지 생성, 썸네일 디자인, 그래픽 중심 워크플로우
+      "보이스"  → 보이스오버, TTS, 음성 합성, 배경음악 중심 워크플로우
+      "배포"    → SNS 업로드, 스케줄링, 분석, 마케팅 중심 워크플로우
+    - 워크플로우 전체 흐름에서 가장 비중이 큰 목적을 기준으로 1개만 선택해.
 
-주의사항:
-- [필수] 전달받은 '선택한 툴 조합'의 개수와 steps 배열의 길이는 반드시 일치해야 해. (툴이 3개면 스텝도 무조건 3개)
-- [필수] 하나의 툴 당 하나의 스텝(step)만 할당해. 절대 같은 툴을 여러 스텝으로 쪼개서 중복 등장시키지 마.
-- [필수] 만약 하나의 툴로 여러 작업(예: 트렌드 조사 + 타겟 분석 + 캡션 작성)을 수행해야 한다면, 스텝을 나누지 말고 하나의 스텝 안에서 'prompt_example'에 여러 요청사항을 통합해서 작성해.
-- step_order는 사용자가 툴을 선택한 순서대로 진행해.
-- prompt_example은 실제로 복붙해서 쓸 수 있게 구체적으로 작성해.
-- duration은 초보자 기준으로 작성해.
-- tip과 caution은 초보자가 자주 하는 실수 기반으로 작성해.
-`;
+    주의사항:
+    - [필수] 전달받은 '선택한 툴 조합'의 개수와 steps 배열의 길이는 반드시 일치해야 해. (툴이 3개면 스텝도 무조건 3개)
+    - [필수] 하나의 툴 당 하나의 스텝(step)만 할당해. 절대 같은 툴을 여러 스텝으로 쪼개서 중복 등장시키지 마.
+    - [필수] 만약 하나의 툴로 여러 작업(예: 트렌드 조사 + 타겟 분석 + 캡션 작성)을 수행해야 한다면, 스텝을 나누지 말고 하나의 스텝 안에서 'prompt_example'에 여러 요청사항을 통합해서 작성해.
+    - step_order는 사용자가 툴을 선택한 순서대로 진행해.
+    - prompt_example은 실제로 복붙해서 쓸 수 있게 구체적으로 작성해.
+    - duration은 초보자 기준으로 작성해.
+    - tip과 caution은 초보자가 자주 하는 실수 기반으로 작성해.
+    `;
 
   const userPrompt = `
-사용자 목적: "${user_input}"
-선택한 툴 조합:
-${selected_tools.map((t) => `- ${t.category}: ${t.name}`).join("\n")}
-`;
+    사용자 목적: "${user_input}"
+    선택한 툴 조합:
+    ${selected_tools.map((t) => `- ${t.category}: ${t.name}`).join("\n")}
+    `;
 
   try {
     const message = await client.messages.create({
@@ -198,42 +198,42 @@ ${selected_tools.map((t) => `- ${t.category}: ${t.name}`).join("\n")}
     });
 
     // 기존 파싱 코드 삭제하고 아래 코드로 교체해!
-const raw = message.content[0].text;
-const jsonMatch = raw.match(/\{[\s\S]*\}/); // 중괄호 영역 추출
+  const raw = message.content[0].text;
+  const jsonMatch = raw.match(/\{[\s\S]*\}/); // 중괄호 영역 추출
 
-if (!jsonMatch) {
-  return res.status(500).json({ success: false, message: "Claude가 JSON 포맷을 반환하지 않았습니다." });
-}
-
-const jsonString = jsonMatch[0];
-
-try {
-  // 여기서 에러가 나면 catch 블록으로 빠짐
-  const parsed = JSON.parse(jsonString);
-  
-  // 성공 시 workflows_category 유효성 검증 (기존 코드 유지)
-  const validCategories = ["스크립트", "영상제작", "썸네일", "보이스", "배포"];
-  if (!validCategories.includes(parsed.workflows_category)) {
-    parsed.workflows_category = "스크립트"; 
+  if (!jsonMatch) {
+    return res.status(500).json({ success: false, message: "Claude가 JSON 포맷을 반환하지 않았습니다." });
   }
 
-  return res.status(200).json({ success: true, data: parsed });
+  const jsonString = jsonMatch[0];
 
-} catch (parseError) {
-  // 🚨 파싱 에러 발생 시 서버를 죽이지 않고 원인 출력
-  console.error("=== 🚨 JSON 파싱 에러 발생 ===");
-  console.error("원인:", parseError.message);
-  console.error("Claude가 내려준 텍스트 (이 안의 문법이 틀렸음):");
-  console.error(jsonString);
-  console.error("=================================");
-  
-  return res.status(500).json({ success: false, message: "AI 응답 파싱 오류. 다시 시도해주세요." });
-}
+  try {
+    // 여기서 에러가 나면 catch 블록으로 빠짐
+    const parsed = JSON.parse(jsonString);
+    
+    // 성공 시 workflows_category 유효성 검증 (기존 코드 유지)
+    const validCategories = ["스크립트", "영상제작", "썸네일", "보이스", "배포"];
+    if (!validCategories.includes(parsed.workflows_category)) {
+      parsed.workflows_category = "스크립트"; 
+    }
 
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false, message: "Claude API 오류" });
+    return res.status(200).json({ success: true, data: parsed });
+
+  } catch (parseError) {
+    // 🚨 파싱 에러 발생 시 서버를 죽이지 않고 원인 출력
+    console.error("=== 🚨 JSON 파싱 에러 발생 ===");
+    console.error("원인:", parseError.message);
+    console.error("Claude가 내려준 텍스트 (이 안의 문법이 틀렸음):");
+    console.error(jsonString);
+    console.error("=================================");
+    
+    return res.status(500).json({ success: false, message: "AI 응답 파싱 오류. 다시 시도해주세요." });
   }
-};
+
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: "Claude API 오류" });
+    }
+  };
 
 module.exports = { suggest, generateWorkflow };
