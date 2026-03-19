@@ -1,10 +1,13 @@
 const Anthropic = require("@anthropic-ai/sdk");
 const db = require("../config/db");
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new Anthropic({ 
+  apiKey: process.env.ANTHROPIC_API_KEY, 
+  timeout: 60 * 1000,
+});
 
 // ✅ 이 줄 추가 — 테스트 중엔 true, 실제 배포 시 false//////////////////
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // 1차 호출: 카테고리 + 툴 추천
 const suggest = async (req, res) => {
@@ -87,8 +90,13 @@ ${toolList}
       messages: [{ role: "user", content: user_input }],
     });
 
-    const raw = message.content[0].text.trim().replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(raw);
+    const raw = message.content[0].text;
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+
+    if (!jsonMatch) {
+      throw new Error("Claude가 1차 단계에서 유효한 JSON을 반환하지 않았습니다.");
+    }
+    const parsed = JSON.parse(jsonMatch[0]);
 
     return res.status(200).json({ success: true, data: parsed });
   } catch (err) {
@@ -112,6 +120,7 @@ const generateWorkflow = async (req, res) => {
       data: {
         title: "숏폼 영상 제작 워크플로우",
         total_time: "약 40분",
+        workflows_category: "영상제작",
         steps: [
           {
             step_order: 1,
@@ -129,6 +138,7 @@ const generateWorkflow = async (req, res) => {
   }
 ///////////////////////////////////////////////
 
+
   const systemPrompt = `
 너는 영상 크리에이터를 위한 AI 툴 워크플로우 전문가야.
 사용자가 선택한 AI 툴 조합으로 단계별 워크플로우를 만들어줘.
@@ -139,6 +149,7 @@ AI를 처음 쓰는 초보자도 바로 따라할 수 있게 쉽고 구체적으
 {
   "title": "숏폼 영상 제작 워크플로우",
   "total_time": "약 40분",
+  "workflows_category": "영상제작",
   "steps": [
     {
       "step_order": 1,
@@ -152,6 +163,15 @@ AI를 처음 쓰는 초보자도 바로 따라할 수 있게 쉽고 구체적으
     }
   ]
 }
+
+workflows_category 규칙:
+- 반드시 아래 5개 중 하나만 선택해. 다른 값은 절대 사용하지 마.
+  "스크립트" → 스크립트 작성, 기획, 아이디어 발굴, 카피라이팅 중심 워크플로우
+  "영상제작" → 영상 편집, 자막, 컷편집, 영상 생성 중심 워크플로우
+  "썸네일"  → 이미지 생성, 썸네일 디자인, 그래픽 중심 워크플로우
+  "보이스"  → 보이스오버, TTS, 음성 합성, 배경음악 중심 워크플로우
+  "배포"    → SNS 업로드, 스케줄링, 분석, 마케팅 중심 워크플로우
+- 워크플로우 전체 흐름에서 가장 비중이 큰 목적을 기준으로 1개만 선택해.
 
 주의사항:
 - [필수] 전달받은 '선택한 툴 조합'의 개수와 steps 배열의 길이는 반드시 일치해야 해. (툴이 3개면 스텝도 무조건 3개)
@@ -177,10 +197,38 @@ ${selected_tools.map((t) => `- ${t.category}: ${t.name}`).join("\n")}
       messages: [{ role: "user", content: userPrompt }],
     });
 
-    const raw = message.content[0].text.trim().replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(raw);
+    // 기존 파싱 코드 삭제하고 아래 코드로 교체해!
+const raw = message.content[0].text;
+const jsonMatch = raw.match(/\{[\s\S]*\}/); // 중괄호 영역 추출
 
-    return res.status(200).json({ success: true, data: parsed });
+if (!jsonMatch) {
+  return res.status(500).json({ success: false, message: "Claude가 JSON 포맷을 반환하지 않았습니다." });
+}
+
+const jsonString = jsonMatch[0];
+
+try {
+  // 여기서 에러가 나면 catch 블록으로 빠짐
+  const parsed = JSON.parse(jsonString);
+  
+  // 성공 시 workflows_category 유효성 검증 (기존 코드 유지)
+  const validCategories = ["스크립트", "영상제작", "썸네일", "보이스", "배포"];
+  if (!validCategories.includes(parsed.workflows_category)) {
+    parsed.workflows_category = "스크립트"; 
+  }
+
+  return res.status(200).json({ success: true, data: parsed });
+
+} catch (parseError) {
+  // 🚨 파싱 에러 발생 시 서버를 죽이지 않고 원인 출력
+  console.error("=== 🚨 JSON 파싱 에러 발생 ===");
+  console.error("원인:", parseError.message);
+  console.error("Claude가 내려준 텍스트 (이 안의 문법이 틀렸음):");
+  console.error(jsonString);
+  console.error("=================================");
+  
+  return res.status(500).json({ success: false, message: "AI 응답 파싱 오류. 다시 시도해주세요." });
+}
 
   } catch (err) {
     console.error(err);

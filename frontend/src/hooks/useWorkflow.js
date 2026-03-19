@@ -31,6 +31,8 @@ export const useWorkflow = () => {
               category: cat.category_name,
               description: cat.description,
               rating: tool.rating,
+              pros: cat.pros,    
+              cons: cat.cons, 
             });
           }
         });
@@ -72,6 +74,13 @@ export const useWorkflow = () => {
         return tool ? { category: tool.category, name: tool.name } : null;
       })
       .filter(Boolean);
+
+    // ✅ 방어 코드 추가: 선택된 툴이 없으면 중단
+    if (selectedToolObjects.length === 0) {
+      alert("최소 1개 이상의 AI 툴을 선택해 주세요.");
+      setIsLoading(false);
+      return;
+    }
 
     const data = await createWorkflow(purpose, selectedToolObjects);
     
