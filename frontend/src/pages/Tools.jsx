@@ -13,6 +13,7 @@ const Tools = () => {
     const [activeSort, setActiveSort] = useState('기본순');
     const [activeFree, setActiveFree] = useState('전체');
     const [selectedTool, setSelectedTool] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // 최초 마운트 시 카테고리 + 전체 툴 목록
     useEffect(() => {
@@ -34,14 +35,17 @@ const Tools = () => {
         setSelectedTool(detail);
     };
 
-    // 필터링 + 정렬
+    // 필터링 + 정렬 + 검색 조건 추가
     const filtered = useMemo(() => {
         const result = tools.filter((t) => {
             const freeMatch =
                 activeFree === '전체' ||
                 (activeFree === '무료' && t.free_plan) ||
                 (activeFree === '유료' && !t.free_plan);
-            return freeMatch;
+
+            const searchMatch = t.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+            return freeMatch && searchMatch;
         });
 
         if (activeSort === '평점순') {
@@ -49,7 +53,7 @@ const Tools = () => {
         }
 
         return result;
-    }, [tools, activeSort, activeFree]);
+    }, [tools, activeSort, activeFree, searchQuery]);
 
     return (
         <div className="tools-page">
@@ -67,6 +71,8 @@ const Tools = () => {
                 onCategoryChange={handleCategoryChange}
                 onSortChange={setActiveSort}
                 onFreeChange={setActiveFree}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
             />
 
             {filtered.length > 0 ? (
