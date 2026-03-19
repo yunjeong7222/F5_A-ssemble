@@ -1,29 +1,28 @@
 const db = require('../config/db');
 
 // 썸네일 추출 유틸
-const extractThumbnail = (type, url, embedUrl) => {
-  if (type === 'image')   return url;
-  if (type === 'video')   return url?.replace(/\.(mp4|mov|avi)$/, '.jpg');
+const extractThumbnail = (type, url) => {
+  if (type === 'image') return url;
+  if (type === 'video') return url?.replace(/\.(mp4|mov|avi)$/, '.jpg');
   if (type === 'youtube') {
-    const id = embedUrl?.match(/embed\/([^?]+)/)?.[1];
+    // 원본 URL에서 ID 추출
+    const id = url?.match(/[?&]v=([^&]+)/)?.[1];
     return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
   }
   return null;
 };
 
-// ──────────────────────────────────────────
 // 전체 글 목록
 // GET /posts
 // GET /posts?user_id=me  (내 글)
-// ──────────────────────────────────────────
 const getPosts = async (req, res, next) => {
   try {
     const { user_id } = req.query;
-    const userId = req.user?.id; // 비로그인도 허용이므로 optional
+    const userId = req.user?.id;
 
     let query = `
       SELECT p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
-             u.id AS user_id, u.nickname, u.profile_img,
+             u.id AS user_id, u.nickname, u.profile_url,
              COUNT(DISTINCT l.user_id) AS like_count,
              COUNT(DISTINCT c.id) AS comment_count
       FROM posts p
@@ -41,26 +40,23 @@ const getPosts = async (req, res, next) => {
     }
 
     query += ' GROUP BY p.id ORDER BY p.created_at DESC';
-
     const [posts] = await db.promise().query(query, params);
-
     return res.status(200).json({ success: true, data: posts });
+
   } catch (err) {
     next(err);
   }
 };
 
-// ──────────────────────────────────────────
 // 내가 좋아요한 글
-// GET /posts/liked 🔒
-// ──────────────────────────────────────────
-const getLikedPosts = async (req, res, next) => {
+// GET /posts/liked 
+  const getLikedPosts = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
     const [posts] = await db.promise().query(
       `SELECT p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
-              u.id AS user_id, u.nickname, u.profile_img,
+              u.id AS user_id, u.nickname, u.profile_url,
               COUNT(DISTINCT l.user_id) AS like_count,
               COUNT(DISTINCT c.id) AS comment_count
        FROM posts p
@@ -79,20 +75,17 @@ const getLikedPosts = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
 // 게시글 상세 조회
 // GET /posts/:id
-// ──────────────────────────────────────────
 const getPost = async (req, res, next) => {
   try {
     const { id } = req.params;
-
     // 조회수 증가
     await db.promise().query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
 
     // 게시글 + 작성자
     const [posts] = await db.promise().query(
-      `SELECT p.*, u.nickname, u.profile_img,
+      `SELECT p.*, u.nickname, u.profile_url,
               COUNT(DISTINCT l.user_id) AS like_count,
               COUNT(DISTINCT c.id) AS comment_count
        FROM posts p
@@ -123,10 +116,8 @@ const getPost = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
 // 게시글 작성
-// POST /posts 🔒
-// ──────────────────────────────────────────
+// POST /posts 
 const createPost = async (req, res, next) => {
   try {
     const { title, workflow_id, attachments } = req.body;
@@ -145,8 +136,8 @@ const createPost = async (req, res, next) => {
     if (attachments?.length > 0) {
       const mediaAtt = attachments.find(a => ['image', 'video', 'youtube'].includes(a.type));
       if (mediaAtt) {
-        thumbnail_url = extractThumbnail(mediaAtt.type, mediaAtt.url, mediaAtt.embed_url);
-        media_url = mediaAtt.url || mediaAtt.embed_url;
+        thumbnail_url = extractThumbnail(mediaAtt.type, mediaAtt.url);
+        media_url = mediaAtt.url;
       }
     }
 
@@ -161,10 +152,10 @@ const createPost = async (req, res, next) => {
     // 첨부파일 저장
     if (attachments?.length > 0) {
       const values = attachments.map((a, i) => [
-        postId, a.type, a.content ?? null, a.url ?? null, a.embed_url ?? null, i
+        postId, a.type, a.content ?? null, a.url ?? null, i
       ]);
       await db.promise().query(
-        'INSERT INTO post_attachments (post_id, type, content, url, embed_url, sort_order) VALUES ?',
+        'INSERT INTO post_attachments (post_id, type, content, url, sort_order) VALUES ?',
         [values]
       );
     }
@@ -175,10 +166,8 @@ const createPost = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
 // 게시글 수정
-// PATCH /posts/:id 🔒
-// ──────────────────────────────────────────
+// PATCH /posts/:id 
 const updatePost = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -205,8 +194,8 @@ const updatePost = async (req, res, next) => {
     if (attachments?.length > 0) {
       const mediaAtt = attachments.find(a => ['image', 'video', 'youtube'].includes(a.type));
       if (mediaAtt) {
-        thumbnail_url = extractThumbnail(mediaAtt.type, mediaAtt.url, mediaAtt.embed_url);
-        media_url = mediaAtt.url || mediaAtt.embed_url;
+        thumbnail_url = extractThumbnail(mediaAtt.type, mediaAtt.url);
+        media_url = mediaAtt.url;
       }
     }
 
@@ -219,10 +208,10 @@ const updatePost = async (req, res, next) => {
     if (attachments?.length > 0) {
       await db.promise().query('DELETE FROM post_attachments WHERE post_id = ?', [id]);
       const values = attachments.map((a, i) => [
-        id, a.type, a.content ?? null, a.url ?? null, a.embed_url ?? null, i
+        id, a.type, a.content ?? null, a.url ?? null, i
       ]);
       await db.promise().query(
-        'INSERT INTO post_attachments (post_id, type, content, url, embed_url, sort_order) VALUES ?',
+        'INSERT INTO post_attachments (post_id, type, content, url, sort_order) VALUES ?',
         [values]
       );
     }
@@ -233,10 +222,9 @@ const updatePost = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
+
 // 게시글 삭제
-// DELETE /posts/:id 🔒
-// ──────────────────────────────────────────
+// DELETE /posts/:id
 const deletePost = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -262,10 +250,9 @@ const deletePost = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
+
 // 좋아요
-// POST /posts/:id/likes 🔒
-// ──────────────────────────────────────────
+// POST /posts/:id/likes 
 const likePost = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -282,10 +269,8 @@ const likePost = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
 // 좋아요 취소
-// DELETE /posts/:id/likes 🔒
-// ──────────────────────────────────────────
+// DELETE /posts/:id/likes 
 const unlikePost = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -302,17 +287,16 @@ const unlikePost = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
+
 // 댓글 목록
 // GET /posts/:id/comments
-// ──────────────────────────────────────────
 const getComments = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const [comments] = await db.promise().query(
       `SELECT c.id, c.content, c.created_at, c.updated_at,
-              u.id AS user_id, u.nickname, u.profile_img
+              u.id AS user_id, u.nickname, u.profile_url
        FROM comments c
        JOIN users u ON u.id = c.user_id
        WHERE c.post_id = ?
@@ -326,10 +310,8 @@ const getComments = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
 // 댓글 작성
-// POST /posts/:id/comments 🔒
-// ──────────────────────────────────────────
+// POST /posts/:id/comments 
 const createComment = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -353,10 +335,8 @@ const createComment = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
 // 댓글 수정
-// PATCH /posts/:id/comments/:commentId 🔒
-// ──────────────────────────────────────────
+// PATCH /posts/:id/comments/:commentId
 const updateComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
@@ -383,10 +363,8 @@ const updateComment = async (req, res, next) => {
   }
 };
 
-// ──────────────────────────────────────────
 // 댓글 삭제
-// DELETE /posts/:id/comments/:commentId 🔒
-// ──────────────────────────────────────────
+// DELETE /posts/:id/comments/:commentId 
 const deleteComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
