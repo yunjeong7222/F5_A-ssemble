@@ -9,7 +9,8 @@
     display: flex;
     gap: 12px;
     width: max-content;
-    animation: marquee-scroll 25s linear infinite;
+    padding: 30px 0;
+    animation: marquee-scroll 120s linear infinite;
 }
 
 .marquee-track:hover {

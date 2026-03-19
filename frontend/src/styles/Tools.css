@@ -4,6 +4,7 @@
     max-width: var(--content-width);
     margin: 0 auto;
     padding: 40px 24px;
+    min-height: calc(100vh - var(--header-height)); /* 최소높이설정 */
 }
 
 /* 헤더 */
@@ -111,12 +112,23 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--gap-md);
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* 빈 결과 */
 .tools-empty {
     text-align: center;
-    padding: 60px 0;
+    padding: 200px 0;
     color: var(--text-muted);
 }
 .tools-empty .empty-icon {
@@ -399,7 +411,9 @@
     display: flex;
     gap: 8px;
 }
-.btn-primary {
+
+/* modal 전용 버튼 (전역 btn-primary와 분리) */
+.modal-btn-primary {
     flex: 1;
     padding: 12px;
     background: var(--primary);
@@ -416,7 +430,7 @@
     justify-content: center;
     transition: background 0.15s;
 }
-.btn-primary:hover {
+.modal-btn-primary:hover {
     background: var(--primary-hover);
 }
 .btn-outline {

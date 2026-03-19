@@ -70,7 +70,7 @@ const Tools = () => {
             />
 
             {filtered.length > 0 ? (
-                <div className="tool-grid">
+                <div className="tool-grid" key={`${activeCategory}-${activeFree}-${activeSort}`}>
                     {filtered.map((tool) => (
                         <ToolCard key={tool.id} tool={tool} onDetail={handleDetail} />
                     ))}
