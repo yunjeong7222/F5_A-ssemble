@@ -29,7 +29,7 @@ function App() {
           <Route path="/community/write" element={
             <PrivateRoute><CommunityWrite /></PrivateRoute>
           } />
-          <Route path="/community/:id" element={<CommunityDetail />} />
+          <Route path="/community/:id" element={<CommunityDetail />} /> 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile-setup" element={<ProfileSetup />} />

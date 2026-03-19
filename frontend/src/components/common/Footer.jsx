@@ -1,70 +1,68 @@
+import React from 'react';
 import {useNavigate} from 'react-router-dom';
+import '../../styles/Footer.css'; // ✅ styles 폴더의 CSS를 불러옵니다.
 
 export default function Footer() {
     const navigate = useNavigate();
 
     return (
-        <footer style={{borderTop: '1px solid #eee', padding: '40px 24px 24px'}}>
-            <div style={{display: 'flex', gap: 48, marginBottom: 32, flexWrap: 'wrap'}}>
-                {/* 로고 + 소개 */}
-                <div style={{flex: '0 0 220px'}}>
-                    <div
-                        style={{fontWeight: 800, fontSize: 18, marginBottom: 8, cursor: 'pointer'}}
-                        onClick={() => navigate('/')}
-                    >
-                        RecipeHub
+        <footer className="footer">
+            <div className="footer-container">
+                <div className="footer-content">
+                    {/* 브랜드 섹션 */}
+                    <div className="footer-brand">
+                        <div className="footer-logo" onClick={() => navigate('/')}>
+                            <div className="logo-icon-box">🪄</div>
+                            RecipeHub
+                        </div>
+                        <p className="footer-description">
+                            AI 툴 조합 레시피를 공유하고 발견하는 플랫폼
+                            <br />
+                            AI 입문자를 위한 가장 쉬운 가이드
+                        </p>
                     </div>
-                    <p style={{fontSize: 13, color: '#64748b', lineHeight: 1.6}}>
-                        AI 툴 조합 레시피로
-                        <br />
-                        누구나 쉽게 AI 워크플로우를 만들 수 있어요.
-                    </p>
-                </div>
 
-                {/* 서비스 링크 */}
-                <div>
-                    <div style={{fontWeight: 700, fontSize: 13, marginBottom: 12}}>서비스</div>
-                    <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
-                        {[
-                            {label: '홈', path: '/'},
-                            {label: '툴', path: '/tools'},
-                            {label: '워크플로우', path: '/workflow'},
-                            {label: '커뮤니티', path: '/community'},
-                        ].map((item) => (
-                            <span
-                                key={item.path}
-                                onClick={() => navigate(item.path)}
-                                style={{fontSize: 13, color: '#64748b', cursor: 'pointer'}}
-                            >
-                                {item.label}
-                            </span>
-                        ))}
-                    </div>
-                </div>
+                    {/* 링크 섹션 그룹 */}
+                    <div className="footer-links-group">
+                        <div className="footer-links">
+                            <h4>서비스</h4>
+                            <ul>
+                                <li onClick={() => navigate('/recipes')}>레시피 탐색</li>
+                                <li onClick={() => navigate('/category')}>카테고리</li>
+                                <li onClick={() => navigate('/popular')}>인기 레시피</li>
+                                <li onClick={() => navigate('/new')}>신규 레시피</li>
+                            </ul>
+                        </div>
 
-                {/* 계정 링크 */}
-                <div>
-                    <div style={{fontWeight: 700, fontSize: 13, marginBottom: 12}}>계정</div>
-                    <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
-                        {[
-                            {label: '로그인', path: '/login'},
-                            {label: '회원가입', path: '/signup'},
-                        ].map((item) => (
-                            <span
-                                key={item.path}
-                                onClick={() => navigate(item.path)}
-                                style={{fontSize: 13, color: '#64748b', cursor: 'pointer'}}
-                            >
-                                {item.label}
-                            </span>
-                        ))}
+                        <div className="footer-links">
+                            <h4>계정</h4>
+                            <ul>
+                                <li onClick={() => navigate('/login')}>로그인</li>
+                                <li onClick={() => navigate('/signup')}>회원가입</li>
+                                <li onClick={() => navigate('/mypage')}>내 레시피</li>
+                                <li onClick={() => navigate('/bookmarks')}>북마크</li>
+                            </ul>
+                        </div>
+
+                        <div className="footer-links">
+                            <h4>회사</h4>
+                            <ul>
+                                <li>소개</li>
+                                <li>블로그</li>
+                                <li>개인정보처리방침</li>
+                                <li>이용약관</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* 저작권 */}
-            <div style={{borderTop: '1px solid #eee', paddingTop: 16, fontSize: 12, color: '#94a3b8'}}>
-                © 2025 RecipeHub. All rights reserved.
+                {/* 하단 저작권 영역 */}
+                <div className="footer-bottom">
+                    <p>© 2026 RecipeHub. All rights reserved.</p>
+                    <div className="footer-tagline">
+                        Made with <span className="heart-icon">❤️</span> for AI beginners
+                    </div>
+                </div>
             </div>
         </footer>
     );

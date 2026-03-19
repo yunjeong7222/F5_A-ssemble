@@ -10,7 +10,7 @@ export default function Header() {
 
   const navItems = [
     { label: '홈',        path: '/' },
-    { label: '툴',        path: '/tools' },
+    { label: 'AI 툴 탐색',        path: '/tools' },
     { label: '워크플로우', path: '/workflow' },
     { label: '커뮤니티',  path: '/community' },
   ];
@@ -49,7 +49,7 @@ export default function Header() {
         ))}
       </nav>
 
-      {/* 검색창 */}
+      {/* 검색창
       <div className="header__search">
         <span className="header__search-icon">🔍</span>
         <input
@@ -57,7 +57,7 @@ export default function Header() {
           type="text"
           placeholder="레시피 검색..."
         />
-      </div>
+      </div> */}
 
       {/* 로그인 상태 */}
       <div className="header__auth">
@@ -71,7 +71,7 @@ export default function Header() {
         ) : (
           <>
             <button className="btn--ghost" onClick={() => navigate('/login')}>로그인</button>
-            <button className="btn--primary" onClick={() => navigate('/signup')}>무료 시작</button>
+            <button className="btn--primary" onClick={() => navigate('/workflow')}>무료 시작</button>
           </>
         )}
       </div>
