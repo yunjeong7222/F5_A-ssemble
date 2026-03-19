@@ -70,8 +70,8 @@
 
 /* 툴 헤더 (아이콘 + 제목 + 뱃지) */
 .ts-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-.ts-icon-box { width: 64px; height: 64px; background-color: #f8fafc; border-radius: 16px; display: flex; justify-content: center; align-items: center; border: 1px solid #f1f5f9; flex-shrink: 0; }
-.ts-tool-img { width: 60px; height: 60px; object-fit: contain; }
+.ts-icon-box { width: 60px; height: 60px; background-color: #f8fafc; border-radius: 16px; display: flex; justify-content: center; align-items: center; border: 1px solid #f1f5f9; flex-shrink: 0; }
+.ts-tool-img { width: 64px; height: 64px; border-radius: 16px; object-fit: contain; }
 .ts-fallback-icon { display: none; font-size: 2rem; }
 
 .ts-title-wrap { overflow: hidden; }

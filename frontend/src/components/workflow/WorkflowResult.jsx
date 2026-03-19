@@ -318,19 +318,14 @@ const WorkflowResult = ({ workflowResult }) => {
                   </div>
                 </div>
 
-                <div style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </div>
+                {index !== displayData.steps.length - 1 && (
+                  <div style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  </div>
+                )}
               </React.Fragment>
             );
           })}
-
-          <div className="wr-flow-final">
-            <div style={{ width: '40px', height: '40px', backgroundColor: '#22c55e', color: '#ffffff', borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#166534' }}>결과물 완성</div>
-          </div>
         </div>
       </div>
 
