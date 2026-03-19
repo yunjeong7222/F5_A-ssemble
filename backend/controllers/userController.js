@@ -35,6 +35,46 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
+const resetPassword = async (req, res, next) => {
+  try {
+    const { email, nickname, newPassword } = req.body;
+
+    if (!email || !nickname || !newPassword) {
+      const err = new Error('이메일, 닉네임, 새 비밀번호는 필수입니다.');
+      err.status = 400;
+      throw err;
+    }
+
+    if (newPassword.length < 8) {
+      const err = new Error('비밀번호는 8자 이상이어야 합니다.');
+      err.status = 400;
+      throw err;
+    }
+
+    // 이메일 + 닉네임 일치 확인
+    const [rows] = await db.promise().query(
+      'SELECT id FROM users WHERE email = ? AND nickname = ?',
+      [email, nickname]
+    );
+
+    if (rows.length === 0) {
+      const err = new Error('이메일 또는 닉네임이 올바르지 않습니다.');
+      err.status = 401;
+      throw err;
+    }
+
+    const password_hash = await bcrypt.hash(newPassword, 10);
+    await db.promise().query(
+      'UPDATE users SET password_hash = ? WHERE id = ?',
+      [password_hash, rows[0].id]
+    );
+
+    res.json({ success: true, message: '비밀번호가 변경되었습니다.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const updatePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -98,4 +138,4 @@ const deleteAccount = async (req, res, next) => {
   }
 };
 
-module.exports = { updateProfile, updatePassword, deleteAccount };
+module.exports = { updateProfile, resetPassword, updatePassword, deleteAccount };
