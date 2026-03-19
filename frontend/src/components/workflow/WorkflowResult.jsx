@@ -124,7 +124,7 @@ const CategoryVisualizer = ({ category }) => {
   }
 
   // 4. ✂️ [영상 편집]
-  if (category === '영상 편집') {
+  if (category === '영상 편집' || category === '영상 편집 및 자막') {
     return (
       <div className="wr-cat-media">
         <video src="https://www.adobe.com/creativecloud/media_141358e1c6f03665f231c26f66738f5fbc3235a22.mp4" autoPlay loop muted playsInline className="wr-cat-video" />
