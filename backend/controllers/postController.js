@@ -17,29 +17,39 @@ const extractThumbnail = (type, url) => {
 // GET /posts?user_id=me  (내 글)
 const getPosts = async (req, res, next) => {
   try {
-    const { user_id } = req.query;
+    const { user_id, category, sort } = req.query;
     const userId = req.user?.id;
 
     let query = `
-      SELECT p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
+      SELECT p.id, p.title, p.category, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
              u.id AS user_id, u.nickname, u.profile_url,
              COUNT(DISTINCT l.user_id) AS like_count,
-             COUNT(DISTINCT c.id) AS comment_count
+             COUNT(DISTINCT c.id) AS comment_count,
+             EXISTS(
+               SELECT 1 FROM likes
+               WHERE likes.post_id = p.id AND likes.user_id = ?
+             ) AS is_liked
       FROM posts p
       JOIN users u ON u.id = p.user_id
       LEFT JOIN likes l ON l.post_id = p.id
       LEFT JOIN comments c ON c.post_id = p.id
     `;
 
-    const params = [];
+    const params = [userId ?? null];
+    const conditions = [];
 
-    // 내 글 필터
-    if (user_id === 'me' && userId) {
-      query += ' WHERE p.user_id = ?';
-      params.push(userId);
+    if (user_id === 'me' && userId) conditions.push({ sql: 'p.user_id = ?', val: userId });
+    if (category) conditions.push({ sql: 'p.category = ?', val: category });
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.map(c => c.sql).join(' AND ');
+      conditions.forEach(c => params.push(c.val));
     }
 
-    query += ' GROUP BY p.id ORDER BY p.created_at DESC';
+    query += sort === 'likes'
+      ? ' GROUP BY p.id ORDER BY like_count DESC, p.created_at DESC'
+      : ' GROUP BY p.id ORDER BY p.created_at DESC';
+
     const [posts] = await db.promise().query(query, params);
     return res.status(200).json({ success: true, data: posts });
 
@@ -55,9 +65,9 @@ const getPosts = async (req, res, next) => {
     const userId = req.user.id;
 
     const [posts] = await db.promise().query(
-      `SELECT p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
+      `SELECT p.id, p.title, p.category, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
               u.id AS user_id, u.nickname, u.profile_url,
-              COUNT(DISTINCT l.user_id) AS like_count,
+              (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
               COUNT(DISTINCT c.id) AS comment_count
        FROM posts p
        JOIN users u ON u.id = p.user_id
@@ -80,21 +90,25 @@ const getPosts = async (req, res, next) => {
 const getPost = async (req, res, next) => {
   try {
     const { id } = req.params;
-    // 조회수 증가
+    const userId = req.user?.id;
     await db.promise().query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
 
     // 게시글 + 작성자
     const [posts] = await db.promise().query(
       `SELECT p.*, u.nickname, u.profile_url,
               COUNT(DISTINCT l.user_id) AS like_count,
-              COUNT(DISTINCT c.id) AS comment_count
+              COUNT(DISTINCT c.id) AS comment_count,
+              EXISTS(
+                SELECT 1 FROM likes
+                WHERE likes.post_id = p.id AND likes.user_id = ?
+              ) AS is_liked
        FROM posts p
        JOIN users u ON u.id = p.user_id
        LEFT JOIN likes l ON l.post_id = p.id
        LEFT JOIN comments c ON c.post_id = p.id
        WHERE p.id = ?
        GROUP BY p.id`,
-      [id]
+      [userId ?? null, id]
     );
 
     if (posts.length === 0) {
@@ -129,6 +143,19 @@ const createPost = async (req, res, next) => {
       throw err;
     }
 
+    // workflow_id로 category 직접 조회
+    let category = null;
+    if (workflow_id) {
+      const [wf] = await db.promise().query(
+        'SELECT workflows_category FROM workflows WHERE id = ?',
+        [workflow_id]
+      );
+      console.log('workflow_id:', workflow_id);
+  console.log('wf 조회 결과:', wf);
+  console.log('workflows_category:', wf[0]?.workflows_category);
+      if (wf.length > 0) category = wf[0].workflows_category;
+    }
+console.log('최종 category:', category);
     // 첫 번째 image/video attachment에서 thumbnail_url, media_url 추출
     let thumbnail_url = null;
     let media_url = null;
@@ -143,8 +170,8 @@ const createPost = async (req, res, next) => {
 
     // 게시글 저장
     const [result] = await db.promise().query(
-      'INSERT INTO posts (user_id, workflow_id, title, thumbnail_url, media_url) VALUES (?, ?, ?, ?, ?)',
-      [userId, workflow_id ?? null, title, thumbnail_url, media_url]
+      'INSERT INTO posts (user_id, workflow_id, title, category, thumbnail_url, media_url) VALUES (?, ?, ?, ?, ?, ?)',
+      [userId, workflow_id ?? null, title, category, thumbnail_url, media_url]
     );
 
     const postId = result.insertId;
@@ -250,148 +277,4 @@ const deletePost = async (req, res, next) => {
   }
 };
 
-
-// 좋아요
-// POST /posts/:id/likes 
-const likePost = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.id;
-
-    await db.promise().query(
-      'INSERT IGNORE INTO likes (user_id, post_id) VALUES (?, ?)',
-      [userId, id]
-    );
-
-    return res.status(200).json({ success: true, message: '좋아요를 눌렀습니다.' });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// 좋아요 취소
-// DELETE /posts/:id/likes 
-const unlikePost = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.id;
-
-    await db.promise().query(
-      'DELETE FROM likes WHERE user_id = ? AND post_id = ?',
-      [userId, id]
-    );
-
-    return res.status(200).json({ success: true, message: '좋아요를 취소했습니다.' });
-  } catch (err) {
-    next(err);
-  }
-};
-
-
-// 댓글 목록
-// GET /posts/:id/comments
-const getComments = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const [comments] = await db.promise().query(
-      `SELECT c.id, c.content, c.created_at, c.updated_at,
-              u.id AS user_id, u.nickname, u.profile_url
-       FROM comments c
-       JOIN users u ON u.id = c.user_id
-       WHERE c.post_id = ?
-       ORDER BY c.created_at ASC`,
-      [id]
-    );
-
-    return res.status(200).json({ success: true, data: comments });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// 댓글 작성
-// POST /posts/:id/comments 
-const createComment = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { content } = req.body;
-    const userId = req.user.id;
-
-    if (!content) {
-      const err = new Error('댓글 내용을 입력해주세요.');
-      err.status = 400;
-      throw err;
-    }
-
-    const [result] = await db.promise().query(
-      'INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)',
-      [id, userId, content]
-    );
-
-    return res.status(201).json({ success: true, message: '댓글이 작성되었습니다.', data: { commentId: result.insertId } });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// 댓글 수정
-// PATCH /posts/:id/comments/:commentId
-const updateComment = async (req, res, next) => {
-  try {
-    const { commentId } = req.params;
-    const { content } = req.body;
-    const userId = req.user.id;
-
-    const [comments] = await db.promise().query('SELECT user_id FROM comments WHERE id = ?', [commentId]);
-    if (comments.length === 0) {
-      const err = new Error('댓글을 찾을 수 없습니다.');
-      err.status = 404;
-      throw err;
-    }
-    if (comments[0].user_id !== userId) {
-      const err = new Error('수정 권한이 없습니다.');
-      err.status = 403;
-      throw err;
-    }
-
-    await db.promise().query('UPDATE comments SET content = ? WHERE id = ?', [content, commentId]);
-
-    return res.status(200).json({ success: true, message: '댓글이 수정되었습니다.' });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// 댓글 삭제
-// DELETE /posts/:id/comments/:commentId 
-const deleteComment = async (req, res, next) => {
-  try {
-    const { commentId } = req.params;
-    const userId = req.user.id;
-
-    const [comments] = await db.promise().query('SELECT user_id FROM comments WHERE id = ?', [commentId]);
-    if (comments.length === 0) {
-      const err = new Error('댓글을 찾을 수 없습니다.');
-      err.status = 404;
-      throw err;
-    }
-    if (comments[0].user_id !== userId) {
-      const err = new Error('삭제 권한이 없습니다.');
-      err.status = 403;
-      throw err;
-    }
-
-    await db.promise().query('DELETE FROM comments WHERE id = ?', [commentId]);
-
-    return res.status(200).json({ success: true, message: '댓글이 삭제되었습니다.' });
-  } catch (err) {
-    next(err);
-  }
-};
-
-module.exports = {
-  getPosts, getLikedPosts, getPost, createPost, updatePost, deletePost,
-  likePost, unlikePost,
-  getComments, createComment, updateComment, deleteComment,
-};
+module.exports = { getPosts, getLikedPosts, getPost, createPost, updatePost, deletePost };

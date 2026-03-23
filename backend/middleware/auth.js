@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -14,7 +14,7 @@ module.exports = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { id, email, role } = decoded; // 필요한 필드만 추출
+    const { id, email, role } = decoded;
     req.user = { id, email, role };
     next();
   } catch (err) {
@@ -30,3 +30,18 @@ module.exports = (req, res, next) => {
     });
   }
 };
+
+const optionalAuth = (req, res, next) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) return next();
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { id, email, role } = decoded;
+    req.user = { id, email, role };
+  } catch {
+    // 토큰 오류여도 통과
+  }
+  next();
+};
+
+module.exports = { authMiddleware, optionalAuth };

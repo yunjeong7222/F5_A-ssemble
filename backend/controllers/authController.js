@@ -4,12 +4,46 @@ const jwt = require("jsonwebtoken");
 const { Redis } = require("@upstash/redis");
 
 const SALT_ROUNDS = 10;
-const REFRESH_TOKEN_TTL = 60 * 60 * 24 * 7; // 7일
+const REFRESH_TOKEN_TTL = 60 * 60 * 24 * 1; 
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
+
+// 이메일/닉네임 중복 확인
+// POST /api/auth/check-duplicate
+const checkDuplicate = async (req, res) => {
+  const { field, value } = req.body;
+ 
+  if (!field || !value) {
+    return res.status(400).json({ success: false, message: '필드와 값을 입력해주세요.' });
+  }
+ 
+  if (!['email', 'nickname'].includes(field)) {
+    return res.status(400).json({ success: false, message: '유효하지 않은 필드입니다.' });
+  }
+ 
+  try {
+    const column = field === 'email' ? 'email' : 'nickname';
+    const [rows] = await db.promise().query(
+      `SELECT id FROM users WHERE ${column} = ?`,
+      [value]
+    );
+ 
+    const isDuplicate = rows.length > 0;
+    return res.status(200).json({
+      success: true,
+      isDuplicate,
+      message: isDuplicate
+        ? `이미 사용 중인 ${field === 'email' ? '이메일' : '닉네임'}입니다.`
+        : `사용 가능한 ${field === 'email' ? '이메일' : '닉네임'}입니다.`,
+    });
+  } catch (err) {
+    console.error('checkDuplicate error:', err);
+    return res.status(500).json({ success: false, message: '서버 오류' });
+  }
+};
 
 // 회원가입
 // post  /api/auth/register
@@ -40,7 +74,6 @@ const register = async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-
     const [result] = await db.promise().query(
       "INSERT INTO users (email, password_hash, nickname) VALUES (?, ?, ?)",
       [email, passwordHash, nickname]
@@ -73,7 +106,7 @@ const login = async (req, res) => {
 
   try {
     const [rows] = await db.promise().query(
-      "SELECT id, email, password_hash, nickname, role FROM users WHERE email = ?",
+      "SELECT id, email, password_hash, nickname, role, bio, profile_url FROM users WHERE email = ?",
       [email]
     );
 
@@ -122,6 +155,8 @@ const login = async (req, res) => {
           email: user.email,
           nickname: user.nickname,
           role: user.role,
+          bio: user.bio, 
+          profile_url: user.profile_url
         },
       },
     });
@@ -243,7 +278,7 @@ const logout = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const [rows] = await db.promise().query(
-      "SELECT id, email, nickname, role FROM users WHERE id = ?",
+      "SELECT id, email, nickname, role, bio, profile_url FROM users WHERE id = ?",
       [req.user.id]
     );
     if (rows.length === 0) {
@@ -259,4 +294,4 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, refresh, logout}
+module.exports = { register, login, getMe, refresh, logout, checkDuplicate}
