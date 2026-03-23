@@ -17,5 +17,3 @@ export const getToolById = async (id) => {
     return res.data.data;
 };
 
-// 메인 ToolSection - TOP6
-// getTools

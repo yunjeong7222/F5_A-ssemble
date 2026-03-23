@@ -10,19 +10,15 @@ const getAuthHeader = () => {
 export const getMe = () => {
   return api.get('/api/auth/me', getAuthHeader());
 };
-
 export const updateProfile = (data) => {
   return api.patch('/api/users/me', data, getAuthHeader());
 };
-
 export const resetPassword = (data) => {
   return api.post('/api/users/reset-password', data);
 };
-
 export const updatePassword = (data) => {
   return api.patch('/api/users/me/password', data, getAuthHeader());
 };
-
 export const deleteAccount = (data) => {
   return api.delete('/api/users/me', {
     ...getAuthHeader(),
