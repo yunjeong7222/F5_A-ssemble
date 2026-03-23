@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { likePost, unlikePost } from '../../api/likes';
 import useAuthStore from '../../store/authStore';
 
-const PostCard = ({ post }) => {
+const PostList = ({ post }) => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [liked, setLiked]         = useState(post.is_liked || false);
@@ -31,17 +31,15 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <div className="comm-card" onClick={() => navigate(`/community/${post.id}`)}>
-      <img
-        src={post.thumbnail_url || '/default-thumbnail.png'}
-        alt={post.title}
-        className="comm-card-image"
-      />
-      <div className="comm-card-content">
-        {post.category && (
-          <span className="comm-category-badge">{post.category}</span>
-        )}
-        <h3 className="comm-card-title">{post.title}</h3>
+    <div className="comm-list-item" onClick={() => navigate(`/community/${post.id}`)}>
+      {post.thumbnail_url && (
+        <img src={post.thumbnail_url} alt={post.title} className="comm-list-thumbnail" />
+      )}
+      <div className="comm-list-content">
+        <div className="comm-list-top">
+          {post.category && <span className="comm-category-badge">{post.category}</span>}
+          <h3 className="comm-list-title">{post.title}</h3>
+        </div>
         <div className="comm-card-footer">
           <div className="comm-user-info">
             {post.profile_url ? (
@@ -59,13 +57,13 @@ const PostCard = ({ post }) => {
               <span>{post.view_count || 0}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <svg width="12" height="12" viewBox="0 0 24 24"
-                fill="#ef4444" stroke="#ef4444" strokeWidth="2"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-              <span style={{ color: '#ef4444', fontSize: 12 }}>{post.like_count || 0}</span>
-            </div>
+                <svg width="12" height="12" viewBox="0 0 24 24"
+                    fill="#ef4444" stroke="#ef4444" strokeWidth="2"
+                >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span style={{ color: '#ef4444', fontSize: 12 }}>{post.like_count || 0}</span>
+                </div>
           </div>
         </div>
       </div>
@@ -73,4 +71,4 @@ const PostCard = ({ post }) => {
   );
 };
 
-export default PostCard;
+export default PostList;

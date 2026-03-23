@@ -1,78 +1,166 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Link 추가
-import { register } from '../api/auth';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { register, checkDuplicate } from '../api/auth';
+import '../styles/auth.css';
 
 const Signup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '', password: '', confirmPassword: '', nickname: '',
   });
-  
+
   const [readStatus, setReadStatus] = useState({ terms: false, privacy: false, marketing: false });
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [checkStatus, setCheckStatus] = useState({ email: null, nickname: null, passwordMatch: null });
-
+  const [checkStatus, setCheckStatus] = useState({
+    email: null,       // null | 'ok' | 'dupe' | 'invalid' | 'checking'
+    nickname: null,    // null | 'ok' | 'dupe' | 'checking'
+    passwordMatch: null,
+  });
   const [touched, setTouched] = useState({ email: false, nickname: false });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ id: '', title: '', body: '' });
 
-  // ✅ 전체 동의 상태 계산
+  // 디바운스 타이머 ref
+  const emailTimer   = useRef(null);
+  const nicknameTimer = useRef(null);
+
   const isAllAgreed = readStatus.terms && readStatus.privacy && readStatus.marketing;
-
-  // ✅ 전체 동의 핸들러
   const handleAllAgree = () => {
-    const nextStatus = !isAllAgreed;
-    setReadStatus({ terms: nextStatus, privacy: nextStatus, marketing: nextStatus });
+    const next = !isAllAgreed;
+    setReadStatus({ terms: next, privacy: next, marketing: next });
   };
 
-  const isEmailValid = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const isEmailValid = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
   const getPasswordStrength = (pwd) => {
-    if (!pwd) return { score: 0, text: '', color: '#e2e8f0' };
+    if (!pwd) return { score: 0, text: '', color: 'var(--border)' };
     if (pwd.length < 8) return { score: 33, text: '비밀번호가 짧음 (8자 이상)', color: '#ef4444' };
-    const hasUpperCase = /[A-Z]/.test(pwd);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
-    if (hasUpperCase || hasSpecialChar) {
-      return { score: 100, text: '보안 수준: 안전함', color: '#10b981' };
-    }
+    const hasUpperOrSpecial = /[A-Z]/.test(pwd) || /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+    if (hasUpperOrSpecial) return { score: 100, text: '보안 수준: 안전함', color: 'var(--secondary)' };
     return { score: 66, text: '보안 수준: 보통', color: '#f59e0b' };
   };
-
   const strength = getPasswordStrength(formData.password);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (name === 'email' || name === 'nickname') {
-      setCheckStatus(prev => ({ ...prev, [name]: null }));
-      setMessage('');
+  /* ── 이메일 실시간 중복 확인 (디바운스 300ms) ── */
+  useEffect(() => {
+    const email = formData.email;
+
+    // 빈 값이면 상태 초기화
+    if (!email) { setCheckStatus(prev => ({ ...prev, email: null })); return; }
+
+    // 형식 오류면 서버 호출 없이 바로 invalid
+    if (!isEmailValid(email)) {
+      setCheckStatus(prev => ({ ...prev, email: 'invalid' }));
+      return;
     }
-  };
 
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-  };
+    // 300ms 디바운스
+    setCheckStatus(prev => ({ ...prev, email: 'checking' }));
+    clearTimeout(emailTimer.current);
+    emailTimer.current = setTimeout(async () => {
+      try {
+        const res = await checkDuplicate({ field: 'email', value: email });
+        setCheckStatus(prev => ({
+          ...prev,
+          email: res.data.isDuplicate ? 'dupe' : 'ok',
+        }));
+      } catch {
+        setCheckStatus(prev => ({ ...prev, email: null }));
+      }
+    }, 300);
 
+    return () => clearTimeout(emailTimer.current);
+  }, [formData.email]);
+
+  /* ── 닉네임 실시간 중복 확인 (디바운스 300ms) ── */
+  useEffect(() => {
+    const nickname = formData.nickname;
+
+    if (!nickname) { setCheckStatus(prev => ({ ...prev, nickname: null })); return; }
+    if (nickname.length < 2) { setCheckStatus(prev => ({ ...prev, nickname: 'short' })); return; }
+
+    setCheckStatus(prev => ({ ...prev, nickname: 'checking' }));
+    clearTimeout(nicknameTimer.current);
+    nicknameTimer.current = setTimeout(async () => {
+      try {
+        const res = await checkDuplicate({ field: 'nickname', value: nickname });
+        setCheckStatus(prev => ({
+          ...prev,
+          nickname: res.data.isDuplicate ? 'dupe' : 'ok',
+        }));
+      } catch {
+        setCheckStatus(prev => ({ ...prev, nickname: null }));
+      }
+    }, 300);
+
+    return () => clearTimeout(nicknameTimer.current);
+  }, [formData.nickname]);
+
+  /* ── 비밀번호 일치 확인 ── */
   useEffect(() => {
     if (!formData.confirmPassword) {
       setCheckStatus(prev => ({ ...prev, passwordMatch: null }));
     } else {
-      const isMatch = formData.password === formData.confirmPassword;
-      setCheckStatus(prev => ({ ...prev, passwordMatch: isMatch ? 'ok' : 'dupe' }));
+      setCheckStatus(prev => ({
+        ...prev,
+        passwordMatch: formData.password === formData.confirmPassword ? 'ok' : 'dupe',
+      }));
     }
   }, [formData.password, formData.confirmPassword]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setMessage('');
+  };
+
+  const handleBlur = (e) => {
+    setTouched(prev => ({ ...prev, [e.target.name]: true }));
+  };
+
+  /* ── 이메일 input className ── */
+  const getEmailClass = () => {
+    const s = checkStatus.email;
+    if (s === 'ok')      return 'auth-input auth-input--ok';
+    if (s === 'dupe' || s === 'invalid') return 'auth-input auth-input--error';
+    return 'auth-input';
+  };
+
+  /* ── 닉네임 input className ── */
+  const getNicknameClass = () => {
+    const s = checkStatus.nickname;
+    if (s === 'ok')                    return 'auth-input auth-input--ok';
+    if (s === 'dupe' || s === 'short') return 'auth-input auth-input--error';
+    return 'auth-input';
+  };
+
+  /* ── 이메일 힌트 메시지 ── */
+  const EmailHint = () => {
+    const s = checkStatus.email;
+    if (s === 'checking') return <p className="auth-hint--warn">확인 중...</p>;
+    if (s === 'invalid')  return <p className="auth-hint--error">올바른 이메일 형식이 아니에요</p>;
+    if (s === 'dupe')     return <p className="auth-hint--error">이미 사용 중인 이메일입니다.</p>;
+    if (s === 'ok')       return <p className="auth-hint--ok">✓ 사용 가능한 이메일입니다.</p>;
+    return null;
+  };
+
+  /* ── 닉네임 힌트 메시지 ── */
+  const NicknameHint = () => {
+    const s = checkStatus.nickname;
+    if (s === 'checking') return <p className="auth-hint--warn">확인 중...</p>;
+    if (s === 'short')    return <p className="auth-hint--error">닉네임은 2자 이상이어야 합니다.</p>;
+    if (s === 'dupe')     return <p className="auth-hint--error">이미 사용 중인 닉네임입니다.</p>;
+    if (s === 'ok')       return <p className="auth-hint--ok">✓ 사용 가능한 닉네임입니다.</p>;
+    return null;
+  };
 
   const openTermsModal = (id) => {
     const titles = { terms: '서비스 이용약관', privacy: '개인정보 처리방침', marketing: '마케팅 수신 동의' };
     const bodies = {
       terms: '제1조 (목적)\n이 약관은 RecipeHub가 제공하는 모든 서비스의 이용 조건 및 절차를 규정합니다...',
       privacy: '1. 수집 항목: 이메일, 닉네임\n2. 목적: 서비스 제공\n3. 보유 기간: 탈퇴 시까지',
-      marketing: '이벤트 및 혜택 정보를 전달드립니다.'
+      marketing: '이벤트 및 혜택 정보를 전달드립니다.',
     };
     setModalContent({ id, title: titles[id], body: bodies[id] });
     setIsModalOpen(true);
@@ -89,146 +177,184 @@ const Signup = () => {
       alert('필수 약관에 동의해주세요.');
       return;
     }
+    // 중복/형식 오류 있으면 제출 막기
+    if (checkStatus.email !== 'ok') {
+      setMessage('이메일을 확인해주세요.');
+      return;
+    }
+    if (checkStatus.nickname !== 'ok') {
+      setMessage('닉네임을 확인해주세요.');
+      return;
+    }
+
     setIsLoading(true);
     setMessage('');
-
     try {
-      await register({ 
-        email: formData.email, 
-        password: formData.password, 
-        nickname: formData.nickname 
+      await register({
+        email: formData.email,
+        password: formData.password,
+        nickname: formData.nickname,
       });
-      
-      navigate('/profile-setup', { 
-        state: { 
-          email: formData.email, 
+      navigate('/profile-setup', {
+        state: {
+          email: formData.email,
           nickname: formData.nickname,
-          marketingAgreed: readStatus.marketing 
-        } 
-      }); 
-      
+          marketingAgreed: readStatus.marketing,
+        },
+      });
     } catch (err) {
       const errorData = err.response?.data;
       const errorMsg = errorData?.message || '가입 중 오류가 발생했습니다.';
-      if (errorData?.field === 'email' || errorMsg.includes('이메일')) {
-        setCheckStatus(prev => ({ ...prev, email: 'dupe' }));
-      }
-      if (errorData?.field === 'nickname' || errorMsg.includes('닉네임')) {
-        setCheckStatus(prev => ({ ...prev, nickname: 'dupe' }));
-      }
       setMessage(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getInputStyle = (name, status) => {
-    const isInvalidEmail = name === 'email' && touched.email && !isEmailValid(formData.email);
-    const hasError = status === 'dupe' || isInvalidEmail;
-    return {
-      padding: '10px 12px', borderRadius: '8px', 
-      border: `2px solid ${status === 'ok' ? '#10b981' : (hasError ? '#ef4444' : '#e2e8f0')}`,
-      outline: 'none', width: '100%', boxSizing: 'border-box', fontSize: '14px',
-      transition: 'border-color 0.2s'
-    };
-  };
+  const isSubmitDisabled =
+    isLoading ||
+    !readStatus.terms ||
+    !readStatus.privacy ||
+    formData.password.length < 8 ||
+    checkStatus.email !== 'ok' ||
+    checkStatus.nickname !== 'ok' ||
+    checkStatus.passwordMatch !== 'ok';
 
-  const isSubmitDisabled = isLoading || !readStatus.terms || !readStatus.privacy || formData.password.length < 8 || !isEmailValid(formData.email);
+  const termsMeta = [
+    { id: 'terms',     required: true,  label: '이용약관' },
+    { id: 'privacy',   required: true,  label: '개인정보 처리방침' },
+    { id: 'marketing', required: false, label: '마케팅 수신 동의' },
+  ];
 
   return (
-    <div style={{ maxWidth: '420px', margin: '20px auto', padding: '30px', backgroundColor: '#fff', borderRadius: '24px', boxShadow: '0 8px 25px rgba(0,0,0,0.06)' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '25px', fontSize: '22px', fontWeight: 'bold' }}>RecipeHub 가입하기</h2>
+    <div className="auth-page">
+      <h2 className="auth-page-title">RecipeHub 가입하기</h2>
 
-      <form onSubmit={handleSignup}>
-        {/* 이메일, 닉네임, 비밀번호 필드 생략 (기존과 동일) */}
-        <div style={{ marginBottom: '14px' }}>
-          <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px', fontSize: '13px' }}>이메일 *</label>
-          <input style={getInputStyle('email', checkStatus.email)} type="email" name="email" placeholder="example@recipehub.com" value={formData.email} onChange={handleChange} onBlur={handleBlur} required />
-          <div style={{ minHeight: '18px', marginTop: '4px' }}>
-             {touched.email && formData.email !== '' && !isEmailValid(formData.email) && <p style={{ fontSize: '11px', margin: 0, fontWeight: 'bold', color: '#ef4444' }}>올바른 이메일 형식이 아니에요</p>}
-             {checkStatus.email === 'dupe' && <p style={{ fontSize: '11px', margin: 0, fontWeight: 'bold', color: '#ef4444' }}>중복된 이메일입니다.</p>}
+      <form onSubmit={handleSignup} noValidate>
+
+        {/* 이메일 */}
+        <div className="auth-form-group">
+          <label className="auth-label">이메일 *</label>
+          <input
+            className={getEmailClass()}
+            type="email"
+            name="email"
+            placeholder="example@recipehub.com"
+            value={formData.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <div className="auth-field-hint"><EmailHint /></div>
+        </div>
+
+        {/* 닉네임 */}
+        <div className="auth-form-group">
+          <label className="auth-label">닉네임 *</label>
+          <input
+            className={getNicknameClass()}
+            type="text"
+            name="nickname"
+            placeholder="멋진 닉네임을 적어주세요"
+            value={formData.nickname}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <div className="auth-field-hint"><NicknameHint /></div>
+        </div>
+
+        {/* 비밀번호 */}
+        <div className="auth-form-group">
+          <label className="auth-label">비밀번호 *</label>
+          <input
+            className="auth-input"
+            type="password"
+            name="password"
+            placeholder="8자 이상 입력"
+            value={formData.password}
+            onChange={handleChange}
+          />
+          <div className="signup-strength-bar">
+            <div className="signup-strength-fill"
+              style={{ width: `${strength.score}%`, backgroundColor: strength.color }} />
+          </div>
+          <div className="auth-field-hint">
+            {strength.text && <p style={{ color: strength.color }}>{strength.text}</p>}
           </div>
         </div>
 
-        <div style={{ marginBottom: '14px' }}>
-          <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px', fontSize: '13px' }}>닉네임 *</label>
-          <input style={getInputStyle('nickname', checkStatus.nickname)} type="text" name="nickname" placeholder="멋진 닉네임을 적어주세요" value={formData.nickname} onChange={handleChange} onBlur={handleBlur} required />
-          <div style={{ minHeight: '18px', marginTop: '4px' }}>
-             {checkStatus.nickname === 'dupe' && <p style={{ fontSize: '11px', margin: 0, fontWeight: 'bold', color: '#ef4444' }}>중복된 닉네임입니다.</p>}
+        {/* 비밀번호 확인 */}
+        <div className="auth-form-group auth-form-group--last">
+          <label className="auth-label">비밀번호 확인 *</label>
+          <input
+            className={`auth-input${checkStatus.passwordMatch === 'dupe' ? ' auth-input--error' : checkStatus.passwordMatch === 'ok' ? ' auth-input--ok' : ''}`}
+            type="password"
+            name="confirmPassword"
+            placeholder="한 번 더 입력"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+          />
+          <div className="auth-field-hint">
+            {checkStatus.passwordMatch === 'ok'   && <p className="auth-hint--ok">✓ 비밀번호가 일치해요</p>}
+            {checkStatus.passwordMatch === 'dupe' && <p className="auth-hint--error">비밀번호가 일치하지 않아요</p>}
           </div>
         </div>
 
-        <div style={{ marginBottom: '20px' }}> 
-          <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px', fontSize: '13px' }}>비밀번호 *</label>
-          <input style={getInputStyle('password', null)} type="password" name="password" placeholder="8자 이상 입력" value={formData.password} onChange={handleChange} required />
-          <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '2px', marginTop: '6px', overflow: 'hidden' }}>
-            <div style={{ width: `${strength.score}%`, height: '100%', background: strength.color, transition: 'width 0.4s' }}></div>
-          </div>
-          <div style={{ minHeight: '18px', marginTop: '4px' }}><p style={{ fontSize: '11px', margin: 0, fontWeight: 'bold', color: strength.color }}>{strength.text}</p></div>
-        </div>
-
-        <div style={{ marginBottom: '35px' }}> 
-          <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px', fontSize: '13px' }}>비밀번호 확인 *</label>
-          <input style={getInputStyle('confirm', checkStatus.passwordMatch)} type="password" name="confirmPassword" placeholder="한 번 더 입력" value={formData.confirmPassword} onChange={handleChange} required />
-          <div style={{ minHeight: '18px', marginTop: '4px' }}>
-            {checkStatus.passwordMatch === 'ok' && <p style={{ fontSize: '11px', margin: 0, fontWeight: 'bold', color: '#10b981' }}>✓ 비밀번호가 일치해요</p>}
-            {checkStatus.passwordMatch === 'dupe' && <p style={{ fontSize: '11px', margin: 0, fontWeight: 'bold', color: '#ef4444' }}>비밀번호가 일치하지 않아요</p>}
-          </div>
-        </div>
-
-        {/* ✅ 약관 동의 섹션 수정 */}
-        <div style={{ backgroundColor: '#fcfdfe', padding: '15px', borderRadius: '12px', border: '1px solid #edf2f7', marginBottom: '20px' }}>
-          {/* 전체 동의 체크박스 */}
-          <div 
-            onClick={handleAllAgree}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '12px', marginBottom: '12px', borderBottom: '1px solid #edf2f7', cursor: 'pointer' }}
-          >
-            <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${isAllAgreed ? '#9c88ff' : '#e2e8f0'}`, backgroundColor: isAllAgreed ? '#9c88ff' : '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: '0.2s' }}>
-              {isAllAgreed && <span style={{ color: '#fff', fontSize: '12px' }}>✓</span>}
+        {/* 약관 동의 */}
+        <div className="signup-terms-box">
+          <div className="signup-terms-all-row" onClick={handleAllAgree}>
+            <div className={`auth-checkbox auth-checkbox--lg${isAllAgreed ? ' auth-checkbox--checked' : ''}`}>
+              {isAllAgreed && <span className="auth-checkbox-mark auth-checkbox-mark--lg">✓</span>}
             </div>
-            <span style={{ fontSize: '14px', fontWeight: 'bold', color: isAllAgreed ? '#9c88ff' : '#64748b' }}>전체 동의</span>
+            <span className={`signup-terms-all-label${isAllAgreed ? ' signup-terms-all-label--active' : ' signup-terms-all-label--inactive'}`}>
+              전체 동의
+            </span>
           </div>
 
-          {['terms', 'privacy', 'marketing'].map((id) => (
-            <div key={id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
-              <div 
-                onClick={() => setReadStatus(prev => ({ ...prev, [id]: !prev[id] }))}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-              >
-                <div style={{ width: '14px', height: '14px', borderRadius: '3px', border: `1.5px solid ${readStatus[id] ? '#9c88ff' : '#e2e8f0'}`, backgroundColor: readStatus[id] ? '#9c88ff' : '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  {readStatus[id] && <span style={{ color: '#fff', fontSize: '10px' }}>✓</span>}
+          {termsMeta.map(({ id, required, label }) => (
+            <div key={id} className="signup-terms-row">
+              <div className="signup-terms-item"
+                onClick={() => setReadStatus(prev => ({ ...prev, [id]: !prev[id] }))}>
+                <div className={`auth-checkbox auth-checkbox--sm${readStatus[id] ? ' auth-checkbox--checked' : ''}`}>
+                  {readStatus[id] && <span className="auth-checkbox-mark auth-checkbox-mark--sm">✓</span>}
                 </div>
-                <span style={{ fontSize: '12px', color: readStatus[id] ? '#334155' : '#64748b' }}>
-                  [{id === 'marketing' ? '선택' : '필수'}] {id === 'terms' ? '이용약관' : id === 'privacy' ? '개인정보 처리방침' : '마케팅 수신 동의'}
+                <span className={`signup-terms-item-label${readStatus[id] ? ' signup-terms-item-label--active' : ' signup-terms-item-label--inactive'}`}>
+                  [{required ? '필수' : '선택'}] {label}
                 </span>
               </div>
-              <span onClick={(e) => { e.stopPropagation(); openTermsModal(id); }} style={{ fontSize: '11px', color: '#94a3b8', cursor: 'pointer', textDecoration: 'underline' }}>보기</span>
+              <button type="button" className="signup-terms-view-link"
+                onClick={(e) => { e.stopPropagation(); openTermsModal(id); }}>
+                보기
+              </button>
             </div>
           ))}
         </div>
 
-        <button type="submit" disabled={isSubmitDisabled} style={{ width: '100%', padding: '14px', borderRadius: '10px', border: 'none', fontWeight: 'bold', backgroundColor: isSubmitDisabled ? '#cbd5e1' : '#9c88ff', color: 'white', cursor: isSubmitDisabled ? 'not-allowed' : 'pointer', marginBottom: '20px' }}>
+        {/* 에러 메시지 */}
+        {message && (
+          <div className="auth-error-area">
+            <p className="auth-error-msg">{message}</p>
+          </div>
+        )}
+
+        <button type="submit" className="auth-btn-primary" disabled={isSubmitDisabled}>
           {isLoading ? '확인 중...' : '다음 단계 — 프로필 설정 →'}
         </button>
 
-        {/* ✅ 하단 로그인 링크 추가 */}
-        <div style={{ textAlign: 'center', fontSize: '13px', color: '#64748b' }}>
-          이미 계정이 있으신가요?{' '}
-          <Link to="/login" style={{ color: '#9c88ff', fontWeight: 'bold', textDecoration: 'none', marginLeft: '5px' }}>
-            로그인 →
-          </Link>
+        <div className="auth-redirect">
+          이미 계정이 있으신가요?
+          <Link to="/login" className="auth-redirect-link">로그인 →</Link>
         </div>
       </form>
 
-      {/* 모달 생략 (기존과 동일) */}
+      {/* 약관 모달 */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#fff', width: '90%', maxWidth: '380px', borderRadius: '16px', padding: '20px' }}>
-            <h3 style={{ marginBottom: '15px', fontSize: '17px', textAlign: 'center' }}>{modalContent.title}</h3>
-            <div style={{ height: '180px', overflowY: 'auto', backgroundColor: '#f8fafc', padding: '12px', fontSize: '12px', borderRadius: '8px', whiteSpace: 'pre-wrap', marginBottom: '15px' }}>{modalContent.body}</div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: '#fff' }}>닫기</button>
-              <button onClick={handleModalAgree} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#334155', color: '#fff', fontWeight: 'bold' }}>동의</button>
+        <div className="auth-modal-overlay">
+          <div className="auth-modal auth-modal--terms">
+            <h3 className="auth-modal-title">{modalContent.title}</h3>
+            <div className="auth-modal-terms-body">{modalContent.body}</div>
+            <div className="auth-modal-footer" style={{ padding: 0 }}>
+              <button className="auth-modal-btn-cancel" onClick={() => setIsModalOpen(false)}>닫기</button>
+              <button className="auth-modal-btn-confirm" onClick={handleModalAgree}>동의</button>
             </div>
           </div>
         </div>

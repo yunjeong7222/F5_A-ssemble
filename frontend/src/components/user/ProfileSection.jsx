@@ -1,30 +1,29 @@
 import { useState, useEffect } from 'react';
 import { updateProfile } from '../../api/users';
 import useAuthStore from '../../store/authStore';
+import '../../styles/mypage.css';
 
 export default function ProfileSection() {
   const { user, updateUser } = useAuthStore();
-  
+
   const [nickname, setNickname] = useState('');
   const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(false);
   const [nicknameStatus, setNicknameStatus] = useState('none');
-
-  // 성공 알림 모달 상태 추가
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 엔터 키를 누르면 모달이 닫히는 로직 추가
+  // ESC 키로 모달 닫기
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (isModalOpen && e.key === 'esc') {
+      if (isModalOpen && e.key === 'Escape') {
         setIsModalOpen(false);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isModalOpen]);
 
+  // 닉네임 유효성 실시간 체크
   useEffect(() => {
     if (!nickname) {
       setNicknameStatus('none');
@@ -33,33 +32,29 @@ export default function ProfileSection() {
     setNicknameStatus(nickname.length >= 2 ? 'ok' : 'error');
   }, [nickname]);
 
+  // 유저 정보로 초기값 세팅
   useEffect(() => {
-  if (user) {
-    setNickname(user.nickname || '');
-    setBio(user.bio || '');
-  }
-}, [user]);
+    if (user) {
+      setNickname(user.nickname || '');
+      setBio(user.bio || '');
+    }
+  }, [user]);
 
   const handleSave = async (e) => {
     e.preventDefault();
-    
-    if (!nickname) {
-      // alert('닉네임을 입력해주세요.');
-      return;
-    }
+    if (!nickname) return;
 
     setLoading(true);
     try {
-      const res = await updateProfile({ 
+      const res = await updateProfile({
         email: user?.email,
-        nickname, 
+        nickname,
         bio,
-        profile_url: user?.profile_url
+        profile_url: user?.profile_url,
       });
 
       if (res.data.success) {
-        updateUser(res.data.data); 
-        // ✅ alert 대신 모달창 띄우기
+        updateUser(res.data.data);
         setIsModalOpen(true);
         setNickname('');
         setBio('');
@@ -73,83 +68,76 @@ export default function ProfileSection() {
     }
   };
 
-  const getButtonStyle = (status) => ({
-    width: '100%', padding: '15px', borderRadius: '12px', 
-    boxSizing: 'border-box', fontSize: '14px', outline: 'none', 
-    backgroundColor: '#fff', transition: 'all 0.2s',
-    border: `2px solid ${status === 'ok' ? '#10b981' : status === 'error' ? '#ef4444' : '#e2e8f0'}`
-  });
+  // 닉네임 input className 결정
+  const nicknameInputClass = [
+    'profile-input',
+    nicknameStatus === 'ok'    ? 'profile-input--ok'    : '',
+    nicknameStatus === 'error' ? 'profile-input--error' : '',
+  ].filter(Boolean).join(' ');
 
   return (
-    <div style={{ maxWidth: '550px', margin: '0 auto', padding: '20px 0' }}>
-      <h2 style={{ textAlign: 'left', fontSize: '18px', marginBottom: '30px' }}>기본 정보 수정</h2>
-      
+    <div className="profile-section">
+      <h2 className="profile-section-title">기본 정보 수정</h2>
+
       <form onSubmit={handleSave}>
-        <div style={{ marginBottom: '25px', textAlign: 'left' }}>
-          <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#64748b' }}>이메일</label>
-          <input 
+
+        {/* 이메일 (읽기 전용) */}
+        <div className="profile-form-group">
+          <label className="profile-label">이메일</label>
+          <input
             type="email"
-            style={{ 
-              width: '100%', padding: '15px', borderRadius: '12px', 
-              border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', 
-              color: '#94a3b8', cursor: 'not-allowed', outline: 'none'
-            }} 
-            value={user?.email || ''} 
-            readOnly 
+            className="profile-input profile-input--readonly"
+            value={user?.email || ''}
+            readOnly
           />
         </div>
 
-        <div style={{ marginBottom: '25px', textAlign: 'left' }}>
-          <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>닉네임</label>
-          <input 
-            style={getButtonStyle(nicknameStatus)} 
-            value={nickname} 
-            onChange={(e) => setNickname(e.target.value)} 
+        {/* 닉네임 */}
+        <div className="profile-form-group">
+          <label className="profile-label profile-label--dark">닉네임</label>
+          <input
+            className={nicknameInputClass}
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
             placeholder="수정할 닉네임을 입력하세요"
           />
-          {nicknameStatus === 'ok' && <p style={{ fontSize: '11px', marginTop: '5px', color: '#10b981', fontWeight: 'bold' }}>멋진 닉네임이네요!</p>}
+          {nicknameStatus === 'ok' && (
+            <p className="profile-input-hint">멋진 닉네임이네요!</p>
+          )}
         </div>
 
-        <div style={{ marginBottom: '25px', textAlign: 'left' }}>
-          <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>자기소개</label>
-          <textarea 
-            style={{ width: '100%', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', height: '120px', resize: 'none', outline: 'none' }} 
-            value={bio} 
-            onChange={(e) => setBio(e.target.value)} 
+        {/* 자기소개 */}
+        <div className="profile-form-group">
+          <label className="profile-label profile-label--dark">자기소개</label>
+          <textarea
+            className="profile-textarea"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
             placeholder="새로운 자기소개를 적어주세요."
           />
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
-          style={{ 
-            width: '100%', padding: '18px', borderRadius: '15px', border: 'none', 
-            backgroundColor: loading ? '#cbd5e1' : '#9c88ff', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '16px'
-          }}
+          className={`profile-submit-btn${loading ? ' profile-submit-btn--loading' : ''}`}
         >
           {loading ? '저장 중...' : '정보 업데이트'}
         </button>
       </form>
 
-      {/* ✅ 수정 완료 알림 모달 UI */}
+      {/* 수정 완료 모달 */}
       {isModalOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000
-        }}>
-          <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '24px', textAlign: 'center', width: '320px' }}>
-            <div style={{ fontSize: '40px', marginBottom: '20px' }}>✨</div>
-            <h3 style={{ marginBottom: '10px', fontWeight: '800' }}>수정 완료!</h3>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '30px', lineHeight: '1.5' }}>
-              회원 정보가 성공적으로<br/>변경되었습니다.
+        <div className="profile-modal-overlay">
+          <div className="profile-modal-content">
+            <div className="profile-modal-icon">✨</div>
+            <h3 className="profile-modal-title">수정 완료!</h3>
+            <p className="profile-modal-desc">
+              회원 정보가 성공적으로<br />변경되었습니다.
             </p>
-            <button 
+            <button
+              className="profile-modal-btn"
               onClick={() => setIsModalOpen(false)}
-              style={{ 
-                width: '100%', padding: '14px', borderRadius: '12px', border: 'none', 
-                backgroundColor: '#9c88ff', color: '#fff', fontWeight: 'bold', cursor: 'pointer' 
-              }}
             >
               확인
             </button>

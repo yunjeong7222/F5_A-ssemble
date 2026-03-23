@@ -1,0 +1,999 @@
+/* ============================================================
+   mypage.css — AI Tool Recipe Hub
+   MyPage / ProfileSection / PasswordSection / AccountSection
+   디자인 시스템: Tools.css 기준으로 통일
+   ============================================================ */
+
+@keyframes mp-fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mp-slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   MyPage — 레이아웃
+════════════════════════════════════════════════════════════ */
+
+.mypage-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 24px;
+    min-height: calc(100vh - var(--header-height));
+    font-family: 'Pretendard', sans-serif;
+    animation: mp-fadeIn 0.5s ease;
+}
+
+
+/* ── 상단 프로필 카드 ── */
+
+.mypage-profile-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    margin-bottom: 24px;
+}
+
+.mypage-profile-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+
+/* ── 아바타 ── */
+
+.mypage-avatar-container {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    flex-shrink: 0;
+}
+
+.mypage-avatar-img-wrapper {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+}
+
+.mypage-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.mypage-avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--primary);
+    border-radius: 50%;
+    padding: 6px;
+    display: flex;
+    border: 2px solid var(--bg);
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(156, 136, 255, 0.35);
+    transition: transform 0.15s;
+}
+
+.mypage-avatar-edit-btn:hover {
+    transform: scale(1.1);
+}
+
+.mypage-avatar-edit-label {
+    font-size: 10px;
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    letter-spacing: 0.4px;
+}
+
+
+/* ── 프로필 텍스트 ── */
+
+.mypage-profile-name {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+}
+
+.mypage-profile-email {
+    margin: 0 0 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.mypage-profile-badge {
+    font-size: 12px;
+    background: rgba(156, 136, 255, 0.12);
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: var(--primary);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+
+/* ── 오른쪽 패널 ── */
+
+.mypage-profile-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+
+/* ── 통계 박스 ── */
+
+.mypage-stats-box {
+    display: flex;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+}
+
+.mypage-stat-item {
+    padding: 10px 10px;
+    text-align: center;
+    min-width: 90px;
+}
+
+.mypage-stat-item--border {
+    border-right: 1.5px solid var(--border);
+}
+
+.mypage-stat-number {
+    margin: 0;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.mypage-stat-label {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+
+/* ── 액션 버튼 ── */
+
+.mypage-action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.mypage-btn-info {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+}
+
+.mypage-btn-info:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.mypage-btn-info--faded {
+    background: var(--surface);
+    color: var(--text-secondary);
+}
+
+.mypage-btn-workflow {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    cursor: pointer;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    transition: background 0.15s;
+}
+
+.mypage-btn-workflow:hover {
+    background: var(--primary-hover);
+}
+
+.mypage-btn-workflow--active {
+    background: var(--primary-hover);
+}
+
+
+/* ── 서브탭 바 (기본정보 / 보안 / 계정) ── */
+/* Tools.css cat-tab 패턴과 동일 */
+
+.mypage-subtab-bar {
+    display: flex;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* animation: mp-fadeIn 0.5s ease; */
+}
+
+.mypage-subtab-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.mypage-subtab-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -1.5px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+}
+
+.mypage-subtab-btn:hover {
+    color: var(--primary);
+}
+
+.mypage-subtab-btn--active {
+    color: var(--primary);
+    font-weight: 700;
+    border-bottom-color: var(--primary);
+}
+
+
+/* ── 콘텐츠 박스 ── */
+
+.mypage-content-box {
+    background: var(--bg);
+    padding: 30px 40px;
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--border);
+}
+
+
+/* ── 워크플로우 섹션 ── */
+
+.mypage-workflow-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+    animation: mp-fadeIn 0.3s ease;
+}
+
+.mypage-workflow-filter {
+    display: flex;
+    gap: var(--gap-sm);
+    margin-bottom: 4px;
+}
+
+/* Tools.css filter-btn 패턴과 동일 */
+.mypage-filter-btn {
+    padding: 6px 16px;
+    font-size: 13px;
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.mypage-filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.mypage-filter-btn--active {
+    background: rgba(156, 136, 255, 0.12);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 700;
+}
+
+
+/* ── 워크플로우 카드 (Tools.css tool-card 패턴과 동일) ── */
+
+.mypage-workflow-card {
+    padding: 15px 24px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        transform 0.15s;
+}
+
+.mypage-workflow-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 16px rgba(156, 136, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.mypage-workflow-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.mypage-workflow-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.mypage-workflow-delete-btn {
+    padding: 5px 14px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1.5px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 12px;
+    font-family: 'Pretendard', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.mypage-workflow-delete-btn:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+}
+
+
+/* ── 툴 아이템 ── */
+
+.mypage-workflow-tools {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+}
+
+.mypage-workflow-tools::-webkit-scrollbar {
+    display: none;
+}
+
+.mypage-tool-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.mypage-tool-card {
+    text-align: center;
+}
+
+/* Tools.css card-thumb 패턴 참고 */
+.mypage-tool-img-box {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    margin-bottom: 8px;
+    overflow: hidden;
+    background: var(--surface-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s;
+}
+
+.mypage-tool-img-box:hover {
+    border-color: var(--primary);
+}
+
+.mypage-tool-name {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.mypage-tool-arrow {
+    color: var(--border);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   ProfileSection
+════════════════════════════════════════════════════════════ */
+
+.profile-section {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 8px 0;
+    animation: mp-fadeIn 0.3s ease;
+}
+
+.profile-section-title {
+    text-align: left;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+    margin: 0 0 28px;
+}
+
+.profile-form-group {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+/* Tools.css modal-section h4 패턴 참고 */
+.profile-label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.profile-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    outline: none;
+    background: var(--bg);
+    color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+
+.profile-input:focus {
+    border-color: var(--primary);
+}
+
+.profile-input--readonly {
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.profile-input--ok {
+    border-color: var(--secondary);
+}
+
+.profile-input--error {
+    border-color: #ef4444;
+}
+
+.profile-input-hint {
+    font-size: 12px;
+    margin-top: 6px;
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+.profile-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    height: 90px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    color: var(--text-primary);
+    background: var(--bg);
+    transition: border-color 0.15s;
+}
+
+.profile-textarea:focus {
+    border-color: var(--primary);
+}
+
+/* Tools.css modal-btn-primary 패턴과 동일 */
+.profile-submit-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.15s;
+}
+
+.profile-submit-btn:hover {
+    background: var(--primary-hover);
+}
+
+.profile-submit-btn--loading {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+
+/* ── Profile 수정 완료 모달 (Tools.css modal 패턴과 동일) ── */
+
+.profile-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: mp-fadeIn 0.15s ease;
+}
+
+.profile-modal-content {
+    background: var(--bg);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    width: 320px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: mp-slideUp 0.2s ease;
+}
+
+.profile-modal-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+}
+
+.profile-modal-title {
+    margin: 0 0 8px;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.profile-modal-desc {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 28px;
+    line-height: 1.7;
+}
+
+.profile-modal-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+}
+
+.profile-modal-btn:hover {
+    background: var(--primary-hover);
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   PasswordSection
+════════════════════════════════════════════════════════════ */
+
+.password-section {
+    max-width: 520px;
+    margin: 0 auto;
+    animation: mp-fadeIn 0.3s ease;
+}
+
+.password-form-group {
+    margin-bottom: 24px;
+}
+
+.password-form-group--last {
+    margin-bottom: 32px;
+}
+
+.password-label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 8px;
+    text-align: left;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.password-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    outline: none;
+    background: var(--surface);
+    color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+
+.password-input:focus {
+    border-color: var(--primary);
+}
+
+.password-input--error {
+    border-color: #ef4444;
+}
+
+.password-input--success {
+    border-color: var(--secondary);
+}
+
+/* 강도 게이지 */
+.password-strength-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 999px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.password-strength-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease, background-color 0.4s ease;
+    width: 0%;
+}
+
+.password-strength-fill--weak   { width: 33.3%; background-color: #ef4444; }
+.password-strength-fill--medium { width: 66.6%; background-color: #f59e0b; }
+.password-strength-fill--strong { width: 100%;  background-color: var(--secondary); }
+.password-strength-fill--none   { width: 0%;    background-color: var(--border); }
+
+.password-status-text {
+    font-size: 12px;
+    text-align: left;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+.password-status-text--weak   { color: #ef4444; }
+.password-status-text--medium { color: #f59e0b; }
+.password-status-text--strong { color: var(--secondary); }
+
+.password-match-text {
+    font-size: 12px;
+    text-align: left;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.password-match-text--ok    { color: var(--secondary); }
+.password-match-text--error { color: #ef4444; }
+
+.password-error-text {
+    color: #ef4444;
+    font-size: 12px;
+    text-align: left;
+    margin-top: 6px;
+}
+
+.password-submit-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.15s;
+}
+
+.password-submit-btn:hover {
+    background: var(--primary-hover);
+}
+
+.password-submit-btn--loading {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   AccountSection
+════════════════════════════════════════════════════════════ */
+
+.account-section {
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: left;
+    animation: mp-fadeIn 0.3s ease;
+}
+
+/* 탈퇴 전 확인 박스 */
+.account-info-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.account-info-box h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 14px;
+    letter-spacing: 0.2px;
+}
+
+.account-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 2;
+}
+
+/* 경고 박스 */
+.account-warning-box {
+    border: 1.5px solid rgba(239, 68, 68, 0.4);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    background: rgba(239, 68, 68, 0.04);
+}
+
+.account-warning-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.account-warning-icon {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.account-warning-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #ef4444;
+}
+
+.account-warning-subtitle {
+    font-size: 13px;
+    margin: 0;
+    color: rgba(239, 68, 68, 0.7);
+}
+
+.account-delete-trigger-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid rgba(239, 68, 68, 0.4);
+    background: transparent;
+    color: #ef4444;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+}
+
+.account-delete-trigger-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: #ef4444;
+}
+
+
+/* ── 탈퇴 확인 모달 (Tools.css modal 패턴과 동일) ── */
+
+.account-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: mp-fadeIn 0.15s ease;
+}
+
+.account-modal-content {
+    background: var(--bg);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    animation: mp-slideUp 0.2s ease;
+}
+
+.account-modal-icon-circle {
+    background: rgba(239, 68, 68, 0.1);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.account-modal-icon-circle span {
+    font-size: 28px;
+}
+
+.account-modal-title {
+    font-size: 18px;
+    margin: 0 0 10px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.account-modal-desc-wrapper {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.account-modal-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 0 0 8px;
+    word-break: keep-all;
+}
+
+.account-modal-desc b {
+    color: var(--text-primary);
+}
+
+.account-modal-warning-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    font-size: 11px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.account-modal-consent-note {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-top: 14px;
+}
+
+.account-modal-input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    outline: none;
+    text-align: center;
+    box-sizing: border-box;
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: border-color 0.15s;
+}
+
+.account-modal-input:focus {
+    border-color: var(--primary);
+}
+
+.account-modal-input--password {
+    margin-bottom: 20px;
+}
+
+.account-modal-btns {
+    display: flex;
+    gap: 8px;
+}
+
+/* Tools.css btn-outline 패턴과 동일 */
+.account-modal-cancel-btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+}
+
+.account-modal-cancel-btn:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+}
+
+.account-modal-delete-btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    background: #ef4444;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.account-modal-delete-btn:hover {
+    background: #dc2626;
+}
+
+.account-modal-delete-btn--disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.account-modal-delete-btn--disabled:hover {
+    background: var(--border);
+}

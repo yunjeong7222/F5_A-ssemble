@@ -1,166 +1,279 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useWorkflowStore from '../store/workflowStore'; 
-import '../styles/Community.css'; // 💡 분리된 CSS 적용
+import { useNavigate, useParams } from 'react-router-dom';
+import { getPost } from '../api/posts';
+import { likePost, unlikePost } from '../api/likes';
+import { fetchWorkflowById } from '../api/workflows';
+import useAuthStore from '../store/authStore';
+import EmbedPreview from '../components/community/EmbedPreview';
+import CommentList from '../components/community/CommentList';
+import '../styles/Community.css';
 
 const CommunityDetail = () => {
   const navigate = useNavigate();
-  const workflowResult = useWorkflowStore((state) => state.workflowResult);
+  const { id }   = useParams();
+  const { user } = useAuthStore();
 
-  // ⭐ 에러가 났던 부분: 프롬프트 상태 관리가 반드시 여기에 있어야 합니다.
+  const [post, setPost]           = useState(null);
+  const [workflow, setWorkflow]   = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLiked, setIsLiked]     = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   const [editablePrompts, setEditablePrompts] = useState({});
-  // ⭐ 방금 추가하기로 한 워크플로우 설명 상태 관리
-  const [workflowDescription, setWorkflowDescription] = useState('');
 
-  // 화면 초기화 시 원본 프롬프트를 상태에 복사
+  /* ── 게시글 + 워크플로우 로드 ── */
   useEffect(() => {
-    if (workflowResult && workflowResult.steps) {
-      const initialPrompts = {};
-      workflowResult.steps.forEach((step) => {
-        initialPrompts[step.step] = step.prompt_example || '';
-      });
-      setEditablePrompts(initialPrompts);
-    }
-  }, [workflowResult]);
+    const load = async () => {
+      try {
+        // 1. 게시글 로드
+        const postRes = await getPost(id);
+        const postData = postRes.data;
+        setPost(postData);
+        setLikeCount(postData.like_count || 0);
+        setIsLiked(!!postData.is_liked);
 
-  // 프롬프트 수정 핸들러
-  const handlePromptChange = (stepOrder, newText) => {
-    setEditablePrompts((prev) => ({
-      ...prev,
-      [stepOrder]: newText,
-    }));
+        // 2. workflow_id 있으면 워크플로우 로드
+        if (postData.workflow_id) {
+          const wfRes = await fetchWorkflowById(postData.workflow_id);
+          const wfData = wfRes.data.data;
+
+          const resultJson = typeof wfData.result_json === 'string'
+            ? JSON.parse(wfData.result_json)
+            : wfData.result_json;
+
+          const steps = (resultJson?.steps || []).map(s => ({
+            step:          s.step_order ?? s.step,
+            tool:          s.tool_name  ?? s.tool,
+            shortName:     (s.tool_name ?? s.tool)?.slice(0, 5),
+            category:      s.category   || '',
+            tip:           s.tip        || '',
+            prompt_example: s.prompt_example || '',
+            thumbnail:     wfData.tools?.find(t => t.name === (s.tool_name ?? s.tool))?.thumbnail || null,
+          }));
+
+          setWorkflow({
+            title:    wfData.title,
+            category: resultJson?.workflows_category || steps[0]?.category || '',
+            tools:    wfData.tools || [],
+            steps,
+          });
+
+          // 프롬프트 초기값 세팅
+          const initialPrompts = {};
+          steps.forEach(s => { initialPrompts[s.step] = s.prompt_example; });
+          setEditablePrompts(initialPrompts);
+        }
+      } catch (err) {
+        console.error('불러오기 실패:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  /* ── 좋아요 토글 ── */
+  const handleLikeToggle = async () => {
+    if (!user) { alert('로그인 후 이용해주세요.'); return; }
+    try {
+      if (isLiked) {
+        await unlikePost(id);
+        setLikeCount(prev => prev - 1);
+      } else {
+        await likePost(id);
+        setLikeCount(prev => prev + 1);
+      }
+      setIsLiked(prev => !prev);
+    } catch {
+      alert('좋아요 처리에 실패했습니다.');
+    }
   };
 
-  // 프롬프트 복사 핸들러
+  /* ── 프롬프트 수정 ── */
+  const handlePromptChange = (step, text) => {
+    setEditablePrompts(prev => ({ ...prev, [step]: text }));
+  };
+
   const handleCopyPrompt = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
       alert('프롬프트가 복사되었습니다!');
-    } catch (err) {
-      alert('복사에 실패했습니다. 다시 시도해 주세요.');
+    } catch {
+      alert('복사에 실패했습니다.');
     }
   };
 
-  // 스토어 데이터가 없을 때의 방어 로직
-  if (!workflowResult) {
+  /* ── text attachment (본문 설명) ── */
+  const textContent = post?.attachments?.find(a => a.type === 'text')?.content || '';
+
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px', color: 'var(--text-muted)' }}>
+        불러오는 중...
+      </div>
+    );
+  }
+
+  if (!post) {
     return (
       <div className="detail-error-wrap">
-        <h3>데이터를 불러올 수 없습니다.</h3>
-        <button 
-          onClick={() => navigate('/workflow')} // 워크플로우 시작 페이지 경로로 맞춰주세요
-          className="detail-error-btn"
-        >
-          워크플로우 다시 만들기
+        <h3>게시글을 찾을 수 없습니다.</h3>
+        <button className="detail-error-btn" onClick={() => navigate('/community')}>
+          목록으로
         </button>
       </div>
     );
   }
 
-  const { title, steps } = workflowResult;
-  const toolsFlow = steps.map((s) => s.tool);
-
   return (
     <div className="detail-container-new">
-      
-      {/* 1. 헤더 영역 */}
+
+      {/* ── 1. 헤더 ── */}
       <header>
-        <h2>{title || 'AI 워크플로우 레시피'}</h2>
+        {workflow?.category && (
+          <span className="comm-category-badge" style={{ marginBottom: 12, display: 'inline-block' }}>
+            {workflow.category}
+          </span>
+        )}
+        <h2>{post.title}</h2>
         <div className="detail-header-info">
-          <div>
-            <span className="detail-avatar-user">U</span>
-            <strong>@User</strong>
-            <span className="detail-meta-text">방금 전 · 1 조회</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {post.profile_url ? (
+              <img
+                src={post.profile_url}
+                alt={post.nickname}
+                style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }}
+              />
+            ) : (
+              <span className="detail-avatar-user">
+                {(post.nickname || 'U').charAt(0).toUpperCase()}
+              </span>
+            )}
+            <strong>@{post.nickname}</strong>
+            <span className="detail-meta-text">
+              {new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count}
+            </span>
           </div>
           <div className="detail-header-btns">
-            <button className="detail-like-btn">❤️ 좋아요 0</button>
-            <button className="detail-bookmark-btn">🔖 북마크</button>
+            <button
+              className={`detail-like-btn${isLiked ? ' detail-like-btn--active' : ''}`}
+              onClick={handleLikeToggle}
+            >
+              {isLiked ? '❤️' : '🤍'} 좋아요 {likeCount}
+            </button>
           </div>
         </div>
       </header>
 
-      {/* 2. 결과물 영역 */}
-      <div className="detail-hero-box">
-        <span className="detail-hero-text">결과물 이미지 / 영상 (추후 업로드 기능 연동)</span>
-      </div>
+      {/* ── 2. 미디어 ── */}
+      <EmbedPreview attachments={post.attachments || []} />
 
-      {/* 3. 워크플로우 플로우 */}
-      <section>
-        <h3 className="detail-section-title-sub">WORKFLOW FLOW</h3>
-        <div className="detail-flow-wrap">
-          {toolsFlow.map((tool, index) => (
-            <React.Fragment key={index}>
-              <div className="detail-flow-badge">{tool}</div>
-              {index < toolsFlow.length - 1 && <span className="detail-flow-arrow">➔</span>}
-            </React.Fragment>
-          ))}
-        </div>
-      </section>
-
-      {/* 4. 스텝별 프롬프트 수정 영역 */}
-      <section>
-        {steps.map((step) => (
-          <div key={step.step} className="detail-step-card">
-            <div className="detail-step-header">
-                {/* 왼쪽: 스텝 번호와 툴 이름 */}
-                <div className="detail-step-left">
-                    <span className="detail-step-num">{step.step}</span>
-                    <strong className="detail-step-tool">{step.tool}</strong>
-                </div>
-                
-                {/* 오른쪽 끝: 카테고리 */}
-                <div className="detail-step-right">
-                    <span className="detail-step-dot"></span>
-                    <span className="detail-step-cat">{step.category}</span>
-                </div>
-            </div>
-            
-            {step.tip && <p className="detail-step-tip">💡 {step.tip}</p>}
-
-            <div className="detail-prompt-box">
-              <div className="detail-prompt-inner">
-                <textarea 
-                  value={editablePrompts[step.step] || ''} 
-                  onChange={(e) => handlePromptChange(step.step, e.target.value)}
-                  className="detail-prompt-textarea"
-                  placeholder="프롬프트 내용을 입력하세요..."
-                />
-                <button 
-                  onClick={() => handleCopyPrompt(editablePrompts[step.step])}
-                  className="detail-copy-btn-new"
-                >
-                  복사
-                </button>
+      {/* ── 3. 연결된 레시피 + 워크플로우 플로우 ── */}
+      {workflow && (
+        <section>
+          {/* 연결된 레시피 라벨 */}
+          <div className="write-sel-header" style={{ marginBottom: 16 }}>
+            <div className="write-sel-info">
+              <div className="write-sel-icon">✦</div>
+              <div>
+                <span className="write-sel-badge">연결된 레시피</span>
+                <strong className="write-sel-title">{workflow.title}</strong>
               </div>
             </div>
           </div>
-        ))}
-      </section>
 
-      {/* 5. 워크플로우 설명 작성 영역 */}
-      <section style={{ marginTop: '30px' }}>
-        <h3 className="detail-desc-title">WORKFLOW DESCRIPTION</h3>
-        <textarea 
-          value={workflowDescription}
-          onChange={(e) => setWorkflowDescription(e.target.value)}
-          placeholder="이 워크플로우를 어떤 상황에서 쓰면 좋은지, 혹은 나만의 활용 꿀팁을 자유롭게 적어주세요!"
-          className="detail-desc-textarea-new"
-        />
-      </section>
+          {/* 워크플로우 플로우 (썸네일 + 툴명) */}
+          {workflow.steps.length > 0 && (
+            <div className="write-flow-section">
+              <h5 className="write-cat-title">WORKFLOW FLOW</h5>
+              <div className="write-flow-wrap">
+                {workflow.steps.map((step, index) => (
+                  <React.Fragment key={step.step}>
+                    <div className="write-flow-item">
+                      <div className="write-flow-box">
+                        {step.thumbnail ? (
+                          <img
+                            src={step.thumbnail}
+                            alt={step.tool}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+                          />
+                        ) : (
+                          step.shortName
+                        )}
+                      </div>
+                      <span className="write-flow-name">{step.tool}</span>
+                    </div>
+                    {index < workflow.steps.length - 1 && (
+                      <div className="write-flow-arrow">➔</div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
 
-      {/* 6. 댓글 영역 */}
-      <section className="detail-comments-section">
-        <h4 style={{ marginBottom: '20px' }}>댓글 0개</h4>
-        <div className="detail-comment-wrap">
-           <span className="detail-comment-avatar">U</span>
-           <input 
-             type="text" 
-             placeholder="댓글을 입력하세요..." 
-             className="detail-comment-input"
-           />
-           <button className="detail-comment-submit">등록</button>
-        </div>
-      </section>
-      
+          {/* 단계별 프롬프트 */}
+          {workflow.steps.length > 0 && (
+            <div className="write-prompt-area">
+              <h5 className="write-cat-title" style={{ marginBottom: 20 }}>단계별 프롬프트</h5>
+              {workflow.steps.map(step => (
+                <div key={step.step} className="detail-step-card">
+                  <div className="detail-step-header">
+                    <div className="detail-step-left">
+                      <span className="detail-step-num">{step.step}</span>
+                      <strong className="detail-step-tool">{step.tool}</strong>
+                    </div>
+                    <span className="detail-step-cat">{step.category}</span>
+                  </div>
+
+                  {step.tip && (
+                    <p className="detail-step-tip">💡 {step.tip}</p>
+                  )}
+
+                  <div className="detail-prompt-box">
+                    <div className="detail-prompt-inner">
+                      <textarea
+                        value={editablePrompts[step.step] || ''}
+                        onChange={(e) => handlePromptChange(step.step, e.target.value)}
+                        className="detail-prompt-textarea"
+                        placeholder="프롬프트를 입력하세요..."
+                      />
+                      <button
+                        className="detail-copy-btn-new"
+                        onClick={() => handleCopyPrompt(editablePrompts[step.step] || '')}
+                      >
+                        복사
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── 4. 본문 설명 ── */}
+      {textContent && (
+        <section>
+          <h3 className="detail-section-title-sub">WORKFLOW DESCRIPTION</h3>
+          <p style={{
+            fontSize: 14,
+            color: 'var(--text-secondary)',
+            lineHeight: 1.8,
+            background: 'var(--surface)',
+            padding: '16px 20px',
+            borderRadius: 'var(--radius-md)',
+            border: '1.5px solid var(--border)',
+            whiteSpace: 'pre-wrap',
+          }}>
+            {textContent}
+          </p>
+        </section>
+      )}
+
+      {/* ── 5. 댓글 ── */}
+      <CommentList postId={id} />
+
     </div>
   );
 };

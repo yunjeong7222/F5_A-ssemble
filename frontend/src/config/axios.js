@@ -23,7 +23,16 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // 인증 관련 엔드포인트는 refresh 시도 안 함
-    const authUrls = ['/api/auth/login', '/api/auth/refresh', '/api/auth/logout', '/api/auth/signup'];
+    const authUrls = [
+      '/api/auth/login', 
+      '/api/auth/refresh', 
+      '/api/auth/logout', 
+      '/api/auth/signup', 
+      '/api/users/reset-password',
+      '/api/auth/check-duplicate',
+      '/api/comments',  
+      '/api/likes',     
+    ];
     const isAuthUrl = authUrls.some(url => originalRequest.url.includes(url));
 
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthUrl) {

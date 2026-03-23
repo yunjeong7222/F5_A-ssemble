@@ -1,103 +1,128 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../api/auth';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { login, resetPassword } from '../api/auth';
+import { updateProfile } from '../api/users';
 import useAuthStore from '../store/authStore';
+import '../styles/auth.css';
 
-// ✅ 임시 비밀번호 발급 모달 컴포넌트
+/* ── 임시 비밀번호 생성 유틸 ── */
+const generateTempPassword = () => {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let pw = '';
+  for (let i = 0; i < 8; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+  return pw + '!';
+};
+
+/* ════════════════════════════════════════
+   비밀번호 찾기 모달
+════════════════════════════════════════ */
 const FindPasswordModal = ({ onClose }) => {
-  const [email, setEmail] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [foundPassword, setFoundPassword] = useState('');
-  const [isSearched, setIsSearched] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
+  const [step, setStep]             = useState(1);
+  const [email, setEmail]           = useState('');
+  const [nickname, setNickname]     = useState('');
+  const [tempPassword, setTempPassword] = useState('');
+  const [errorMsg, setErrorMsg]     = useState('');
+  const [isLoading, setIsLoading]   = useState(false);
 
-  // ✅ 엔터 키 이벤트: 결과 확인 전엔 '발급', 확인 후엔 '닫기'
+  const isEmailValid = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        if (!isSearched) {
-          handleFindPassword();
-        } else {
-          onClose();
-        }
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  const handleSubmit = async () => {
+    setErrorMsg('');
+    if (!email && !nickname) { setErrorMsg('이메일과 닉네임을 입력해주세요.'); return; }
+    if (!email)               { setErrorMsg('이메일을 입력해주세요.'); return; }
+    if (!isEmailValid(email)) { setErrorMsg('올바른 이메일 형식이 아닙니다.'); return; }
+    if (!nickname)            { setErrorMsg('닉네임을 입력해주세요.'); return; }
+
+    setIsLoading(true);
+    try {
+      const newPassword = generateTempPassword();
+      await resetPassword({ email, nickname, newPassword });
+      setTempPassword(newPassword);
+      setStep(2);
+    } catch (err) {
+      const status = err.response?.status;
+      const msg    = err.response?.data?.message;
+      if (status === 401) {
+        setErrorMsg('이메일 또는 닉네임이 일치하는 계정이 없습니다.');
+      } else {
+        setErrorMsg(msg || '오류가 발생했습니다. 다시 시도해주세요.');
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [email, nickname, isSearched]);
-
-  const handleFindPassword = () => {
-    if (!email || !nickname) {
-      alert('이메일과 닉네임을 모두 입력해주세요.');
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsSearching(true);
-
-    // ✅ 서버 에러(404)를 피해 프론트에서 직접 생성 로직 (0.6초 뒤 실행)
-    setTimeout(() => {
-      // 1. 랜덤 8자리 비밀번호 생성
-      const tempPw = Math.random().toString(36).slice(-8) + '!';
-      
-      // 2. 만료 시간 설정 (현재시간 + 5분)
-      const expiryTime = Date.now() + 5 * 60 * 1000;
-
-      // 3. 로컬스토리지에 저장 (로그인 시 검증용)
-      localStorage.setItem('tempPasswordInfo', JSON.stringify({
-        email: email,
-        tempPassword: tempPw,
-        expiryTime: expiryTime
-      }));
-
-      setFoundPassword(tempPw);
-      setIsSearched(true);
-      setIsSearching(false);
-    }, 600);
   };
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-    }}>
-      <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '32px', width: '380px', textAlign: 'center' }}>
-        <h3 style={{ marginBottom: '15px', fontWeight: '800', fontSize: '20px' }}>비밀번호 찾기</h3>
-        
-        {!isSearched ? (
-          <>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px', lineHeight: '1.5' }}>
-              정보를 입력하시면 <b>5분간 유효한</b><br/>임시 비밀번호를 발급해 드립니다.
-            </p>
-            <input 
-              type="email" placeholder="이메일 주소 입력" value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '10px', outline: 'none' }}
-            />
-            <input 
-              type="text" placeholder="닉네임 입력" value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '25px', outline: 'none' }}
-            />
-          </>
-        ) : (
-          <div style={{ padding: '20px', backgroundColor: '#f8fafc', borderRadius: '16px', marginBottom: '25px' }}>
-            <p style={{ fontSize: '13px', color: '#ef4444', marginBottom: '8px', fontWeight: 'bold' }}>⚠️ 5분 뒤 만료됩니다!</p>
-            <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '8px' }}>발급된 임시 비밀번호</p>
-            <p style={{ fontSize: '20px', fontWeight: 'bold', color: '#9c88ff', letterSpacing: '1px' }}>{foundPassword}</p>
-          </div>
-        )}
+    <div className="auth-modal-overlay">
+      <div className="auth-modal">
+        <div className="auth-modal-body">
+          {step === 1 && (
+            <>
+              <h3 className="auth-modal-title">비밀번호 찾기</h3>
+              <p className="auth-modal-desc">
+                가입 시 사용한 <b>이메일과 닉네임</b>이<br />
+                정확히 일치하면 임시 비밀번호를 발급해드립니다.
+              </p>
+              <input
+                type="email"
+                className={`auth-input${errorMsg && !email ? ' auth-input--error' : ''}`}
+                style={{ marginBottom: 10 }}
+                placeholder="이메일 주소"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setErrorMsg(''); }}
+              />
+              <input
+                type="text"
+                className={`auth-input${errorMsg && !nickname ? ' auth-input--error' : ''}`}
+                placeholder="닉네임"
+                value={nickname}
+                onChange={(e) => { setNickname(e.target.value); setErrorMsg(''); }}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !isLoading) handleSubmit(); }}
+              />
+              <div style={{ minHeight: 20, marginTop: 8 }}>
+                {errorMsg && (
+                  <p style={{ fontSize: 12, color: '#ef4444', fontWeight: 700, margin: 0 }}>
+                    {errorMsg}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0', backgroundColor: '#fff', color: '#64748b', fontWeight: 'bold', cursor: 'pointer' }}>
-            {isSearched ? "닫기" : "취소"}
-          </button>
-          {!isSearched && (
-            <button 
-              onClick={handleFindPassword} 
-              disabled={isSearching}
-              style={{ flex: 1, padding: '14px', borderRadius: '14px', border: 'none', backgroundColor: '#9c88ff', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}
-            >
-              {isSearching ? '발급 중...' : '임시 비번 발급'}
+          {step === 2 && (
+            <>
+              <h3 className="auth-modal-title">임시 비밀번호 발급 완료</h3>
+              <div className="auth-modal-result-box">
+                <p className="auth-modal-result-warning">⚠️ 로그인 후 반드시 비밀번호를 변경해주세요!</p>
+                <p className="auth-modal-result-label">발급된 임시 비밀번호</p>
+                <p className="auth-modal-result-value">{tempPassword}</p>
+              </div>
+              <p className="auth-modal-desc" style={{ margin: 0 }}>
+                임시 비밀번호로 로그인 후<br />
+                마이페이지 → 보안 설정에서 변경해주세요.
+              </p>
+            </>
+          )}
+        </div>
+
+        <div className="auth-modal-footer">
+          {step === 1 && (
+            <>
+              <button className="auth-modal-btn-cancel" onClick={onClose}>취소</button>
+              <button className="auth-modal-btn-confirm" onClick={handleSubmit} disabled={isLoading}>
+                {isLoading ? '확인 중...' : '임시 비번 발급'}
+              </button>
+            </>
+          )}
+          {step === 2 && (
+            <button className="auth-modal-btn-confirm" style={{ flex: 1 }} onClick={onClose}>
+              확인
             </button>
           )}
         </div>
@@ -106,43 +131,47 @@ const FindPasswordModal = ({ onClose }) => {
   );
 };
 
-// ✅ 로그인 페이지 컴포넌트
+/* ════════════════════════════════════════
+   로그인 페이지
+════════════════════════════════════════ */
 const Login = () => {
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
+  const location   = useLocation();
   const loginStore = useAuthStore((state) => state.login);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [message, setMessage]     = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // ProfileSetup에서 넘어온 profileUrl (있을 수도, 없을 수도 있음)
+  const profileUrl = location.state?.profileUrl || null;
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage('');
+    if (!email)    { setMessage('이메일을 입력해주세요.'); return; }
+    if (!password) { setMessage('비밀번호를 입력해주세요.'); return; }
+
     setIsLoading(true);
-
-    // ✅ 1. 임시 비밀번호 로그인 체크
-    const tempInfo = JSON.parse(localStorage.getItem('tempPasswordInfo'));
-    if (tempInfo && email === tempInfo.email && password === tempInfo.tempPassword) {
-      if (Date.now() > tempInfo.expiryTime) {
-        setMessage('임시 비밀번호 사용 시간이 만료되었습니다. (5분 초과)');
-        localStorage.removeItem('tempPasswordInfo');
-        setIsLoading(false);
-        return;
-      }
-      // 임시 비번이 맞고 시간도 남았다면 성공 처리
-      alert('임시 비밀번호로 로그인되었습니다. 보안을 위해 비밀번호를 변경해주세요!');
-      localStorage.removeItem('tempPasswordInfo');
-      navigate('/'); 
-      return;
-    }
-
-    // ✅ 2. 일반 로그인 (기존 서버 연동)
     try {
       const res = await login({ email, password });
       const { accessToken, refreshToken, user } = res.data.data;
+
+      // 스토어에 저장 (accessToken 생김)
       loginStore(user, accessToken, refreshToken);
+
+      // ProfileSetup에서 넘어온 profileUrl이 있으면 DB에 저장
+      if (profileUrl) {
+        try {
+          await updateProfile({ profile_url: profileUrl, nickname: user.nickname });
+        } catch (err) {
+          console.error('프로필 사진 저장 실패:', err);
+          // 실패해도 로그인은 유지
+        }
+      }
+
       navigate('/');
     } catch (err) {
       setMessage(err.response?.data?.message || '로그인 정보를 확인해주세요.');
@@ -151,42 +180,52 @@ const Login = () => {
     }
   };
 
-  const inputStyle = {
-    padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0',
-    width: '100%', marginBottom: '10px', boxSizing: 'border-box', outline: 'none',
-  };
-
   return (
-    <div style={{ maxWidth: '400px', margin: '100px auto', padding: '30px', textAlign: 'center' }}>
-      <h2 style={{ marginBottom: '30px', fontWeight: '800' }}>로그인</h2>
+    <div className="auth-page auth-page--login">
+      <h2 className="auth-page-title">로그인</h2>
 
-      <form onSubmit={handleLogin}>
-        <input style={inputStyle} type="email" placeholder="이메일" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <div style={{ position: 'relative' }}>
-          <input style={inputStyle} type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <div style={{ textAlign: 'right', marginTop: '-5px', marginBottom: '10px' }}>
-            <span onClick={() => setIsModalOpen(true)} style={{ fontSize: '13px', color: '#9c88ff', cursor: 'pointer', fontWeight: 'bold' }}>
+      <form onSubmit={handleLogin} noValidate>
+
+        <div className="auth-form-group">
+          <input
+            className="auth-input"
+            type="email"
+            placeholder="이메일"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="auth-form-group login-input-wrapper">
+          <input
+            className="auth-input"
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <div className="login-forgot-row">
+            <button
+              type="button"
+              className="login-forgot-link"
+              onClick={() => setIsModalOpen(true)}
+            >
               비밀번호를 잊으셨나요?
-            </span>
+            </button>
           </div>
         </div>
 
-        {/* ⭐ 수정된 부분: 에러 메시지가 들어갈 공간을 미리 고정 확보 (밀림 방지) */}
-        <div style={{ minHeight: '24px', marginBottom: '15px', textAlign: 'left' }}>
-          {message && <p style={{ color: '#ef4444', fontSize: '13px', margin: 0, fontWeight: 'bold' }}>{message}</p>}
+        <div className="auth-error-area">
+          {message && <p className="auth-error-msg">{message}</p>}
         </div>
 
-        <button type="submit" disabled={isLoading} style={{ width: '100%', padding: '18px', backgroundColor: '#9c88ff', border: 'none', borderRadius: '15px', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}>
+        <button type="submit" className="auth-btn-primary" disabled={isLoading}>
           {isLoading ? '로그인 중...' : '로그인'}
         </button>
 
-        {/* 회원가입 유도 문구 및 버튼 */}
-        <div style={{ marginTop: '25px', fontSize: '14px', color: '#64748b' }}>
-          기존 회원이 아니신가요?{' '}
-          <span 
-            onClick={() => navigate('/signup')} 
-            style={{ color: '#9c88ff', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}
-          >
+        <div className="auth-redirect">
+          기존 회원이 아니신가요?
+          <span className="auth-redirect-link" onClick={() => navigate('/signup')}>
             회원가입
           </span>
         </div>

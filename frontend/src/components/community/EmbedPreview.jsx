@@ -1,0 +1,58 @@
+const getYoutubeId = (url) =>
+  url?.match(/[?&]v=([^&]+)/)?.[1] ||
+  url?.match(/youtu\.be\/([^?]+)/)?.[1] || null;
+
+// attachments 배열에서 미디어(image/video/youtube) 첫 번째 항목을 렌더링
+const EmbedPreview = ({ attachments = [] }) => {
+  const media = attachments.find(a => ['image', 'video', 'youtube'].includes(a.type));
+
+  if (!media) {
+    return (
+      <div className="detail-hero-box">
+        <span className="detail-hero-text">첨부된 미디어가 없습니다.</span>
+      </div>
+    );
+  }
+
+  if (media.type === 'image') {
+    return (
+      <div className="detail-hero-box">
+        <img
+          src={media.url}
+          alt="결과물 이미지"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-md)' }}
+        />
+      </div>
+    );
+  }
+
+  if (media.type === 'video') {
+    return (
+      <div className="detail-hero-box">
+        <video
+          src={media.url}
+          controls
+          style={{ width: '100%', borderRadius: 'var(--radius-md)' }}
+        />
+      </div>
+    );
+  }
+
+  if (media.type === 'youtube') {
+    const videoId = getYoutubeId(media.url);
+    if (!videoId) return null;
+    return (
+      <div className="detail-hero-box" style={{ aspectRatio: '16/9', padding: 0 }}>
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}`}
+          style={{ width: '100%', height: '100%', border: 'none', borderRadius: 'var(--radius-md)' }}
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  return null;
+};
+
+export default EmbedPreview;

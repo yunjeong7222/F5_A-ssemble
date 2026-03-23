@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useWorkflow } from '../../hooks/useWorkflow';
+import useAuthStore from '../../store/authStore';
 import useWorkflowStore from '../../store/workflowStore';
 import '../../styles/Workflow.css';
 
@@ -124,7 +126,7 @@ const CategoryVisualizer = ({ category }) => {
   }
 
   // 4. ✂️ [영상 편집]
-  if (category === '영상 편집') {
+  if (category === '영상 편집' || category === '영상 편집 및 자막') {
     return (
       <div className="wr-cat-media">
         <video src="https://www.adobe.com/creativecloud/media_141358e1c6f03665f231c26f66738f5fbc3235a22.mp4" autoPlay loop muted playsInline className="wr-cat-video" />
@@ -183,6 +185,9 @@ const CategoryVisualizer = ({ category }) => {
 const WorkflowResult = ({ workflowResult }) => {
   const setStep = useWorkflowStore(state => state.setStep);
   const navigate = useNavigate();
+  const { handleSaveWorkflow } = useWorkflow(); // 추가
+  const { isLoggedIn } = useAuthStore();        // 추가
+  const [isSaving, setIsSaving] = useState(false); // 추가
   
   const [expandedSteps, setExpandedSteps] = useState([0]);
 
@@ -209,6 +214,20 @@ const WorkflowResult = ({ workflowResult }) => {
     navigator.clipboard.writeText(text);
     alert('프롬프트가 클립보드에 복사되었습니다! 🚀');
   };
+
+  const handleSave = async () => {
+  if (!isLoggedIn) {
+    alert('로그인 후 저장할 수 있어요!');
+    navigate('/login');
+    return;
+  }
+  setIsSaving(true);
+  try {
+    await handleSaveWorkflow();
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const toolDirectory = {
     'ChatGPT': { domain: 'openai.com', category: '기획 · 아이디어', desc: '대화형 AI로 대본 초안 및 아이디어를 기획합니다.' },
@@ -311,7 +330,12 @@ const WorkflowResult = ({ workflowResult }) => {
             return (
               <React.Fragment key={index}>
                 <div className="wr-flow-item">
-                  <img src={`https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`} alt={step.tool} style={{ width: '40px', height: '40px', objectFit: 'contain' }} onError={(e) => { e.target.style.display='none'; }} />
+                  <img
+                    src={step.thumbnail || `https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`}
+                    alt={step.tool}
+                    style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                    onError={(e) => { e.target.style.display='none'; }}
+                  />
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#1e293b' }}>{step.tool}</div>
                     <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#10b981', marginTop: '4px' }}>{toolInfo.category.split('·')[0].trim()} 특화</div>
@@ -350,7 +374,11 @@ const WorkflowResult = ({ workflowResult }) => {
                     onClick={(e) => e.stopPropagation()} 
                     className="wr-step-link"
                   >
-                    <img src={`https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`} alt={`${step.tool} logo`} style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'contain' }} />
+                    <img
+                      src={step.thumbnail || `https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`}
+                      alt={`${step.tool} logo`}
+                      style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'contain' }}
+                    />
                   </a>
                   
                   <div>
@@ -461,8 +489,8 @@ const WorkflowResult = ({ workflowResult }) => {
           </button>
           
           {/* 커뮤니티 저장 기능 */}
-          <button onClick={() => navigate('/community/123')} className="wr-btn-primary">
-            🚀 레시피로 저장
+          <button onClick={handleSave} disabled={isSaving} className="wr-btn-primary">
+            {isSaving ? '저장 중...' : '🚀 레시피로 저장'}
           </button>
         </div>
       </div>

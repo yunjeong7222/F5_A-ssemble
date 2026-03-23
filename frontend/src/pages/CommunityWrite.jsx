@@ -1,46 +1,71 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPost } from '../api/posts';
+import { fetchMyWorkflows } from '../api/workflows';
+import { uploadFile } from '../utils/uploadFile';
 import '../styles/Community.css';
-
-const mockWorkflows = [
-  {
-    id: 1,
-    title: 'Perplexity + Claude로 경쟁사 분석 보고서 30분 완성',
-    toolsText: 'ChatGPT · Vrew · Canva AI · ElevenLabs',
-    category: '스크립트',
-    steps: [
-      { step: 1, tool: 'ChatGPT', shortName: 'GPT', category: '기획 및 스크립트', description: '30초 숏폼 스크립트 작성', prompt_example: '"30초 숏폼용 스크립트 작성해줘. 주제는 [주제]"' },
-      { step: 2, tool: 'Vrew', shortName: 'Vrew', category: '영상 편집', description: '오디오 기반 자동 컷 편집', prompt_example: '"생성된 스크립트를 바탕으로 템포가 빠른 숏폼 영상을 만들어줘."' },
-      { step: 3, tool: 'Canva AI', shortName: 'Canva', category: '이미지 소스 생성', description: '썸네일 디자인 자동 생성', prompt_example: '"유튜브 썸네일 만들어줘. 텍스트: [제목], 톤: 밝고 강렬하게"' },
-      { step: 4, tool: 'ElevenLabs', shortName: '11Labs', category: '보이스', description: 'AI 내레이션 생성', prompt_example: '"차분하고 신뢰감 있는 20대 여성 목소리로 자연스럽게 읽어줘."' }
-    ]
-  },
-  {
-    id: 2,
-    title: '30초 숏폼 자동 제작',
-    toolsText: 'ChatGPT · CapCut AI · Vrew',
-    category: '영상 제작',
-    steps: []
-  }
-];
 
 const CommunityWrite = () => {
   const navigate = useNavigate();
 
-  const [postTitle, setPostTitle] = useState('');
-  const [postContent, setPostContent] = useState('');
+  const [postTitle, setPostTitle]       = useState('');
+  const [postContent, setPostContent]   = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [hasSavedWorkflows, setHasSavedWorkflows] = useState(false);
+  const [myWorkflows, setMyWorkflows]               = useState([]);
+  const [isLoadingWorkflows, setIsLoadingWorkflows] = useState(true);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState(null);
-  const [editablePrompts, setEditablePrompts] = useState({});
+  const [editablePrompts, setEditablePrompts]       = useState({});
 
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewUrl, setPreviewUrl]     = useState(null);
   const fileInputRef = useRef(null);
 
-  const selectedWorkflow = mockWorkflows.find(w => w.id === selectedWorkflowId);
+  const [uploadType, setUploadType] = useState('file'); // 'file' | 'youtube'
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+
+  // ── 워크플로우 목록 불러오기 ──
+  useEffect(() => {
+    const loadWorkflows = async () => {
+      try {
+        const res = await fetchMyWorkflows();
+        const list = res.data.data || [];
+
+        const parsed = list.map(wf => {
+          const resultJson = typeof wf.result_json === 'string'
+            ? JSON.parse(wf.result_json)
+            : wf.result_json;
+          
+          const steps = resultJson?.steps || [];
+
+          return {
+            id: wf.id,
+            title: wf.title,
+            category: wf.workflows_category || resultJson?.workflows_category || steps[0]?.workflows_category || '',
+            toolsText: wf.tools?.map(t => t.name).join(' · ') || '',
+            steps: steps.map(s => ({
+              step: s.step_order ?? s.step,
+              tool: s.tool_name  ?? s.tool,
+              shortName: (s.tool_name ?? s.tool)?.slice(0, 5),
+              category: s.category,
+              description: s.tip || '',
+              prompt_example: s.prompt_example || '',
+              thumbnail: wf.tools?.find(t => t.name === (s.tool_name ?? s.tool))?.thumbnail || null,
+            })),
+          };
+        });
+
+        setMyWorkflows(parsed);
+      } catch (err) {
+        console.error('워크플로우 불러오기 실패:', err);
+      } finally {
+        setIsLoadingWorkflows(false);
+      }
+    };
+    loadWorkflows();
+  }, []);
+
+  const selectedWorkflow = myWorkflows.find(w => w.id === selectedWorkflowId);
 
   useEffect(() => {
     if (selectedWorkflow?.steps) {
@@ -79,30 +104,37 @@ const CommunityWrite = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const getYoutubeId = (url) => {
+    return url?.match(/[?&]v=([^&]+)/)?.[1] ||
+           url?.match(/youtu\.be\/([^?]+)/)?.[1] || null;
+  };
+
   const handleSubmit = async () => {
-    if (!postTitle.trim()) return alert('게시글 제목을 입력해주세요.');
-    if (!selectedFile) return alert('결과물(이미지 또는 영상)을 업로드해주세요.');
-    if (!selectedWorkflowId) return alert('공유할 레시피(워크플로우)를 선택해주세요.');
-    if (!postContent.trim()) return alert('워크플로우 설명을 작성해주세요.');
+    if (!postTitle.trim())                                      return alert('게시글 제목을 입력해주세요.');
+    if (uploadType === 'file' && !selectedFile)                 return alert('결과물을 업로드해주세요.');
+    if (uploadType === 'youtube' && !getYoutubeId(youtubeUrl)) return alert('올바른 유튜브 URL을 입력해주세요.');
+    if (!selectedWorkflowId)                                    return alert('공유할 레시피(워크플로우)를 선택해주세요.');
+    if (!postContent.trim())                                    return alert('워크플로우 설명을 작성해주세요.');
 
     setIsSubmitting(true);
     try {
-      // ① 파일 먼저 업로드해서 URL 획득 (업로드 API 연동 후 교체 필요)
-      // 현재는 로컬 blob URL을 임시 사용 — 실제 배포 시 S3/스토리지 업로드 API로 교체
-      const fileType = selectedFile.type.startsWith('video/') ? 'video' : 'image';
-      const fileUrl = previewUrl; // TODO: 실제 업로드 API로 교체
+      let attachments = [];
 
-      // ② 컨트롤러 형식에 맞게 JSON으로 전송
+      if (uploadType === 'file') {
+        const fileUrl = await uploadFile(selectedFile);
+        const fileType = selectedFile.type.startsWith('video/') ? 'video' : 'image';
+        attachments.push({ type: fileType, url: fileUrl });
+      } else {
+        attachments.push({ type: 'youtube', url: youtubeUrl });
+      }
+
+      attachments.push({ type: 'text', content: postContent });
+
       await createPost({
         title: postTitle,
         workflow_id: selectedWorkflowId,
-        attachments: [
-          {
-            type: fileType,
-            url: fileUrl,
-            content: postContent, // 워크플로우 설명을 첫 번째 attachment content에 담음
-          }
-        ],
+        category: selectedWorkflow?.category || '',
+        attachments,
       });
 
       alert('게시글이 성공적으로 등록되었습니다! 🎉');
@@ -121,14 +153,9 @@ const CommunityWrite = () => {
 
         <header className="write-header">
           <h2 className="write-title">워크플로우 공유하기</h2>
-          <button
-            onClick={() => { setHasSavedWorkflows(!hasSavedWorkflows); setSelectedWorkflowId(null); }}
-            className="write-test-btn"
-          >
-            {hasSavedWorkflows ? '🔄⭕ 데이터 있음 (Beta)' : '🔄❌ 데이터 없음 (Beta)'}
-          </button>
         </header>
 
+        {/* 제목 */}
         <section className="write-section">
           <label className="write-label">제목</label>
           <input
@@ -140,58 +167,135 @@ const CommunityWrite = () => {
           />
         </section>
 
+        {/* 결과물 업로드 */}
         <section className="write-section">
           <label className="write-label">결과물 업로드</label>
-          <input type="file" accept="image/png, image/jpeg, video/mp4" style={{ display: 'none' }} ref={fileInputRef} onChange={handleFileChange} />
-          <div onClick={previewUrl ? undefined : handleUploadBoxClick} className={`write-upload-box ${previewUrl ? 'write-upload-filled' : 'write-upload-empty'}`}>
-            {previewUrl ? (
-              <>
-                {selectedFile.type.startsWith('video/') ? (
-                  <video src={previewUrl} controls className="write-preview-media" />
-                ) : (
-                  <img src={previewUrl} alt="업로드 미리보기" className="write-preview-media" />
-                )}
-                <button onClick={handleRemoveFile} className="write-remove-btn">✕</button>
-              </>
-            ) : (
-              <div>
-                <div className="write-upload-icon">↑</div>
-                <p className="write-upload-text">이미지 또는 영상을 업로드하세요</p>
-                <p className="write-upload-hint">PNG, JPG, MP4 · 최대 50MB</p>
-              </div>
-            )}
+
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            <button
+              onClick={() => setUploadType('file')}
+              className={`comm-filter-btn ${uploadType === 'file' ? 'active' : ''}`}
+            >
+              이미지 / 영상
+            </button>
+            <button
+              onClick={() => setUploadType('youtube')}
+              className={`comm-filter-btn ${uploadType === 'youtube' ? 'active' : ''}`}
+            >
+              유튜브 URL
+            </button>
           </div>
+
+          {uploadType === 'file' && (
+            <>
+              <input
+                type="file"
+                accept="image/png, image/jpeg, video/mp4"
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              <div
+                onClick={previewUrl ? undefined : handleUploadBoxClick}
+                className={`write-upload-box ${previewUrl ? 'write-upload-filled' : 'write-upload-empty'}`}
+              >
+                {previewUrl ? (
+                  <>
+                    {selectedFile.type.startsWith('video/') ? (
+                      <video src={previewUrl} controls className="write-preview-media" />
+                    ) : (
+                      <img src={previewUrl} alt="업로드 미리보기" className="write-preview-media" />
+                    )}
+                    <button onClick={handleRemoveFile} className="write-remove-btn">✕</button>
+                  </>
+                ) : (
+                  <div>
+                    <div className="write-upload-icon">↑</div>
+                    <p className="write-upload-text">이미지 또는 영상을 업로드하세요</p>
+                    <p className="write-upload-hint">PNG, JPG, MP4 · 최대 50MB</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {uploadType === 'youtube' && (
+            <div>
+              <input
+                type="text"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="write-input"
+                style={{ marginBottom: '12px' }}
+              />
+              {getYoutubeId(youtubeUrl) && (
+                <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', aspectRatio: '16/9' }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYoutubeId(youtubeUrl)}`}
+                    style={{ width: '100%', height: '100%', border: 'none' }}
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
+        {/* 레시피 연결 */}
         <section className="write-section">
-          <label className="write-label">{selectedWorkflow ? '연결된 레시피' : '레시피 연결'}</label>
+          <label className="write-label">
+            {selectedWorkflow ? '연결된 레시피' : '레시피 연결'}
+          </label>
           <div className="write-recipe-box">
-            {!hasSavedWorkflows && (
+
+            {isLoadingWorkflows && (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                불러오는 중...
+              </div>
+            )}
+
+            {!isLoadingWorkflows && myWorkflows.length === 0 && (
               <div className="write-no-recipe">
                 <div className="write-no-recipe-icon">✦</div>
                 <h3 className="write-no-recipe-title">저장된 워크플로우가 없어요</h3>
                 <p className="write-no-recipe-desc">워크플로우를 먼저 생성하면<br />레시피를 연결할 수 있어요</p>
               </div>
             )}
-            {hasSavedWorkflows && !selectedWorkflow && (
+
+            {/* 워크플로우 목록 — 카테고리 함께 표시 */}
+            {!isLoadingWorkflows && myWorkflows.length > 0 && !selectedWorkflow && (
               <div>
                 <div className="write-wf-header">
-                  <span>내 워크플로우 목록</span><span>{mockWorkflows.length}개</span>
+                  <span>내 워크플로우 목록</span>
+                  <span>{myWorkflows.length}개</span>
                 </div>
                 <div className="write-wf-list">
-                  {mockWorkflows.map((item) => (
-                    <div key={item.id} onClick={() => setSelectedWorkflowId(item.id)} className="write-wf-item">
+                  {myWorkflows.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => setSelectedWorkflowId(item.id)}
+                      className="write-wf-item"
+                    >
                       <div className="write-wf-icon">✦</div>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <strong className="write-wf-title">{item.title}</strong>
                         <span className="write-wf-tools">{item.toolsText}</span>
                       </div>
+                      {/* ✅ 목록에서 카테고리 미리 표시 */}
+                      {item.category && (
+                        <span className="write-cat-badge" style={{ flexShrink: 0 }}>
+                          {item.category}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
             )}
-            {hasSavedWorkflows && selectedWorkflow && (
+
+            {/* 선택된 워크플로우 */}
+            {!isLoadingWorkflows && selectedWorkflow && (
               <div>
                 <div className="write-sel-header">
                   <div className="write-sel-info">
@@ -201,55 +305,93 @@ const CommunityWrite = () => {
                       <strong className="write-sel-title">{selectedWorkflow.title}</strong>
                     </div>
                   </div>
-                  <button onClick={() => setSelectedWorkflowId(null)} className="write-change-btn">변경</button>
+                  <button
+                    onClick={() => setSelectedWorkflowId(null)}
+                    className="write-change-btn"
+                  >
+                    변경
+                  </button>
                 </div>
+
+                {/* ✅ 카테고리 확인 영역 — 강조 */}
                 <div className="write-cat-section">
-                  <h5 className="write-cat-title">카테고리</h5>
-                  <span className="write-cat-badge">{selectedWorkflow.category}</span>
-                  <span className="write-cat-hint">레시피 기반 자동 분류</span>
-                </div>
-                <div className="write-flow-section">
-                  <h5 className="write-cat-title">워크플로우 플로우</h5>
-                  <div className="write-flow-wrap">
-                    {selectedWorkflow.steps.map((step, index) => (
-                      <React.Fragment key={step.step}>
-                        <div className="write-flow-item">
-                          <div className="write-flow-box">{step.shortName}</div>
-                          <span className="write-flow-name">{step.tool}</span>
-                        </div>
-                        {index < selectedWorkflow.steps.length - 1 && <div className="write-flow-arrow">➔</div>}
-                      </React.Fragment>
-                    ))}
+                  <h5 className="write-cat-title">게시글 카테고리</h5>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
+                    {selectedWorkflow.category ? (
+                      <>
+                        <span className="write-cat-badge">{selectedWorkflow.category}</span>
+                        <span className="write-cat-hint">워크플로우 기반 자동 분류 · 게시글 목록에서 이 카테고리로 표시됩니다</span>
+                      </>
+                    ) : (
+                      <span className="write-cat-hint">카테고리 정보가 없습니다</span>
+                    )}
                   </div>
                 </div>
-                <div className="write-prompt-area">
-                  <h5 className="write-cat-title" style={{ marginBottom: '20px' }}>단계별 프롬프트 수정</h5>
-                  {selectedWorkflow.steps.map((step) => (
-                    <div key={step.step} className="write-prompt-card">
-                      <div className="write-prompt-header">
-                        <div className="write-prompt-left">
-                          <span className="write-prompt-num">{step.step}</span>
-                          <strong className="write-prompt-tool">{step.tool}</strong>
-                        </div>
-                        <span className="write-prompt-cat">{step.category}</span>
+
+                {selectedWorkflow.steps.length > 0 && (
+                  <>
+                    <div className="write-flow-section">
+                      <h5 className="write-cat-title">워크플로우 플로우</h5>
+                      <div className="write-flow-wrap">
+                        {selectedWorkflow.steps.map((step, index) => (
+                          <React.Fragment key={step.step}>
+                            <div className="write-flow-item">
+                              <div className="write-flow-box">
+                                {step.thumbnail ? (
+                                  <img
+                                    src={step.thumbnail}
+                                    alt={step.tool}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+                                  />
+                                ) : (
+                                  step.shortName
+                                )}
+                                </div>
+                              <span className="write-flow-name">{step.tool}</span>
+                            </div>
+                            {index < selectedWorkflow.steps.length - 1 && (
+                              <div className="write-flow-arrow">➔</div>
+                            )}
+                          </React.Fragment>
+                        ))}
                       </div>
-                      <div className="write-prompt-desc">{step.description}</div>
-                      <textarea 
-                        value={editablePrompts[step.step] || ''} 
-                        onChange={(e) => handlePromptChange(step.step, e.target.value)} 
-                        className="write-textarea-prompt"
-                      />
                     </div>
-                  ))}
-                </div>
+
+                    <div className="write-prompt-area">
+                      <h5 className="write-cat-title" style={{ marginBottom: '20px' }}>
+                        단계별 프롬프트 수정
+                      </h5>
+                      {selectedWorkflow.steps.map((step) => (
+                        <div key={step.step} className="write-prompt-card">
+                          <div className="write-prompt-header">
+                            <div className="write-prompt-left">
+                              <span className="write-prompt-num">{step.step}</span>
+                              <strong className="write-prompt-tool">{step.tool}</strong>
+                            </div>
+                            <span className="write-prompt-cat">{step.category}</span>
+                          </div>
+                          {step.description && (
+                            <div className="write-prompt-desc">{step.description}</div>
+                          )}
+                          <textarea
+                            value={editablePrompts[step.step] || ''}
+                            onChange={(e) => handlePromptChange(step.step, e.target.value)}
+                            className="write-textarea-prompt"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
         </section>
 
+        {/* 설명 */}
         <section className="write-section">
           <label className="write-label">워크플로우 설명</label>
-          <textarea 
+          <textarea
             value={postContent}
             onChange={(e) => setPostContent(e.target.value)}
             placeholder="이 워크플로우를 어떤 상황에서 쓰면 좋은지, 혹은 나만의 활용 꿀팁을 자유롭게 적어주세요!"
@@ -260,7 +402,7 @@ const CommunityWrite = () => {
         <div className="write-footer">
           <button onClick={() => navigate(-1)} className="write-btn-cancel">취소</button>
           <button onClick={handleSubmit} disabled={isSubmitting} className="write-btn-submit">
-            {isSubmitting ? '등록 중...' : '공유하기'}
+            {isSubmitting ? '등록 중..' : '등록하기'}
           </button>
         </div>
 

@@ -1,7 +1,7 @@
 import useWorkflowStore from '../store/workflowStore';
 import { suggestTools, createWorkflow } from '../api/claude';
 import { saveWorkflow } from '../api/workflows';
-import { fetchTools } from '../api/tools';
+import { getTools  } from '../api/tools';
 
 export const useWorkflow = () => {
   const { setStep, setRecommendedTools, setWorkflowResult, setIsLoading, recommendedTools } = useWorkflowStore();
@@ -11,37 +11,29 @@ export const useWorkflow = () => {
   try {
     const suggestData = await suggestTools(purpose);
     const { recommended_categories, tools_by_category } = suggestData;
-
-    // 전체 툴 목록 가져오기
-    const allTools = await fetchTools();
-
-    // console.log("🔎 백엔드 원본 데이터:", allTools.find(t => t.name === 'CapCut AI'));
-
-    // tools_by_category 이름 기준으로 매칭
+    const allTools = await getTools();
+    
     const filtered = [];
     recommended_categories.forEach(categoryName => {
       const recommendedNames = tools_by_category[categoryName] || [];
       allTools.forEach(tool => {
-        tool.categories.forEach(cat => {
-          if (
-            cat.category_name === categoryName &&
-            recommendedNames.includes(tool.name)
-          ) {
-            filtered.push({
-              id: tool.id,
-              name: tool.name,
-              category: cat.category_name,
-              description: cat.description,
-              rating: tool.rating,
-              pros: cat.pros || tool.pros,
-              cons: cat.cons || tool.cons,
-              thumbnail: tool.thumbnail,
-              url: tool.url,
-              free_plan: tool.free_plan,
-              difficulty: tool.difficulty
-            });
-          }
-        });
+        // categories 중 해당 카테고리가 있는 행만 사용
+        const matchedCat = tool.categories.find(cat => cat.category_name === categoryName);
+        if (matchedCat && recommendedNames.includes(tool.name)) {
+          filtered.push({
+            id: tool.id,
+            name: tool.name,
+            category: matchedCat.category_name,
+            description: matchedCat.description,
+            rating: tool.rating,
+            pros: matchedCat.pros || [],
+            cons: matchedCat.cons || [],
+            thumbnail: tool.thumbnail,
+            url: tool.url,
+            free_plan: tool.free_plan,
+            difficulty: tool.difficulty
+          });
+        }
       });
     });
 
@@ -94,15 +86,21 @@ export const useWorkflow = () => {
     const normalized = {
       title: data.title,
       combination: data.total_time, // combination 없으므로 total_time 대체
-      steps: data.steps.map(s => ({
-        step: s.step_order,
-        tool: s.tool_name,
-        category: normalizeCategoryName(s.category), // 카테고리명 변환
-        estimated_time: s.duration,
-        prompt_example: s.prompt_example,
-        tip: s.tip,
-        precautions: s.caution,
-      }))
+      workflows_category: data.workflows_category || data.steps?.[0]?.workflows_category || null, // 추가
+      steps: data.steps.map(s => {
+        const matchedTool = recommendedTools.find(t => t.name === s.tool_name);
+
+        return {
+          step: s.step_order,
+          tool: s.tool_name,
+          thumbnail: matchedTool?.thumbnail || null,  // ← 추가
+          category: normalizeCategoryName(s.category),
+          estimated_time: s.duration,
+          prompt_example: s.prompt_example,
+          tip: s.tip,
+          precautions: s.caution,
+        };
+      })
     };
 
     setWorkflowResult(normalized);
@@ -115,11 +113,11 @@ export const useWorkflow = () => {
   }
 };
 
-
-
   // 3차: DB 저장 (새로 추가)
   const handleSaveWorkflow = async () => {
     const { workflowResult, purpose, selectedTools } = useWorkflowStore.getState();
+    console.log('저장 데이터 workflowResult:', workflowResult);
+console.log('workflows_category 값:', workflowResult?.workflows_category);
     setIsLoading(true);
 
     try {
