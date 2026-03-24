@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import PrivateRoute from "./components/common/PrivateRoute";
+import ScrollToTop from './components/common/ScrollToTop';
+import { Toaster } from 'react-hot-toast'; 
 
 import Main from "./pages/Main";
 import Tools from "./pages/Tools";
@@ -19,6 +21,7 @@ function App() {
   return (
     <BrowserRouter>
     <div className="app-wrapper">
+      <ScrollToTop />
       <Header />
       <main className="app-main">
         <Routes>

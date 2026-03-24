@@ -6,6 +6,7 @@ import useAuthStore from '../../store/authStore';
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const isPlaceholder = post.thumbnail_url?.startsWith('/icons/category-');
   const [liked, setLiked]         = useState(post.is_liked || false);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const [isLiking, setIsLiking]   = useState(false);
@@ -32,11 +33,27 @@ const PostCard = ({ post }) => {
 
   return (
     <div className="comm-card" onClick={() => navigate(`/community/${post.id}`)}>
-      <img
-        src={post.thumbnail_url || '/default-thumbnail.png'}
-        alt={post.title}
-        className="comm-card-image"
-      />
+      {isPlaceholder ? (
+        <div className="comm-card-image" style={{
+          background: '#ede9ff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        }}>
+          <img
+            src={post.thumbnail_url}
+            alt={post.title}
+            style={{ width: 64, height: 64, objectFit: 'contain' }}
+          />
+        </div>
+      ) : (
+        <img
+          src={post.thumbnail_url || '/icons/category-1.png'}
+          alt={post.title}
+          className="comm-card-image"
+        />
+      )}
       <div className="comm-card-content">
         {post.category && (
           <span className="comm-category-badge">{post.category}</span>

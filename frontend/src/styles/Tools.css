@@ -23,6 +23,25 @@
     font-size: 14px;
     color: var(--text-secondary);
 }
+/* 튤 검색 */
+.search-box {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 32px;
+}
+.search-input {
+    padding: 15px 28px;
+    font-size: 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    outline: none;
+    font-family: 'Pretendard', sans-serif;
+    width: 450px;
+    transition: border-color 0.15s;
+}
+.search-input:focus {
+    border-color: var(--primary);
+}
 
 /* 카테고리 탭 */
 .category-tabs {

@@ -6,6 +6,7 @@ import useAuthStore from '../../store/authStore';
 const PostList = ({ post }) => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const isPlaceholder = post.thumbnail_url?.startsWith('/icons/category-');
   const [liked, setLiked]         = useState(post.is_liked || false);
   const [likeCount, setLikeCount] = useState(post.like_count || 0);
   const [isLiking, setIsLiking]   = useState(false);
@@ -32,8 +33,25 @@ const PostList = ({ post }) => {
 
   return (
     <div className="comm-list-item" onClick={() => navigate(`/community/${post.id}`)}>
-      {post.thumbnail_url && (
-        <img src={post.thumbnail_url} alt={post.title} className="comm-list-thumbnail" />
+      {isPlaceholder ? (
+        <div className="comm-list-thumbnail" style={{
+          background: '#ede9ff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}>
+          <img
+            src={post.thumbnail_url}
+            alt={post.title}
+            style={{ width: 40, height: 40, objectFit: 'contain' }}
+          />
+        </div>
+      ) : (
+        post.thumbnail_url && (
+          <img src={post.thumbnail_url} alt={post.title} className="comm-list-thumbnail" />
+        )
       )}
       <div className="comm-list-content">
         <div className="comm-list-top">

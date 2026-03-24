@@ -5,8 +5,8 @@ export const getPosts = async (params = {}) => {
   return response.data;
 };
 
-export const getLikedPosts = async () => {
-  const response = await api.get('/api/posts/liked');
+export const getLikedPosts = async (params = {}) => {
+  const response = await api.get('/api/posts/liked', { params });
   return response.data;
 };
 

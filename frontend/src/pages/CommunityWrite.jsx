@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPost } from '../api/posts';
 import { fetchMyWorkflows } from '../api/workflows';
+import { getMyBookmarks } from '../api/workflowBookmarks';
 import { uploadFile } from '../utils/uploadFile';
 import '../styles/Community.css';
 
@@ -24,38 +25,43 @@ const CommunityWrite = () => {
   const [uploadType, setUploadType] = useState('file'); // 'file' | 'youtube'
   const [youtubeUrl, setYoutubeUrl] = useState('');
 
+  const [activeTab, setActiveTab] = useState('my'); // 'my' | 'bookmarked'
+  const [bookmarkedWorkflows, setBookmarkedWorkflows] = useState([]);
+
   // ── 워크플로우 목록 불러오기 ──
   useEffect(() => {
     const loadWorkflows = async () => {
       try {
         const res = await fetchMyWorkflows();
         const list = res.data.data || [];
+        const bmRes = await getMyBookmarks();
+        const bmList = bmRes.data.data || [];
+        
+        const parseWf = (wf) => {
+        const resultJson = typeof wf.result_json === 'string'
+          ? JSON.parse(wf.result_json)
+          : wf.result_json;
+        const steps = resultJson?.steps || [];
+        return {
+          id: wf.id,
+          title: wf.title,
+          category: steps.map(s => s.category).filter(Boolean)[0] || '',
+          categories: [...new Set(steps.map(s => s.category).filter(Boolean))],
+          toolsText: wf.tools?.map(t => t.name).join(' · ') || '',
+          steps: steps.map(s => ({
+            step: s.step_order ?? s.step,
+            tool: s.tool_name  ?? s.tool,
+            shortName: (s.tool_name ?? s.tool)?.slice(0, 5),
+            category: s.category,
+            description: s.tip || '',
+            prompt_example: s.prompt_example || '',
+            thumbnail: wf.tools?.find(t => t.name === (s.tool_name ?? s.tool))?.thumbnail || null,
+          })),
+        };
+      };
+        setMyWorkflows(list.map(parseWf));
+        setBookmarkedWorkflows(bmList.map(parseWf));
 
-        const parsed = list.map(wf => {
-          const resultJson = typeof wf.result_json === 'string'
-            ? JSON.parse(wf.result_json)
-            : wf.result_json;
-          
-          const steps = resultJson?.steps || [];
-
-          return {
-            id: wf.id,
-            title: wf.title,
-            category: wf.workflows_category || resultJson?.workflows_category || steps[0]?.workflows_category || '',
-            toolsText: wf.tools?.map(t => t.name).join(' · ') || '',
-            steps: steps.map(s => ({
-              step: s.step_order ?? s.step,
-              tool: s.tool_name  ?? s.tool,
-              shortName: (s.tool_name ?? s.tool)?.slice(0, 5),
-              category: s.category,
-              description: s.tip || '',
-              prompt_example: s.prompt_example || '',
-              thumbnail: wf.tools?.find(t => t.name === (s.tool_name ?? s.tool))?.thumbnail || null,
-            })),
-          };
-        });
-
-        setMyWorkflows(parsed);
       } catch (err) {
         console.error('워크플로우 불러오기 실패:', err);
       } finally {
@@ -65,7 +71,9 @@ const CommunityWrite = () => {
     loadWorkflows();
   }, []);
 
-  const selectedWorkflow = myWorkflows.find(w => w.id === selectedWorkflowId);
+  const selectedWorkflow = 
+  myWorkflows.find(w => w.id === selectedWorkflowId) ||
+  bookmarkedWorkflows.find(w => w.id === selectedWorkflowId);
 
   useEffect(() => {
     if (selectedWorkflow?.steps) {
@@ -109,9 +117,18 @@ const CommunityWrite = () => {
            url?.match(/youtu\.be\/([^?]+)/)?.[1] || null;
   };
 
+  const CATEGORY_PLACEHOLDER = {
+    '기획 및 스크립트':  '/icons/category-1.png',
+    '영상 소스 생성':    '/icons/category-2.png',
+    '이미지 소스 생성':  '/icons/category-3.png',
+    '성우 / TTS':       '/icons/category-4.png',
+    'BGM':              '/icons/category-5.png',
+    '편집 / 숏폼 변환':  '/icons/category-6.png',
+    '업로드 최적화':     '/icons/category-7.png',
+  };
+
   const handleSubmit = async () => {
     if (!postTitle.trim())                                      return alert('게시글 제목을 입력해주세요.');
-    if (uploadType === 'file' && !selectedFile)                 return alert('결과물을 업로드해주세요.');
     if (uploadType === 'youtube' && !getYoutubeId(youtubeUrl)) return alert('올바른 유튜브 URL을 입력해주세요.');
     if (!selectedWorkflowId)                                    return alert('공유할 레시피(워크플로우)를 선택해주세요.');
     if (!postContent.trim())                                    return alert('워크플로우 설명을 작성해주세요.');
@@ -121,19 +138,24 @@ const CommunityWrite = () => {
       let attachments = [];
 
       if (uploadType === 'file') {
-        const fileUrl = await uploadFile(selectedFile);
-        const fileType = selectedFile.type.startsWith('video/') ? 'video' : 'image';
-        attachments.push({ type: fileType, url: fileUrl });
+        if (selectedFile) {
+          const fileUrl = await uploadFile(selectedFile);
+          const fileType = selectedFile.type.startsWith('video/') ? 'video' : 'image';
+          attachments.push({ type: fileType, url: fileUrl });
       } else {
-        attachments.push({ type: 'youtube', url: youtubeUrl });
-      }
+          const category = selectedWorkflow?.categories?.[0] || selectedWorkflow?.category || '';
+          const placeholderUrl = CATEGORY_PLACEHOLDER[category] || '/icons/category-1.png';
+          attachments.push({ type: 'image', url: placeholderUrl });
+        } 
+      } else {
+      attachments.push({ type: 'youtube', url: youtubeUrl });
+     }
 
       attachments.push({ type: 'text', content: postContent });
 
       await createPost({
         title: postTitle,
         workflow_id: selectedWorkflowId,
-        category: selectedWorkflow?.category || '',
         attachments,
       });
 
@@ -255,7 +277,7 @@ const CommunityWrite = () => {
               </div>
             )}
 
-            {!isLoadingWorkflows && myWorkflows.length === 0 && (
+            {!isLoadingWorkflows && myWorkflows.length === 0 && bookmarkedWorkflows.length === 0 &&(
               <div className="write-no-recipe">
                 <div className="write-no-recipe-icon">✦</div>
                 <h3 className="write-no-recipe-title">저장된 워크플로우가 없어요</h3>
@@ -266,12 +288,37 @@ const CommunityWrite = () => {
             {/* 워크플로우 목록 — 카테고리 함께 표시 */}
             {!isLoadingWorkflows && myWorkflows.length > 0 && !selectedWorkflow && (
               <div>
-                <div className="write-wf-header">
-                  <span>내 워크플로우 목록</span>
-                  <span>{myWorkflows.length}개</span>
-                </div>
+              <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+              {[
+                { key: 'my',         label: `내 워크플로우 (${myWorkflows.length})` },
+                { key: 'bookmarked', label: `북마크 (${bookmarkedWorkflows.length})` },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`comm-filter-btn ${activeTab === tab.key ? 'active' : ''}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 목록 */}
+            {(() => {
+              const list = activeTab === 'my' ? myWorkflows : bookmarkedWorkflows;
+              if (list.length === 0) {
+                return (
+                  <div className="write-no-recipe">
+                    <div className="write-no-recipe-icon">✦</div>
+                    <p className="write-no-recipe-desc">
+                      {activeTab === 'my' ? '저장된 워크플로우가 없어요' : '북마크한 워크플로우가 없어요'}
+                    </p>
+                  </div>
+                );
+              }
+              return (
                 <div className="write-wf-list">
-                  {myWorkflows.map((item) => (
+                  {list.map(item => (
                     <div
                       key={item.id}
                       onClick={() => setSelectedWorkflowId(item.id)}
@@ -282,7 +329,6 @@ const CommunityWrite = () => {
                         <strong className="write-wf-title">{item.title}</strong>
                         <span className="write-wf-tools">{item.toolsText}</span>
                       </div>
-                      {/* ✅ 목록에서 카테고리 미리 표시 */}
                       {item.category && (
                         <span className="write-cat-badge" style={{ flexShrink: 0 }}>
                           {item.category}
@@ -291,6 +337,8 @@ const CommunityWrite = () => {
                     </div>
                   ))}
                 </div>
+              );
+            })()}
               </div>
             )}
 
@@ -317,10 +365,13 @@ const CommunityWrite = () => {
                 <div className="write-cat-section">
                   <h5 className="write-cat-title">게시글 카테고리</h5>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
-                    {selectedWorkflow.category ? (
+                    {selectedWorkflow.categories?.length > 0 ? (
                       <>
-                        <span className="write-cat-badge">{selectedWorkflow.category}</span>
-                        <span className="write-cat-hint">워크플로우 기반 자동 분류 · 게시글 목록에서 이 카테고리로 표시됩니다</span>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          {selectedWorkflow.categories.map(cat => (
+                            <span key={cat} className="write-cat-badge">{cat}</span>
+                          ))}
+                        </div>
                       </>
                     ) : (
                       <span className="write-cat-hint">카테고리 정보가 없습니다</span>
@@ -359,7 +410,6 @@ const CommunityWrite = () => {
 
                     <div className="write-prompt-area">
                       <h5 className="write-cat-title" style={{ marginBottom: '20px' }}>
-                        단계별 프롬프트 수정
                       </h5>
                       {selectedWorkflow.steps.map((step) => (
                         <div key={step.step} className="write-prompt-card">
@@ -375,6 +425,7 @@ const CommunityWrite = () => {
                           )}
                           <textarea
                             value={editablePrompts[step.step] || ''}
+                            readOnly
                             onChange={(e) => handlePromptChange(step.step, e.target.value)}
                             className="write-textarea-prompt"
                           />

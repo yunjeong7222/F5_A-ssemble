@@ -5,7 +5,8 @@ import useAuthStore from '../store/authStore';
 import ProfileSection from '../components/user/ProfileSection';
 import PasswordSection from '../components/user/PasswordSection';
 import AccountSection from '../components/user/AccountSection';
-import { fetchMyWorkflows, deleteWorkflow } from '../api/workflows';
+import WorkflowSection from '../components/user/WorkflowSection';
+import { fetchMyWorkflows } from '../api/workflows';
 import '../styles/mypage.css';
 
 export default function MyPage() {
@@ -13,10 +14,8 @@ export default function MyPage() {
   const [myWorkflows, setMyWorkflows] = useState([]);
   const [bookmarkedWorkflows, setBookmarkedWorkflows] = useState([]);
   const [activeTab, setActiveTab] = useState('workflows');
-  const [workflowSubTab, setWorkflowSubTab] = useState('mine');
   const fileInputRef = useRef(null);
 
-  // 마운트 시 최신 유저 정보 불러오기
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -34,13 +33,12 @@ export default function MyPage() {
       try {
         const res = await fetchMyWorkflows();
         const list = res.data.data || [];
-
         const parsed = list.map(wf => ({
           id: wf.id,
           title: wf.title,
           tools: wf.tools,
+          tags : wf.tags || [],
         }));
-
         setMyWorkflows(parsed);
       } catch (err) {
         console.error('워크플로우 불러오기 실패:', err);
@@ -90,24 +88,11 @@ export default function MyPage() {
     }
   };
 
-  const handleDeleteWorkflow = async (id) => {
-    if (!window.confirm('워크플로우를 삭제할까요?')) return;
-    try {
-      await deleteWorkflow(id);
-      setMyWorkflows(prev => prev.filter(wf => wf.id !== id));
-    } catch (err) {
-      console.error('삭제 실패:', err);
-      alert('삭제에 실패했습니다.');
-    }
-  };
-
   const subTabs = [
     { id: 'profile',  label: '기본 정보' },
     { id: 'password', label: '보안 설정' },
     { id: 'account',  label: '계정 관리' },
   ];
-
-  const visibleWorkflows = workflowSubTab === 'mine' ? myWorkflows : bookmarkedWorkflows;
 
   return (
     <div className="mypage-wrapper">
@@ -116,7 +101,6 @@ export default function MyPage() {
       <div className="mypage-profile-card">
         <div className="mypage-profile-left">
 
-          {/* Avatar */}
           <div className="mypage-avatar-container">
             <div className="mypage-avatar-img-wrapper">
               <img
@@ -137,7 +121,6 @@ export default function MyPage() {
             />
           </div>
 
-          {/* Profile info */}
           <div>
             <h2 className="mypage-profile-name">{user?.nickname || '레시피마스터'}</h2>
             <p className="mypage-profile-email">{user?.email || 'user@example.com'}</p>
@@ -145,10 +128,7 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* Right side */}
         <div className="mypage-profile-right">
-
-          {/* Stats */}
           <div className="mypage-stats-box">
             <div className="mypage-stat-item mypage-stat-item--border">
               <p className="mypage-stat-number">{myWorkflows.length}</p>
@@ -160,13 +140,12 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="mypage-action-buttons">
             <button
               onClick={() => setActiveTab('profile')}
               className={`mypage-btn-info${activeTab === 'workflows' ? ' mypage-btn-info--faded' : ''}`}
             >
-            기본 정보
+              기본 정보
             </button>
             <button
               onClick={() => setActiveTab('workflows')}
@@ -178,7 +157,7 @@ export default function MyPage() {
         </div>
       </div>
 
-      {/* 2. 서브 탭 바 (workflows가 아닐 때만 표시) */}
+      {/* 2. 서브 탭 바 */}
       {activeTab !== 'workflows' && (
         <div className="mypage-subtab-bar">
           {subTabs.map(tab => (
@@ -195,75 +174,14 @@ export default function MyPage() {
 
       {/* 3. 콘텐츠 영역 */}
       <div className="mypage-content-box">
-
         {activeTab === 'profile'  && <ProfileSection user={{ ...user, profile_url: user?.profile_url || 'https://placehold.co/32' }} />}
         {activeTab === 'password' && <PasswordSection />}
         {activeTab === 'account'  && <AccountSection />}
-
         {activeTab === 'workflows' && (
-          <div className="mypage-workflow-section">
-
-            {/* 필터 탭 */}
-            <div className="mypage-workflow-filter">
-              <button
-                onClick={() => setWorkflowSubTab('mine')}
-                className={`mypage-filter-btn${workflowSubTab === 'mine' ? ' mypage-filter-btn--active' : ''}`}
-              >
-                내 워크플로우
-              </button>
-              <button
-                onClick={() => setWorkflowSubTab('bookmarked')}
-                className={`mypage-filter-btn${workflowSubTab === 'bookmarked' ? ' mypage-filter-btn--active' : ''}`}
-              >
-                저장한 워크플로우
-              </button>
-            </div>
-
-            {/* 워크플로우 카드 목록 */}
-            {visibleWorkflows.map(wf => (
-              <div key={wf.id} className="mypage-workflow-card">
-                <div className="mypage-workflow-card-header">
-                  <span className="mypage-workflow-label">
-                    {workflowSubTab === 'mine' ? 'MY WORKFLOW' : 'BOOKMARKED RECIPE'}
-                  </span>
-                  <button
-                    onClick={() => handleDeleteWorkflow(wf.id)}
-                    className="mypage-workflow-delete-btn"
-                  >
-                    삭제
-                  </button>
-                </div>
-
-                <div className="mypage-workflow-tools">
-                  {wf.tools.map((tool, index) => (
-                    <div key={index} className="mypage-tool-item">
-                      <div className="mypage-tool-card">
-                        <div className="mypage-tool-img-box">
-                          {tool.thumbnail ? (
-                            <img
-                              src={tool.thumbnail}
-                              alt={tool.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                          ) : (
-                            <img
-                              src={`https://www.google.com/s2/favicons?domain=${tool.name.toLowerCase().replace(/\s/g, '')}.com&sz=64`}
-                              alt={tool.name}
-                              style={{ width: '40px', height: '40px', objectFit: 'contain' }}
-                            />
-                          )}
-                        </div>
-                        <p className="mypage-tool-name">{tool.name}</p>
-                      </div>
-                      {index < wf.tools.length - 1 && (
-                        <span className="mypage-tool-arrow">→</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <WorkflowSection
+            myWorkflows={myWorkflows}
+            setMyWorkflows={setMyWorkflows}
+          />
         )}
       </div>
     </div>

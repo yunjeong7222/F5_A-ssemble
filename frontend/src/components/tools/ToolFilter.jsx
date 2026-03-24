@@ -7,12 +7,23 @@ const ToolFilter = ({
     activeSort,
     activeFree,
     totalCount,
+    searchQuery,
     onCategoryChange,
     onSortChange,
     onFreeChange,
+    onSearchChange,
 }) => {
     return (
         <>
+            <div className="search-box">
+                <input
+                    className="search-input"
+                    type="text"
+                    placeholder="툴 이름으로 검색"
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                />
+            </div>
             {/* 카테고리 탭 */}
             <div className="category-tabs">
                 {['전체', ...categories].map((cat) => (

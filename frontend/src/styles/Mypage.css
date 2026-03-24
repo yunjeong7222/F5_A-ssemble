@@ -337,6 +337,16 @@
         box-shadow 0.2s,
         transform 0.15s;
 }
+.mypage-post-card {
+    /* padding: 15px; */
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        transform 0.15s;
+}
 
 .mypage-workflow-card:hover {
     border-color: var(--primary);
@@ -348,7 +358,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
 }
 
 .mypage-workflow-label {

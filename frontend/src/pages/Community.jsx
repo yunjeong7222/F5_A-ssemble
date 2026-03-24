@@ -3,9 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { getPosts, getLikedPosts } from '../api/posts';
 import PostCard from '../components/community/PostCard';
 import PostList from '../components/community/PostList';
+import useAuthStore from '../store/authStore';
 import '../styles/Community.css';
 
-const categories = ['전체', '스크립트', '영상제작', '썸네일', '보이스', '배포'];
+const categories = [
+  '전체',
+  '기획 및 스크립트',
+  '영상 소스 생성',
+  '이미지 소스 생성',
+  '성우 / TTS',
+  'BGM',
+  '편집 / 숏폼 변환',
+  '업로드 최적화',
+];
 
 // 카드 뷰 아이콘
 const CardViewIcon = () => (
@@ -28,6 +38,7 @@ const ListViewIcon = () => (
 
 const CommunityMain = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState('전체');
@@ -41,7 +52,9 @@ const CommunityMain = () => {
     try {
       let data;
       if (activeFilter === '좋아요한 글') {
-        data = await getLikedPosts();
+        data = await  getLikedPosts({
+         category: activeCategory === '전체' ? undefined : activeCategory,
+        });
       } else {
         data = await getPosts({
           category: activeCategory === '전체' ? undefined : activeCategory,
@@ -69,7 +82,10 @@ const CommunityMain = () => {
           <button className="comm-workflow-btn" onClick={() => navigate('/mypage?tab=workflow')}>
             내 워크플로우
           </button>
-          <button className="comm-write-btn" onClick={() => navigate('/community/write')}>
+          <button className="comm-write-btn" onClick={() => {
+            if (!user) { alert('로그인이 필요한 서비스입니다.'); return; }
+            navigate('/community/write');
+          }}>
             게시글 작성
           </button>
         </div>
@@ -99,7 +115,10 @@ const CommunityMain = () => {
           </button>
           <button
             className={`comm-filter-btn${activeFilter === '좋아요한 글' ? ' active' : ''}`}
-            onClick={() => setActiveFilter('좋아요한 글')}
+            onClick={() => {
+              if (!user) { alert('로그인이 필요한 서비스입니다.'); return; }
+              setActiveFilter('좋아요한 글');
+            }}
           >
             좋아요한 글
           </button>

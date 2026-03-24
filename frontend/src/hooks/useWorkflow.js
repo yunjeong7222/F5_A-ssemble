@@ -85,16 +85,15 @@ export const useWorkflow = () => {
     // BE 응답 → 컴포넌트 필드명으로 변환
     const normalized = {
       title: data.title,
-      combination: data.total_time, // combination 없으므로 total_time 대체
-      workflows_category: data.workflows_category || data.steps?.[0]?.workflows_category || null, // 추가
+      combination: data.total_time,
       steps: data.steps.map(s => {
         const matchedTool = recommendedTools.find(t => t.name === s.tool_name);
-
         return {
           step: s.step_order,
           tool: s.tool_name,
-          thumbnail: matchedTool?.thumbnail || null,  // ← 추가
-          category: normalizeCategoryName(s.category),
+          thumbnail: matchedTool?.thumbnail || null,
+          category: s.category,                        // ✅ BE명 그대로 저장
+          category_display: normalizeCategoryName(s.category), // ✅ 표시용 별도 필드
           estimated_time: s.duration,
           prompt_example: s.prompt_example,
           tip: s.tip,
@@ -116,8 +115,6 @@ export const useWorkflow = () => {
   // 3차: DB 저장 (새로 추가)
   const handleSaveWorkflow = async () => {
     const { workflowResult, purpose, selectedTools } = useWorkflowStore.getState();
-    console.log('저장 데이터 workflowResult:', workflowResult);
-console.log('workflows_category 값:', workflowResult?.workflows_category);
     setIsLoading(true);
 
     try {

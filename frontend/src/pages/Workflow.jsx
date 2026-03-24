@@ -61,7 +61,10 @@ const Workflow = () => {
                   <input 
                     type="text" 
                     value={purpose} 
-                    onChange={(e) => setPurpose(e.target.value)} 
+                    onChange={(e) => setPurpose(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && purpose && !isLoading) handleSuggestTools(purpose);
+                    }}
                     placeholder="예) 초보 영상 크리에이터인데, 무료 AI 툴로 고퀄리티 BGM과 자막을 만들고 싶어요" 
                     className="wf-input-field"
                   />

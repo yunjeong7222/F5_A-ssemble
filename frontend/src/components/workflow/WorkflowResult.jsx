@@ -306,7 +306,7 @@ const WorkflowResult = ({ workflowResult }) => {
                     {step.tool}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {step.category}
+                    {step.category_display}
                   </div>
                 </div>
               ))}
@@ -326,7 +326,7 @@ const WorkflowResult = ({ workflowResult }) => {
         
         <div className="workflow-scroll wr-flow-list">
           {displayData.steps.map((step, index) => {
-            const toolInfo = getToolInfo(step.tool, step.category);
+            const toolInfo = getToolInfo(step.tool, step.category_display);
             return (
               <React.Fragment key={index}>
                 <div className="wr-flow-item">
@@ -359,7 +359,7 @@ const WorkflowResult = ({ workflowResult }) => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px' }}>
         {displayData.steps.map((step, index) => {
           const isExpanded = expandedSteps.includes(index);
-          const toolInfo = getToolInfo(step.tool, step.category);
+          const toolInfo = getToolInfo(step.tool, step.category_display);
 
           return (
             <div key={index} className="wr-step-item" style={{ border: `1px solid ${isExpanded ? '#c7d2fe' : '#e2e8f0'}` }}>

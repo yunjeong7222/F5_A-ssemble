@@ -15,6 +15,8 @@ export default function Header() {
     { label: '커뮤니티',  path: '/community' },
   ];
 
+  const privateRoutes = ['/mypage', '/community/write'];
+
   const handleLogout = async () => {
     const refreshToken = useAuthStore.getState().refreshToken;
     try{
@@ -23,7 +25,8 @@ export default function Header() {
       console.error('logout error :', err);
     } finally {
       logout();
-      navigate('/login');
+      const isPrivate = privateRoutes.some(path => location.pathname.startsWith(path));
+      navigate(isPrivate ? '/' : location.pathname);
     }
   };
 

@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getPost } from '../api/posts';
 import { likePost, unlikePost } from '../api/likes';
 import { fetchWorkflowById } from '../api/workflows';
+import { addBookmark, removeBookmark, checkBookmark } from '../api/workflowBookmarks';
 import useAuthStore from '../store/authStore';
 import EmbedPreview from '../components/community/EmbedPreview';
 import CommentList from '../components/community/CommentList';
+
 import '../styles/Community.css';
 
 const CommunityDetail = () => {
@@ -19,6 +21,7 @@ const CommunityDetail = () => {
   const [isLiked, setIsLiked]     = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [editablePrompts, setEditablePrompts] = useState({});
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   /* ── 게시글 + 워크플로우 로드 ── */
   useEffect(() => {
@@ -47,12 +50,13 @@ const CommunityDetail = () => {
             category:      s.category   || '',
             tip:           s.tip        || '',
             prompt_example: s.prompt_example || '',
-            thumbnail:     wfData.tools?.find(t => t.name === (s.tool_name ?? s.tool))?.thumbnail || null,
+            thumbnail:     wfData.tools?.find(t => t.tool_name === (s.tool_name ?? s.tool))?.thumbnail || null,
           }));
 
           setWorkflow({
             title:    wfData.title,
             category: resultJson?.workflows_category || steps[0]?.category || '',
+            categories: [...new Set(steps.map(s => s.category).filter(Boolean))],
             tools:    wfData.tools || [],
             steps,
           });
@@ -62,6 +66,10 @@ const CommunityDetail = () => {
           steps.forEach(s => { initialPrompts[s.step] = s.prompt_example; });
           setEditablePrompts(initialPrompts);
         }
+      if (postData.workflow_id && user) {
+        const bmRes = await checkBookmark(postData.workflow_id);
+        setIsBookmarked(bmRes.data.data.isBookmarked);
+      }
       } catch (err) {
         console.error('불러오기 실패:', err);
       } finally {
@@ -85,6 +93,25 @@ const CommunityDetail = () => {
       setIsLiked(prev => !prev);
     } catch {
       alert('좋아요 처리에 실패했습니다.');
+    }
+  };
+
+  // 북마크 토글 함수 추가
+  const handleBookmarkToggle = async () => {
+    if (!user) { alert('로그인 후 이용해주세요.'); return; }
+    try {
+      if (isBookmarked) {
+        await removeBookmark(post.workflow_id);
+      } else {
+        await addBookmark(post.workflow_id);
+      }
+      setIsBookmarked(prev => !prev);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        alert('이미 북마크한 워크플로우입니다.');
+      } else {
+        alert('북마크 처리에 실패했습니다.');
+      }
     }
   };
 
@@ -129,10 +156,14 @@ const CommunityDetail = () => {
 
       {/* ── 1. 헤더 ── */}
       <header>
-        {workflow?.category && (
-          <span className="comm-category-badge" style={{ marginBottom: 12, display: 'inline-block' }}>
-            {workflow.category}
-          </span>
+        {workflow?.categories?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+            {workflow.categories.map(cat => (
+              <span key={cat} className="comm-category-badge">
+                {cat}
+              </span>
+            ))}
+          </div>
         )}
         <h2>{post.title}</h2>
         <div className="detail-header-info">
@@ -160,6 +191,14 @@ const CommunityDetail = () => {
             >
               {isLiked ? '❤️' : '🤍'} 좋아요 {likeCount}
             </button>
+            {post.workflow_id && post.user_id !== user?.id && (
+              <button
+                onClick={handleBookmarkToggle}
+                className={`detail-like-btn${isBookmarked ? ' detail-like-btn--active' : ''}`}
+              >
+                {isBookmarked ? '🔖' : '📄'} {isBookmarked ? '저장됨' : '워크플로우 저장'}
+              </button>
+            )}
           </div>
         </div>
       </header>
