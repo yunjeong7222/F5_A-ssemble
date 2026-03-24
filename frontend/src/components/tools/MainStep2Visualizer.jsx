@@ -6,24 +6,6 @@ const MainStep2Visualizer = () => {
     <div className="vis-mockup-wrapper vis-step2-wrapper">
 
       <div className="vis-workflow-container">
-        {/* 상단 스텝 인디케이터 */}
-        {/* <div className="wf-step-indicator" style={{ marginBottom: '30px' }}>
-          <div className="wf-step-item">
-            <div className="wf-step-circle">1</div>
-            <span className="wf-step-label">목적 입력</span>
-          </div>
-          <div className="wf-step-line"></div>
-          <div className="wf-step-item">
-            <div className="wf-step-circle active">2</div>
-            <span className="wf-step-label active">툴 선택</span>
-          </div>
-          <div className="wf-step-line"></div>
-          <div className="wf-step-item">
-            <div className="wf-step-circle">3</div>
-            <span className="wf-step-label">결과 확인</span>
-          </div>
-        </div> */}
-
         {/* 메인 콘텐츠 영역 */}
         <div style={{ padding: '0 30px' }}>
           <h2 className="wf-step2-title" style={{ textAlign: 'left', fontSize: '1.25rem', lineHeight: '1.4', color: 'white' }}>
@@ -71,7 +53,7 @@ const MainStep2Visualizer = () => {
               {/* === PAGE 1: 기획 및 스크립트 === */}
               <div className="vis-grid-page vis-page-1">
                 <h3 className="ts-category-title">기획 및 스크립트</h3>
-                <div className="ts-grid">
+                <div className="ts-grid" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
                   <div className="ts-card">
                     <div className="ts-card-header">
                       <div className="ts-icon-box"><img src="https://www.google.com/s2/favicons?domain=openai.com&sz=128" alt="ChatGPT" className="ts-tool-img" /></div>
@@ -120,7 +102,7 @@ const MainStep2Visualizer = () => {
               {/* === PAGE 2: 영상 소스 생성 === */}
               <div className="vis-grid-page vis-page-2">
                 <h3 className="ts-category-title">영상 소스 생성</h3>
-                <div className="ts-grid">
+                <div className="ts-grid" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
                   <div className="ts-card">
                     <div className="ts-card-header">
                       <div className="ts-icon-box"><img src="https://www.google.com/s2/favicons?domain=runwayml.com&sz=128" alt="Runway" className="ts-tool-img" /></div>
@@ -169,7 +151,7 @@ const MainStep2Visualizer = () => {
               {/* === PAGE 3: 성우/TTS === */}
               <div className="vis-grid-page vis-page-3">
                 <h3 className="ts-category-title">성우/TTS</h3>
-                <div className="ts-grid">
+                <div className="ts-grid" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
                   
                   <div className="ts-card vis-target-3">
                     <div className="ts-check-icon vis-check-3">✓</div>

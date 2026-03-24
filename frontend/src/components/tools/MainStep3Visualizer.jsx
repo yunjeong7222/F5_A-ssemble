@@ -5,24 +5,6 @@ const MainStep3Visualizer = () => {
     <div className="vis-mockup-wrapper vis-step3-wrapper">
 
       <div className="vis-workflow-container">
-        {/* 상단 스텝 인디케이터 */}
-        {/* <div className="wf-step-indicator" style={{ marginBottom: '30px' }}>
-          <div className="wf-step-item">
-            <div className="wf-step-circle">1</div>
-            <span className="wf-step-label">목적 입력</span>
-          </div>
-          <div className="wf-step-line"></div>
-          <div className="wf-step-item">
-            <div className="wf-step-circle">2</div>
-            <span className="wf-step-label">툴 선택</span>
-          </div>
-          <div className="wf-step-line"></div>
-          <div className="wf-step-item">
-            <div className="wf-step-circle active">3</div>
-            <span className="wf-step-label active">결과 확인</span>
-          </div>
-        </div> */}
-
         <div style={{ padding: '0 30px' }}>
           
           {/* 1. 메인 퍼플 배너 */}

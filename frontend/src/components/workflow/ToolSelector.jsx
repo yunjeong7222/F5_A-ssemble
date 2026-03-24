@@ -149,45 +149,6 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
                           onMouseLeave={() => setHoveredTooltip(null)}
                         >
                           {isSelected && <div className="ts-check-icon">✓</div>}
-
-                        {/* ? 버튼
-                        <div
-                          className="ts-tooltip-btn"
-                          onMouseEnter={() => setHoveredTooltip(tool.id)}
-                          onMouseLeave={() => setHoveredTooltip(null)}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          ?
-                          {hoveredTooltip === tool.id && (
-                            <div className="ts-tooltip-box">
-                              <div className="ts-proscons-block">
-                                <span className="ts-pros-badge"> 장점</span>
-                                <ul className="ts-list">
-                                  {displayData.pros.length > 0
-                                    ? displayData.pros.slice(0, 3).map((pro, i) => (
-                                        <li key={i} className="ts-list-item">
-                                          <span className="ts-pros-mark">+</span> {pro}
-                                        </li>
-                                      ))
-                                    : <li className="ts-empty-info">정보 없음</li>}
-                                </ul>
-                              </div>
-                              <div className="ts-proscons-block">
-                                <span className="ts-cons-badge"> 단점</span>
-                                <ul className="ts-list">
-                                  {displayData.cons.length > 0
-                                    ? displayData.cons.slice(0, 3).map((con, i) => (
-                                        <li key={i} className="ts-list-item">
-                                          <span className="ts-cons-mark">-</span> {con}
-                                        </li>
-                                      ))
-                                    : <li className="ts-empty-info">정보 없음</li>}
-                                </ul>
-                              </div>
-                            </div>
-                          )}
-                        </div> */}
-
                         <div className="ts-card-header">
                           <div className="ts-icon-box">
                             <img 
@@ -212,8 +173,6 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
                             </div>
                           </div>
                         </div>
-
-                        {/* specialized → desc_short 으로 교체 */}
                         <div className="ts-specialized" style={{ color: displayData.color }}>
                           ✦ {tool.desc_short || displayData.specialized}
                         </div>
@@ -240,7 +199,6 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
                             </div>
                           </div>
                         )}
-                        {/* ts-proscons-wrap 삭제됨 */}
                       </div>
                     );
               })}

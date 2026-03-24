@@ -4,32 +4,7 @@ import '../../styles/MainVisualizer.css';
 const MainStep1Visualizer = () => {
   return (
     <div className="vis-mockup-wrapper vis-step1-wrapper">
-      {/* 가짜 마우스 커서 */}
-      {/* <div className="vis-cursor">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 4L11 21L14 14L21 11L4 4Z" fill="#0f172a" stroke="#ffffff" strokeWidth="2" strokeLinejoin="round"/>
-        </svg>
-      </div> */}
-
       <div className="vis-workflow-container">
-        {/* 상단 스텝 인디케이터 (원래 코드 복제) */}
-        {/* <div className="wf-step-indicator" style={{ marginBottom: '40px' }}>
-          <div className="wf-step-item">
-            <div className="wf-step-circle active">1</div>
-            <span className="wf-step-label active">목적 입력</span>
-          </div>
-          <div className="wf-step-line"></div>
-          <div className="wf-step-item">
-            <div className="wf-step-circle">2</div>
-            <span className="wf-step-label">툴 선택</span>
-          </div>
-          <div className="wf-step-line"></div>
-          <div className="wf-step-item">
-            <div className="wf-step-circle">3</div>
-            <span className="wf-step-label">결과 확인</span>
-          </div>
-        </div> */}
-
         {/* 메인 콘텐츠 영역 */}
         <div className="wf-step1-section" style={{ padding: '0 20px' }}>
           <h2 className="wf-step1-title" style={{color: 'white'}}>어떤 분야의 워크플로우를<br/>만들고 싶으신가요?</h2>
