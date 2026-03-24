@@ -117,11 +117,10 @@
 .ts-tooltip-btn:hover {border-color: #94a3b8;color: #475569;}
 .ts-tooltip-box {position: absolute;top: 28px;right: 0;width: 220px;background: #ffffff;border: 1px solid #e2e8f0;border-radius: 10px;padding: 12px 14px;box-shadow: 0 4px 16px rgba(0,0,0,0.10);z-index: 100;text-align: left;pointer-events: none;}
 .ts-tooltip-box .ts-proscons-block + .ts-proscons-block {margin-top: 10px;}
-.ts-overlay {position: absolute;inset: 0;border-radius: inherit;background: var(--color-background-primary, #fff);border: 0.5px solid #e2e8f0;padding: 14px 16px;display: flex;flex-direction: column;gap: 10px;pointer-events: none;}
+.ts-overlay { position: absolute; inset: 0; border-radius: inherit; background: var(--color-background-primary, #fff); border: 0.5px solid #e2e8f0; padding: 14px 20px; display: flex; flex-direction: column; justify-content: center; pointer-events: none; }
 .ts-grid {display: grid;grid-template-columns: repeat(2, minmax(0, 1fr));gap: 14px;}
-.ts-overlay {position: absolute;inset: 0;border-radius: inherit;background: var(--color-background-primary, #fff);border: 0.5px solid #e2e8f0;padding: 12px 14px;pointer-events: none;z-index: 10;}
-.ts-overlay-inner {display: flex;flex-direction: row;gap: 12px;height: 100%;}
-.ts-overlay-inner .ts-proscons-block {flex: 1;min-width: 0;}
+.ts-overlay-inner { display: flex; flex-direction: row; gap: 12px; width: 100%; align-items: flex-start; justify-content: center; }
+.ts-overlay-inner .ts-proscons-block { flex: 0 0 auto; min-width: 0; width: 42%; }
 /* =========================================
    WorkflowResult.jsx (결과 확인 페이지)
    ========================================= */
