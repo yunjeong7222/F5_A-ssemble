@@ -13,11 +13,9 @@ const createWorkflow = async (req, res) => {
   }
 
   try {
-    const workflows_category = result_json?.steps?.[0]?.workflows_category || null;
-
     const [result] = await db.promise().query(
-      "INSERT INTO workflows (user_id, user_input, result_json, title, workflows_category) VALUES (?, ?, ?, ?, ?)",
-      [user_id, user_input, JSON.stringify(result_json), title, workflows_category]
+      "INSERT INTO workflows (user_id, user_input, result_json, title) VALUES (?, ?, ?, ?)",
+      [user_id, user_input, JSON.stringify(result_json), title]
     );
 
     const workflowId = result.insertId;
@@ -54,7 +52,7 @@ const getWorkflowById = async (req, res) => {
   try {
     const [results] = await db.promise().query(
       `SELECT w.*, 
-        t.id AS tool_id, t.name AS tool_name, t.thumbnail, t.url, tc.pros, tc.cons, 
+        t.id AS tool_id, t.name AS tool_name, t.thumbnail, t.url, tc.pros, tc.cons, tc.desc_short,
         wt.step_order
       FROM workflows w
       LEFT JOIN workflow_tools wt ON w.id = wt.workflow_id
@@ -88,6 +86,7 @@ const getWorkflowById = async (req, res) => {
           tool_name: r.tool_name,
           thumbnail: r.thumbnail,
           url: r.url,
+          desc_short: r.desc_short,
           pros: r.pros,          
           cons: r.cons, 
         })),
@@ -105,13 +104,16 @@ const getMyWorkflows = async (req, res) => {
 
   try {
     const [results] = await db.promise().query(
-      `SELECT w.id, w.title, w.user_input, w.result_json, w.created_at, w.workflows_category,
-              t.thumbnail, t.name AS tool_name, wt.step_order
+      `SELECT w.id, w.title, w.user_input, w.result_json, w.created_at,
+              t.thumbnail, t.name AS tool_name, wtool.step_order,
+              (SELECT GROUP_CONCAT(DISTINCT wtag.category_name)
+               FROM workflow_tags wtag
+               WHERE wtag.workflow_id = w.id) AS tags
        FROM workflows w
-       LEFT JOIN workflow_tools wt ON w.id = wt.workflow_id
-       LEFT JOIN tools t ON wt.tool_id = t.id
+       LEFT JOIN workflow_tools wtool ON w.id = wtool.workflow_id
+       LEFT JOIN tools t ON wtool.tool_id = t.id
        WHERE w.user_id = ?
-       ORDER BY w.created_at DESC, wt.step_order ASC`,
+       ORDER BY w.created_at DESC, wtool.step_order ASC`,
       [user_id]
     );
 
@@ -120,10 +122,10 @@ const getMyWorkflows = async (req, res) => {
       if (!workflowMap[row.id]) {
         workflowMap[row.id] = {
           id: row.id,
-          title: row.title || row.user_input,
+          title: row.title,
           result_json: row.result_json,
           created_at: row.created_at,
-          workflows_category: row.workflows_category,
+          tags: row.tags ? row.tags.split(',') : [],  // ← 문자열 → 배열 변환
           tools: [],
         };
       }
@@ -142,6 +144,32 @@ const getMyWorkflows = async (req, res) => {
   } catch (err) {
     console.error("getMyWorkflows error:", err);
     return res.status(500).json({ success: false, message: "서버 오류" });
+  }
+};
+
+const updateWorkflow = async (req, res) => {
+  const { id } = req.params;
+  const { result_json } = req.body;
+  const user_id = req.user.id;
+
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT user_id FROM workflows WHERE id = ?', [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ success: false, message: '워크플로우를 찾을 수 없습니다.' });
+    if (rows[0].user_id !== user_id)
+      return res.status(403).json({ success: false, message: '수정 권한이 없습니다.' });
+
+    await db.promise().query(
+      'UPDATE workflows SET result_json = ? WHERE id = ?',
+      [JSON.stringify(result_json), id]
+    );
+
+    return res.status(200).json({ success: true, message: '워크플로우가 수정되었습니다.' });
+  } catch (err) {
+    console.error('updateWorkflow error:', err);
+    return res.status(500).json({ success: false, message: '서버 오류' });
   }
 };
 
@@ -166,4 +194,4 @@ const deleteWorkflow = async (req, res) => {
   }
 };
 
-module.exports = { createWorkflow, getWorkflowById, getMyWorkflows, deleteWorkflow };
+module.exports = { createWorkflow, getWorkflowById, getMyWorkflows, deleteWorkflow, updateWorkflow};

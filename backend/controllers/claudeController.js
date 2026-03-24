@@ -8,7 +8,7 @@ const client = new Anthropic({
 
 // ✅ 이 줄 추가 — 테스트 중엔 true, 실제 배포 시 false//////////////////
 const USE_MOCK = process.env.USE_MOCK === "true";
-
+console.log("🔍 USE_MOCK:", USE_MOCK);
 // 1차 호출: 카테고리 + 툴 추천
 const suggest = async (req, res) => {
   const { user_input } = req.body;
@@ -48,31 +48,33 @@ const suggest = async (req, res) => {
       .join("\n");
 
     const systemPrompt = `
-      너는 영상 크리에이터를 위한 AI 툴 워크플로우 추천 전문가야.
-      사용자의 자연어 입력을 분석해서 아래 JSON 형식으로만 응답해.
-      다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
+너는 영상 크리에이터를 위한 AI 툴 워크플로우 추천 전문가야.
+사용자의 자연어 입력을 분석해서 아래 JSON 형식으로만 응답해.
+다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
 
-      [중요] 카테고리는 반드시 아래 7개 문자열 중에서만 선택해. 띄어쓰기, 특수문자, 표현 하나도 바꾸지 마.
-      절대로 이 목록 외의 카테고리를 만들거나 변형하지 마.
+[규칙 1 - 카테고리 선택]
+category는 반드시 아래 7개 문자열 중에서만 선택해.
+띄어쓰기, 특수문자 하나도 바꾸지 마. 절대로 이 목록 외의 값 사용 금지.
+"기획 및 스크립트" / "영상 소스 생성" / "이미지 소스 생성" /
+"성우 / TTS" / "BGM" / "편집 / 숏폼 변환" / "업로드 최적화"
 
-      사용 가능한 카테고리 (이 문자열 그대로만 사용):
-      - "기획 및 스크립트"
-      - "영상 소스 생성"
-      - "이미지 소스 생성"
-      - "성우 / TTS"
-      - "BGM"
-      - "편집 / 숏폼 변환"
-      - "업로드 최적화"
+[규칙 2 - 카테고리 다양성]
+recommended_categories는 반드시 2개 이상이어야 해.
+사용자 입력이 단순해 보여도 목적과 자연스럽게 연결되는 카테고리를 찾아서 2개 이상 포함해.
+억지로 관련 없는 카테고리를 끼워넣지 마.
 
-      사용자 요청에 필요한 카테고리만 골라서 반환해. 전부 쓸 필요 없어.
-      위 7개 외에 "업로드 및 최적화", "영상 편집" 같은 유사 표현은 절대 사용 금지.
-
-      아래는 사용 가능한 AI 툴 목록이야.
-      각 카테고리에서 사용자 목적에 가장 적합한 툴을 최대 3개만 골라줘.
-      평점과 난이도, 설명을 참고해서 사용자 수준에 맞게 추천해.
-      툴 목록에 없는 툴은 절대 추천하지 마.
-
+[규칙 3 - 툴 선택]
+아래 툴 목록에 있는 툴만 추천해. 각 카테고리에서 최대 4개.
+목록에 없는 툴은 절대 추천하지 마. 떠오르더라도 무시해.
+평점과 난이도, 설명을 참고해서 사용자 수준에 맞게 추천해.
 ${toolList}
+
+[자기검증 - 출력 전 반드시 확인]
+① recommended_categories가 2개 이상인가?
+② 모든 카테고리가 위 7개 중 하나인가?
+③ 모든 툴이 제공된 목록 안에 있는가?
+④ JSON 외 텍스트가 없는가?
+하나라도 아니면 수정 후 출력해.
 
 응답 형식:
 {
@@ -125,7 +127,6 @@ const generateWorkflow = async (req, res) => {
       data: {
         title: "숏폼 영상 제작 워크플로우",
         total_time: "약 40분",
-        workflows_category: "영상제작",
         steps: [
           {
             step_order: 1,
@@ -143,68 +144,109 @@ const generateWorkflow = async (req, res) => {
   }
 ///////////////////////////////////////////////
 
-  const systemPrompt = `
+    const systemPrompt = `
     너는 영상 크리에이터를 위한 AI 툴 워크플로우 전문가야.
     사용자가 선택한 AI 툴 조합으로 단계별 워크플로우를 만들어줘.
     AI를 처음 쓰는 초보자도 바로 따라할 수 있게 쉽고 구체적으로 작성해.
     다른 텍스트, 설명, 마크다운 없이 JSON만 반환해.
 
+    [규칙 1 - steps 수]
+    선택된 툴 수와 steps 배열 길이는 반드시 일치해야 해.
+    툴이 3개면 steps도 정확히 3개. 절대 더 많거나 적으면 안 돼.
+
+    [규칙 2 - category]
+    category는 반드시 아래 7개 문자열 중 하나만 사용해.
+    띄어쓰기, 특수문자 하나도 바꾸지 마. 변형이나 새로운 값 절대 금지.
+    "기획 및 스크립트" / "영상 소스 생성" / "이미지 소스 생성" /
+    "성우 / TTS" / "BGM" / "편집 / 숏폼 변환" / "업로드 최적화"
+
+    [규칙 3 - 순서]
+    step_order는 전달받은 툴 조합 순서 그대로 유지해. 절대 바꾸지 마.
+
+    [규칙 4 - 중복 금지]
+    하나의 툴은 하나의 step에만 등장해. 같은 툴을 여러 step으로 쪼개지 마.
+    여러 작업이 있으면 하나의 step 안 prompt_example에 통합해서 작성해.
+
+    [규칙 5 - prompt_example 작성 기준]
+    prompt_example은 AI를 한 번도 써본 적 없는 초보자가 복사해서 바로 쓸 수 있을 만큼 구체적으로 작성해.
+    툴 유형에 따라 아래 기준을 따라:
+
+    ① 대화형 AI (ChatGPT, Claude, Gemini 등):
+    - 역할, 목적, 조건, 출력 형식을 모두 포함한 완성형 프롬프트를 작성해.
+    - 예: "너는 유튜브 숏폼 전문 작가야. 주제는 '[주제]'이고, 타겟은 20대 직장인이야. 
+      후킹 문장으로 시작해서 30초 안에 끝나는 스크립트를 작성해줘. 
+      말투는 친근하고 간결하게, 자막으로 들어갈 문장 단위로 줄바꿈해서 출력해줘."
+
+    ② 영상/이미지 생성 AI (Runway, Pika, Midjourney, Kling 등):
+    - 영어로 된 상세 프롬프트 + 한국어 설명을 함께 제공해.
+    - 스타일, 구도, 조명, 색감, 움직임(영상의 경우) 등 핵심 요소를 포함해.
+    - 예: "프롬프트: 'cinematic close-up of a woman smiling in golden hour light, 
+      bokeh background, warm tones, slow zoom in' 
+      (의미: 황금빛 조명 아래 미소 짓는 여성 클로즈업, 배경 흐림, 따뜻한 색감, 천천히 줌인)"
+
+    ③ 편집/제작 툴 (Vrew, CapCut, Adobe Premiere 등):
+    - 툴을 열고 → 설정하고 → 완성하는 전체 과정을 번호 순서로 작성해.
+    - 어떤 버튼을 누르고, 어떤 값을 설정하는지 구체적으로 설명해.
+    - 예: "① Vrew 실행 후 [새 프로젝트] 클릭 → 영상 파일 업로드
+      ② 상단 메뉴 [자막] → [자동 자막 생성] 선택, 언어는 '한국어' 설정
+      ③ 생성된 자막 검토 후 오탈자 수정
+      ④ [내보내기] → 해상도 1080p, 형식 MP4 선택 후 다운로드"
+
+    ④ TTS/성우 툴 (ElevenLabs, CLOVA Voice 등):
+    - 어떤 목소리 설정을 선택할지 + 입력할 텍스트 예시를 함께 제공해.
+    - 예: "① ElevenLabs 접속 → [Speech Synthesis] 메뉴 클릭
+      ② Voice는 'Rachel' 선택 (차분하고 전문적인 톤)
+      ③ Stability: 0.5 / Similarity: 0.75로 설정
+      ④ 아래 텍스트 입력 후 [Generate] 클릭:
+      '안녕하세요, 오늘은 [주제]에 대해 알아볼게요. 끝까지 함께해 주세요!'"
+
+    ⑤ BGM 툴 (Suno, Soundraw, Epidemic Sound 등):
+    - 장르, 분위기, 템포, 영상 길이 등 설정 기준을 구체적으로 안내해.
+    - 예: "① Soundraw 접속 → [Create Music] 클릭
+      ② Genre: 'Corporate', Mood: 'Uplifting', Tempo: 'Medium' 선택
+      ③ Length를 영상 길이에 맞게 설정 (예: 60초)
+      ④ 마음에 드는 트랙 선택 후 [Download] → MP3로 저장"
+
+    ⑥ 업로드/최적화 툴 (YouTube Studio, TubeBuddy 등):
+    - 제목, 설명, 태그 작성 예시 + 업로드 설정 체크리스트를 포함해.
+    - 예: "① YouTube Studio 접속 → [콘텐츠 업로드] 클릭
+      ② 제목 예시: '[주제] 하는 법 | 초보자도 5분이면 OK'
+      ③ 설명란에 핵심 키워드 3개 이상 포함, 첫 줄에 요약 문장 작성
+      ④ 태그: '[주제], AI툴, 숏폼, 크리에이터' 입력
+      ⑤ 공개 설정: 예약 게시 활용 (최적 시간대: 오후 6~9시)"
+
+    [자기검증 - 출력 전 반드시 확인]
+    ① steps 수 = 전달받은 툴 수인가?
+    ② 모든 tool_name이 userPrompt에서 전달받은 툴 이름과 일치하는가?
+    ③ 모든 category가 위 7개 중 하나인가?
+    ④ JSON 외 텍스트가 없는가?
+    ⑤ 모든 prompt_example이 규칙 5의 툴 유형 기준을 따르는가?
+    하나라도 아니면 수정 후 출력해.
+
     응답 형식:
     {
       "title": "숏폼 영상 제작 워크플로우",
       "total_time": "약 40분",
-      "workflows_category": "영상제작",
       "steps": [
         {
           "step_order": 1,
           "category": "기획 및 스크립트",
           "tool_name": "ChatGPT",
           "task": "숏폼 스크립트 작성",
-          "prompt_example": "30초 숏폼용 스크립트를 작성해줘. 주제는 [주제], 톤은 친근하게.",
+          "prompt_example": "너는 유튜브 숏폼 전문 작가야. 주제는 '[주제]'이고 타겟은 20대 직장인이야. 후킹 문장으로 시작해서 30초 안에 끝나는 스크립트를 작성해줘. 말투는 친근하고 간결하게, 자막으로 들어갈 문장 단위로 줄바꿈해서 출력해줘.",
           "duration": "10분",
           "tip": "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
           "caution": "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
         }
       ]
     }
+    `
 
-    category 규칙:
-    - 반드시 아래 7개 중 하나만 사용해. 다른 표현은 절대 사용 금지.
-      "기획 및 스크립트"
-      "영상 소스 생성"
-      "이미지 소스 생성"
-      "성우 / TTS"
-      "BGM"
-      "편집 / 숏폼 변환"
-      "업로드 최적화"
-    - 사용자가 선택한 툴의 카테고리를 그대로 사용해.
-    - 절대 변형하거나 새로 만들지 마.
-
-    workflows_category 규칙:
-    - 반드시 아래 5개 중 하나만 선택해. 다른 값은 절대 사용하지 마.
-      "스크립트" → 스크립트 작성, 기획, 아이디어 발굴, 카피라이팅 중심 워크플로우
-      "영상제작" → 영상 편집, 자막, 컷편집, 영상 생성 중심 워크플로우
-      "썸네일"  → 이미지 생성, 썸네일 디자인, 그래픽 중심 워크플로우
-      "보이스"  → 보이스오버, TTS, 음성 합성, 배경음악 중심 워크플로우
-      "배포"    → SNS 업로드, 스케줄링, 분석, 마케팅 중심 워크플로우
-    - 워크플로우 전체 흐름에서 가장 비중이 큰 목적을 기준으로 1개만 선택해.
-    - workflows_category는 steps 배열 안과 최상위 JSON에 모두 동일한 값으로 포함해.
-
-    주의사항:
-    - [필수] 전달받은 '선택한 툴 조합'의 개수와 steps 배열의 길이는 반드시 일치해야 해. (툴이 3개면 스텝도 무조건 3개)
-    - [필수] 하나의 툴 당 하나의 스텝(step)만 할당해. 절대 같은 툴을 여러 스텝으로 쪼개서 중복 등장시키지 마.
-    - [필수] 만약 하나의 툴로 여러 작업(예: 트렌드 조사 + 타겟 분석 + 캡션 작성)을 수행해야 한다면, 스텝을 나누지 말고 하나의 스텝 안에서 'prompt_example'에 여러 요청사항을 통합해서 작성해.
-    - step_order는 반드시 전달받은 '선택한 툴 조합' 순서 그대로 유지해. 절대 순서를 바꾸지 마.
-    - prompt_example은 실제로 복붙해서 쓸 수 있게 구체적으로 작성해.
-    - duration은 초보자 기준으로 작성해.
-    - tip과 caution은 초보자가 자주 하는 실수 기반으로 작성해.
-    `;
-
-  const userPrompt = `
+    const userPrompt = `
     사용자 목적: "${user_input}"
     선택한 툴 조합 (category는 반드시 그대로 사용할 것):
     ${selected_tools.map((t, i) => `- step ${i + 1}, category: "${t.category}", tool: "${t.name}"`).join("\n")}
-    `;
+    `
 
   try {
     const message = await client.messages.create({
@@ -227,20 +269,6 @@ const generateWorkflow = async (req, res) => {
   try {
     // 여기서 에러가 나면 catch 블록으로 빠짐
     const parsed = JSON.parse(jsonString);
-    
-    // 성공 시 workflows_category 유효성 검증 (기존 코드 유지)
-    const validCategories = ["스크립트", "영상제작", "썸네일", "보이스", "배포"];
-    if (!validCategories.includes(parsed.workflows_category)) {
-      // steps에서 가장 많이 등장하는 workflows_category로 결정
-      const categoryCounts = {};
-      parsed.steps?.forEach(s => {
-        if (s.workflows_category) {
-          categoryCounts[s.workflows_category] = (categoryCounts[s.workflows_category] || 0) + 1;
-        }
-      });
-      const dominant = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
-      parsed.workflows_category = validCategories.includes(dominant) ? dominant : "영상제작";
-    }
 
     return res.status(200).json({ success: true, data: parsed });
 

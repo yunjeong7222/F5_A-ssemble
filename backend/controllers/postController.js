@@ -21,7 +21,7 @@ const getPosts = async (req, res, next) => {
     const userId = req.user?.id;
 
     let query = `
-      SELECT p.id, p.title, p.category, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
+      SELECT p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
              u.id AS user_id, u.nickname, u.profile_url,
              COUNT(DISTINCT l.user_id) AS like_count,
              COUNT(DISTINCT c.id) AS comment_count,
@@ -39,7 +39,12 @@ const getPosts = async (req, res, next) => {
     const conditions = [];
 
     if (user_id === 'me' && userId) conditions.push({ sql: 'p.user_id = ?', val: userId });
-    if (category) conditions.push({ sql: 'p.category = ?', val: category });
+    if (category) {
+      conditions.push({
+        sql: 'p.workflow_id IN (SELECT workflow_id FROM workflow_tags WHERE category_name = ?)',
+        val: category
+      });
+    }
 
     if (conditions.length > 0) {
       query += ' WHERE ' + conditions.map(c => c.sql).join(' AND ');
@@ -63,23 +68,32 @@ const getPosts = async (req, res, next) => {
   const getLikedPosts = async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const { category } = req.query;
 
-    const [posts] = await db.promise().query(
-      `SELECT p.id, p.title, p.category, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
-              u.id AS user_id, u.nickname, u.profile_url,
-              (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
-              COUNT(DISTINCT c.id) AS comment_count
-       FROM posts p
-       JOIN users u ON u.id = p.user_id
-       JOIN likes l ON l.post_id = p.id
-       LEFT JOIN comments c ON c.post_id = p.id
-       WHERE l.user_id = ?
-       GROUP BY p.id
-       ORDER BY p.created_at DESC`,
-      [userId]
-    );
+    let query = `
+      SELECT p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at,
+             u.id AS user_id, u.nickname, u.profile_url,
+             (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+             COUNT(DISTINCT c.id) AS comment_count
+      FROM posts p
+      JOIN users u ON u.id = p.user_id
+      JOIN likes l ON l.post_id = p.id
+      LEFT JOIN comments c ON c.post_id = p.id
+      WHERE l.user_id = ?
+    `;
 
+    const params = [userId];
+
+    if (category) {
+      query += ' AND p.workflow_id IN (SELECT workflow_id FROM workflow_tags WHERE category_name = ?)';
+      params.push(category);
+    }
+
+    query += ' GROUP BY p.id ORDER BY p.created_at DESC';
+
+    const [posts] = await db.promise().query(query, params);
     return res.status(200).json({ success: true, data: posts });
+
   } catch (err) {
     next(err);
   }
@@ -143,19 +157,43 @@ const createPost = async (req, res, next) => {
       throw err;
     }
 
-    // workflow_id로 category 직접 조회
-    let category = null;
     if (workflow_id) {
-      const [wf] = await db.promise().query(
-        'SELECT workflows_category FROM workflows WHERE id = ?',
-        [workflow_id]
-      );
-      console.log('workflow_id:', workflow_id);
-  console.log('wf 조회 결과:', wf);
-  console.log('workflows_category:', wf[0]?.workflows_category);
-      if (wf.length > 0) category = wf[0].workflows_category;
+  // 내 북마크 복사본 먼저 확인
+  const [bookmarkRows] = await db.promise().query(
+    'SELECT custom_result_json FROM workflow_bookmarks WHERE user_id = ? AND workflow_id = ?',
+    [userId, workflow_id]
+  );
+
+  let resultJson;
+  if (bookmarkRows.length > 0) {
+    resultJson = typeof bookmarkRows[0].custom_result_json === 'string'
+      ? JSON.parse(bookmarkRows[0].custom_result_json)
+      : bookmarkRows[0].custom_result_json;
+  } else {
+    const [wfRows] = await db.promise().query(
+      'SELECT result_json FROM workflows WHERE id = ?', [workflow_id]
+    );
+    if (wfRows.length > 0) {
+      resultJson = typeof wfRows[0].result_json === 'string'
+        ? JSON.parse(wfRows[0].result_json)
+        : wfRows[0].result_json;
     }
-console.log('최종 category:', category);
+  }
+
+  if (resultJson) {
+    const steps = resultJson?.steps ?? [];
+    const tags = [...new Set(steps.map(s => s.category))];
+    console.log('📌 추출된 tags:', tags);
+    if (tags.length > 0) {
+      await db.promise().query(
+        'INSERT INTO workflow_tags (workflow_id, category_name) VALUES ?',
+        [tags.map(tag => [workflow_id, tag])]
+      );
+      console.log('✅ workflow_tags insert 완료');
+    }
+  }
+}
+
     // 첫 번째 image/video attachment에서 thumbnail_url, media_url 추출
     let thumbnail_url = null;
     let media_url = null;
@@ -170,8 +208,8 @@ console.log('최종 category:', category);
 
     // 게시글 저장
     const [result] = await db.promise().query(
-      'INSERT INTO posts (user_id, workflow_id, title, category, thumbnail_url, media_url) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, workflow_id ?? null, title, category, thumbnail_url, media_url]
+      'INSERT INTO posts (user_id, workflow_id, title, thumbnail_url, media_url) VALUES (?, ?, ?, ?, ?)',
+      [userId, workflow_id ?? null, title, thumbnail_url, media_url]
     );
 
     const postId = result.insertId;
