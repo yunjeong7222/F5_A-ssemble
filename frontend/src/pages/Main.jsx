@@ -3,6 +3,10 @@ import {useNavigate} from 'react-router-dom';
 import ToolMarquee from '../components/tools/ToolMarquee';
 import MainToolSection from '../components/tools/MainToolSection';
 import '../styles/Main.css';
+import MainStep1Visualizer from '../components/tools/MainStep1Visualizer';
+import MainStep2Visualizer from '../components/tools/MainStep2Visualizer';
+import MainStep3Visualizer from '../components/tools/MainStep3Visualizer';
+import MainStep4Visualizer from '../components/tools/MainStep4Visualizer';
 
 const HOW_STEPS = [
     {
@@ -105,6 +109,17 @@ export default function Main() {
     const scrollToSection = (i) => {
         sectionRefs.current[i]?.scrollIntoView({behavior: 'smooth'});
     };
+
+    // 쇼케이스 자동 전환 타이머
+    const STEP_DURATIONS = { 1: 8000, 2: 8000, 3: 6000, 4: 10000 };
+    useEffect(() => {
+        const duration = STEP_DURATIONS[activeStep];
+        if (!duration) return;
+        const timer = setTimeout(() => {
+            setActiveStep((prev) => (prev >= 4 ? 1 : prev + 1));
+        }, duration);
+        return () => clearTimeout(timer);
+    }, [activeStep]);
 
     return (
         <div className="main-wrapper">
@@ -225,6 +240,50 @@ export default function Main() {
                     ))}
                 </div>
             </section>
+                {/* CSS애니메이션 */}
+            <div className="showcase-container snap-section section-tools">
+      
+      <div className="showcase-header">
+        <h2 className="showcase-title">AIssemble 핵심 기능 미리보기</h2>
+        
+        {/* 네비게이션 탭 버튼 */}
+        <div className="showcase-tabs">
+          <button 
+            onClick={() => setActiveStep(1)} 
+            className={`showcase-tab ${activeStep === 1 ? 'active' : ''}`}
+          >
+            1. 목적 입력
+          </button>
+          <button 
+            onClick={() => setActiveStep(2)} 
+            className={`showcase-tab ${activeStep === 2 ? 'active' : ''}`}
+          >
+            2. 툴 조립
+          </button>
+          <button 
+            onClick={() => setActiveStep(3)} 
+            className={`showcase-tab ${activeStep === 3 ? 'active' : ''}`}
+          >
+            3. 결과 확인
+          </button>
+          <button 
+            onClick={() => setActiveStep(4)} 
+            className={`showcase-tab ${activeStep === 4 ? 'active' : ''}`}
+          >
+            4. 레시피 공유
+          </button>
+        </div>
+      </div>
+
+      {/* 선택된 단계의 컴포넌트 렌더링 영역 */}
+      <div className="showcase-content">
+        {activeStep === 1 && <MainStep1Visualizer />}
+        {activeStep === 2 && <MainStep2Visualizer />}
+        {activeStep === 3 && <MainStep3Visualizer />}
+        {activeStep === 4 && <MainStep4Visualizer />}
+      </div>
+
+    </div>
 
             {/* ── 3. CTA + 푸터 ── */}
             <section className="snap-section section-cta" ref={(el) => (sectionRefs.current[3] = el)}>

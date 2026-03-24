@@ -468,3 +468,135 @@
     border-color: var(--primary);
     color: var(--primary);
 }
+/* =========================================
+   STEP 4: Community Sharing Visualizer (10초 사이클)
+   ========================================= */
+
+.vis-step4-wrapper { max-width: 1000px; padding: 0; position: relative; background-color: #f8fafc; }
+
+/* 글로벌 헤더 (커뮤니티 외부 영역) */
+.vis-comm-global-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; }
+.vis-comm-logo { font-size: 1.5rem; font-weight: 900; color: #0f172a; letter-spacing: -0.05em; }
+.vis-comm-actions { display: flex; gap: 12px; }
+.vis-btn-outline { padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; }
+.vis-btn-primary { padding: 8px 16px; background-color: #8b5cf6; border-radius: 8px; font-size: 0.85rem; font-weight: 700; color: #ffffff; }
+
+/* 커뮤니티 보드 & 그리드 헤더 */
+.vis-comm-board { padding: 30px; min-height: 450px; }
+.vis-comm-grid-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+.vis-comm-tabs { display: flex; gap: 20px; }
+.vis-tab { font-size: 1.1rem; font-weight: 600; color: #94a3b8; position: relative; }
+.vis-tab.active { color: #0f172a; font-weight: 800; }
+.vis-tab.active::after { content: ''; position: absolute; bottom: -14px; left: 0; width: 100%; height: 3px; background-color: #8b5cf6; border-radius: 3px 3px 0 0; }
+.vis-comm-filters { display: flex; gap: 12px; }
+.vis-filter { font-size: 0.8rem; font-weight: 600; color: #94a3b8; }
+.vis-filter.active { color: #0f172a; }
+
+/* 게시글 그리드 */
+.vis-comm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.vis-post-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
+.vis-post-thumb { width: 100%; height: 140px; }
+.vis-post-content { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+.vis-post-title { font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vis-post-desc { font-size: 0.85rem; color: #64748b; margin: 0 0 16px 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+.vis-post-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.vis-tag { font-size: 0.7rem; font-weight: 600; color: #8b5cf6; background-color: #f5f3ff; padding: 4px 8px; border-radius: 6px; }
+.vis-post-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; font-weight: 500; border-top: 1px solid #f1f5f9; padding-top: 12px; }
+
+/* 모달 창 스타일 */
+.vis-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.4); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
+.vis-modal-window { box-sizing: border-box; background-color: #ffffff; border-radius: 20px; width: 500px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+.vis-modal-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0 0 20px 0; }
+.vis-modal-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; padding: 12px; background-color: #f8fafc; border-radius: 12px; }
+.vis-modal-tool-badge { font-size: 0.8rem; font-weight: 700; color: #1e293b; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 8px; }
+.vis-modal-tool-arrow { color: #cbd5e1; font-weight: bold; }
+.vis-modal-input-wrap { margin-bottom: 20px; }
+.vis-modal-label { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px; }
+
+/* input과 textarea 너비 완벽 고정 */
+.vis-modal-input { box-sizing: border-box; width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; font-size: 0.95rem; color: #0f172a; padding: 12px 16px; display: flex; align-items: center; }
+
+/* 💡 줄바꿈 텍스트를 위해 flex를 풀고 block으로 변경 */
+.vis-modal-textarea { box-sizing: border-box; width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; font-size: 0.95rem; color: #0f172a; padding: 12px 16px; height: 80px; display: block; line-height: 1.5; }
+
+.vis-modal-submit { background-color: #cbd5e1; color: #ffffff; font-weight: 700; text-align: center; padding: 14px; border-radius: 12px; margin-top: 10px; transition: background-color 0.2s; }
+
+/* --------------------------------------
+   애니메이션 Keyframes (총 10초 사이클)
+   -------------------------------------- */
+
+/* 1. 모달 창 등장/퇴장 */
+.vis-anim-modal {
+  opacity: 0; visibility: hidden;
+  animation: modalSequence 10s infinite;
+}
+@keyframes modalSequence {
+  0%, 10% { opacity: 0; visibility: hidden; transform: translateY(20px); }
+  15%, 75% { opacity: 1; visibility: visible; transform: translateY(0); } /* 1.5초~7.5초 유지 */
+  80%, 100% { opacity: 0; visibility: hidden; transform: translateY(20px); }
+}
+
+/* 2. 자동 타이핑 효과 (제목 -> 첫 번째 줄 -> 두 번째 줄) */
+.vis-anim-type-title { overflow: hidden; white-space: nowrap; display: inline-block; vertical-align: bottom; animation: typingTitle 10s infinite; }
+.vis-anim-type-desc-1 { overflow: hidden; white-space: nowrap; display: inline-block; vertical-align: bottom; animation: typingDesc1 10s infinite; }
+.vis-anim-type-desc-2 { overflow: hidden; white-space: nowrap; display: inline-block; vertical-align: bottom; animation: typingDesc2 10s infinite; }
+
+@keyframes typingTitle {
+  0%, 20% { max-width: 0%; opacity: 1; }
+  45%, 99.9% { max-width: 100%; opacity: 1; } /* 2.0s ~ 4.5s 제목 작성 */
+  100% { max-width: 0%; opacity: 0; }
+}
+@keyframes typingDesc1 {
+  0%, 45% { max-width: 0%; opacity: 1; }
+  60%, 99.9% { max-width: 100%; opacity: 1; } /* 4.5s ~ 6.0s 내용 1줄 작성 */
+  100% { max-width: 0%; opacity: 0; }
+}
+@keyframes typingDesc2 {
+  0%, 60% { max-width: 0%; opacity: 1; }
+  70%, 99.9% { max-width: 100%; opacity: 1; } /* 6.0s ~ 7.0s 내용 2줄 작성 */
+  100% { max-width: 0%; opacity: 0; }
+}
+
+/* 분리된 깜빡이는 커서 */
+.vis-cursor-title { display: inline-block; width: 2px; height: 16px; background-color: #8b5cf6; margin-left: 2px; vertical-align: middle; animation: blinkTitle 10s infinite; }
+.vis-cursor-desc-1 { display: inline-block; width: 2px; height: 16px; background-color: #8b5cf6; margin-left: 2px; vertical-align: middle; animation: blinkDesc1 10s infinite; }
+.vis-cursor-desc-2 { display: inline-block; width: 2px; height: 16px; background-color: #8b5cf6; margin-left: 2px; vertical-align: middle; animation: blinkDesc2 10s infinite; }
+
+@keyframes blinkTitle {
+  0%, 19.9% { opacity: 0; }
+  20%, 45% { opacity: 1; animation-timing-function: steps(1); }
+  45.1%, 100% { opacity: 0; }
+}
+@keyframes blinkDesc1 {
+  0%, 44.9% { opacity: 0; }
+  45%, 60% { opacity: 1; animation-timing-function: steps(1); }
+  60.1%, 100% { opacity: 0; }
+}
+@keyframes blinkDesc2 {
+  0%, 59.9% { opacity: 0; }
+  60%, 70% { opacity: 1; animation-timing-function: steps(1); }
+  70.1%, 100% { opacity: 0; }
+}
+
+/* 3. 게시 버튼 활성화 
+   💡 설명 1줄 작성이 4.5초(45%)에 시작됨 -> 0.3초 뒤인 4.8초(48%)에 버튼 활성화 */
+.vis-anim-submit-btn { animation: submitClick 10s infinite; }
+@keyframes submitClick {
+  0%, 47.9% { background-color: #cbd5e1; transform: scale(1); }
+  48%, 73% { background-color: #8b5cf6; transform: scale(1); } /* 4.8초 시점에 보라색 켜짐 */
+  74%, 76% { background-color: #7c3aed; transform: scale(0.98); } /* 클릭 모션 */
+  77%, 100% { background-color: #cbd5e1; transform: scale(1); }
+}
+
+/* 4. 새 게시글 팝업 */
+.vis-anim-new-post {
+  opacity: 0;
+  transform: scale(0.9) translateY(-10px);
+  animation: popInPost 10s infinite;
+}
+
+@keyframes popInPost {
+  0%, 79.9% { opacity: 0; transform: scale(0.9) translateY(-10px); }
+  82%, 99.9% { opacity: 1; transform: scale(1) translateY(0); } /* 모달 닫힌 후 등장해서 10초까지 유지 */
+  100% { opacity: 0; transform: scale(0.9) translateY(-10px); } /* 100% 도달 시 즉시 증발 */
+}

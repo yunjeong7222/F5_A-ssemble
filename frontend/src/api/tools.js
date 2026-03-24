@@ -16,4 +16,3 @@ export const getToolById = async (id) => {
     const res = await api.get(`/api/tools/${id}`);
     return res.data.data;
 };
-

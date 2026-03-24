@@ -7,7 +7,8 @@ const ToolSelector = () => {
   const categories = [...new Set(recommendedTools.map(tool => tool.category))];
 
   // 💡 현재 보여줄 단계(카테고리)의 인덱스를 관리하는 상태 추가
-  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
+const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
+const [hoveredTooltip, setHoveredTooltip] = useState(null);
 
   const getCategoryColor = (categoryName) => {
     const colors = {
@@ -108,6 +109,7 @@ const ToolSelector = () => {
           <div className="ts-grid">
             {recommendedTools
               .filter(tool => tool.category === currentCategory)
+              .slice(0, 4)
               .map(tool => {
                 const isSelected = selectedTools.includes(tool.id);
                 
@@ -139,84 +141,66 @@ const ToolSelector = () => {
                 };
 
                 return (
-                  <div 
-                    key={tool.id} 
-                    // 💡 toggleSelectedTool 대신 새로 만든 handleToolSelect 사용
-                    onClick={() => handleToolSelect(tool.id)}
-                    className={`ts-card ${isSelected ? 'selected' : ''}`}
-                  >
-                    
-                    {isSelected && <div className="ts-check-icon">✓</div>}
-
-                    <div className="ts-card-header">
-                      <div className="ts-icon-box">
-                        {/* ⭐ 정규식 적용된 썸네일 방어 로직 */}
-                        <img 
-                          src={
-                            tool.thumbnail || 
-                            `https://www.google.com/s2/favicons?domain=${tool.url || tool.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + '.com'}&sz=128`
-                          } 
-                          alt={tool.name} 
-                          className="ts-tool-img"
-                          onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
-                        />
-                        <span className="ts-fallback-icon">🤖</span>
-                      </div>
-                      
-                      <div className="ts-title-wrap">
-                        <h4 className="ts-tool-title">{tool.name}</h4>
-                        <div className="ts-badges-wrap">
-                          {/* 뱃지 색상은 동적 데이터이므로 style 유지 */}
-                          <span className="ts-badge" style={{ backgroundColor: getPricingStyle(displayData.pricing).bg, color: getPricingStyle(displayData.pricing).color }}>
-                            <span>{getPricingStyle(displayData.pricing).icon}</span>
-                            {displayData.pricing}
-                          </span>
-                          
-                          <span className="ts-badge" style={{ backgroundColor: getLevelStyle(displayData.level).bg, color: getLevelStyle(displayData.level).color }}>
-                            <span>{getLevelStyle(displayData.level).icon}</span>
-                            {displayData.level}
-                          </span>
+                      <div
+                          key={tool.id}
+                          onClick={() => handleToolSelect(tool.id)}
+                          className={`ts-card ${isSelected ? 'selected' : ''}`}
+                          onMouseEnter={() => setHoveredTooltip(tool.id)}
+                          onMouseLeave={() => setHoveredTooltip(null)}
+                        >
+                          {isSelected && <div className="ts-check-icon">✓</div>}
+                        <div className="ts-card-header">
+                          <div className="ts-icon-box">
+                            <img 
+                              src={tool.thumbnail || `https://www.google.com/s2/favicons?domain=${tool.url || tool.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + '.com'}&sz=128`} 
+                              alt={tool.name} 
+                              className="ts-tool-img"
+                              onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
+                            />
+                            <span className="ts-fallback-icon">🤖</span>
+                          </div>
+                          <div className="ts-title-wrap">
+                            <h4 className="ts-tool-title">{tool.name}</h4>
+                            <div className="ts-badges-wrap">
+                              <span className="ts-badge" style={{ backgroundColor: getPricingStyle(displayData.pricing).bg, color: getPricingStyle(displayData.pricing).color }}>
+                                <span>{getPricingStyle(displayData.pricing).icon}</span>
+                                {displayData.pricing}
+                              </span>
+                              <span className="ts-badge" style={{ backgroundColor: getLevelStyle(displayData.level).bg, color: getLevelStyle(displayData.level).color }}>
+                                <span>{getLevelStyle(displayData.level).icon}</span>
+                                {displayData.level}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="ts-specialized" style={{ color: displayData.color }}>
-                      ✦ {displayData.specialized}
-                    </div>
-
-                    <div className="ts-proscons-wrap">
-                      {/* 장점 영역 */}
-                      <div className="ts-proscons-block">
-                        <div className="ts-pros-title">
-                          <span className="ts-pros-badge"> 장점</span>
+                        <div className="ts-specialized" style={{ color: displayData.color }}>
+                          ✦ {tool.desc_short || displayData.specialized}
                         </div>
-                        <ul className="ts-list">
-                          {displayData.pros.length > 0 ? displayData.pros.slice(0, 3).map((pro, i) => (
-                            <li key={i} className="ts-list-item">
-                              <span className="ts-pros-mark">+</span> 
-                              <span>{pro}</span>
-                            </li>
-                          )) : <li className="ts-empty-info">정보 없음</li>}
-                        </ul>
+
+                          {hoveredTooltip === tool.id && (
+                          <div className="ts-overlay">
+                            <div className="ts-overlay-inner">
+                              <div className="ts-proscons-block">
+                                <span className="ts-pros-badge">장점</span>
+                                <ul className="ts-list">
+                                  {displayData.pros.slice(0, 3).map((pro, i) => (
+                                    <li key={i} className="ts-list-item"><span className="ts-pros-mark">+</span> {pro}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div className="ts-proscons-block">
+                                <span className="ts-cons-badge">단점</span>
+                                <ul className="ts-list">
+                                  {displayData.cons.slice(0, 3).map((con, i) => (
+                                    <li key={i} className="ts-list-item"><span className="ts-cons-mark">-</span> {con}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* 단점 영역 */}
-                      <div className="ts-proscons-block">
-                        <div className="ts-cons-title">
-                          <span className="ts-cons-badge"> 단점</span>
-                        </div>
-                        <ul className="ts-list">
-                          {displayData.cons.length > 0 ? displayData.cons.slice(0, 3).map((con, i) => (
-                            <li key={i} className="ts-list-item">
-                              <span className="ts-cons-mark">-</span> 
-                              <span>{con}</span>
-                            </li>
-                          )) : <li className="ts-empty-info">정보 없음</li>}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                );
+                    );
               })}
           </div>        
         </div>

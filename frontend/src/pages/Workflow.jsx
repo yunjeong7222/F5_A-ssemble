@@ -4,7 +4,7 @@ import { useWorkflow } from '../hooks/useWorkflow';
 import ToolSelector from '../components/workflow/ToolSelector';
 import StepCard from '../components/workflow/StepCard';
 import WorkflowResult from '../components/workflow/WorkflowResult';
-import '../styles/Workflow.css'; // 💡 새로 만든 CSS 연결
+import '../styles/Workflow.css';
 
 const Workflow = () => {
   const { step, purpose, setPurpose, selectedTools, workflowResult, isLoading, resetWorkflow, prevStep } = useWorkflowStore();

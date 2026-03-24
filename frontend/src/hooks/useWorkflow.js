@@ -115,6 +115,8 @@ export const useWorkflow = () => {
   // 3차: DB 저장 (새로 추가)
   const handleSaveWorkflow = async () => {
     const { workflowResult, purpose, selectedTools } = useWorkflowStore.getState();
+    console.log('저장 데이터 workflowResult:', workflowResult);
+console.log('workflows_category 값:', workflowResult?.workflows_category);
     setIsLoading(true);
 
     try {
