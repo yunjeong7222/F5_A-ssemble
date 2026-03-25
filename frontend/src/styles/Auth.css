@@ -1,0 +1,712 @@
+/* ============================================================
+   auth.css — AI Tool Recipe Hub
+   Login / Signup / ProfileSetup
+   디자인 시스템: Tools.css 기준으로 통일
+   ============================================================ */
+
+@keyframes auth-fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes auth-slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   공통 — 인증 페이지 래퍼
+════════════════════════════════════════════════════════════ */
+
+.auth-page {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 40px;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.07);
+    font-family: 'Pretendard', sans-serif;
+    animation: auth-fadeIn 0.5s ease;
+}
+
+/* 로그인은 좀 더 단순한 레이아웃 */
+.auth-page--login {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.auth-page-title {
+    text-align: center;
+    margin: 0 0 28px;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   공통 — 폼 요소
+════════════════════════════════════════════════════════════ */
+
+.auth-form-group {
+    margin-bottom: 14px;
+}
+
+.auth-form-group--last {
+    margin-bottom: 35px;
+}
+
+.auth-label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+/* 기본 input */
+.auth-input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: 'Pretendard', sans-serif;
+    outline: none;
+    background: var(--bg);
+    color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+
+.auth-input:focus {
+    border-color: var(--primary);
+}
+
+.auth-input--ok {
+    border-color: var(--secondary);
+}
+
+.auth-input--error {
+    border-color: #ef4444;
+}
+
+/* 힌트 / 에러 메시지 공간 */
+.auth-field-hint {
+    min-height: 18px;
+    margin-top: 4px;
+}
+
+.auth-field-hint p {
+    font-size: 11px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.auth-hint--ok    { color: var(--secondary); }
+.auth-hint--error { color: #ef4444; }
+.auth-hint--warn  { color: #f59e0b; }
+
+/* 에러 메시지 고정 영역 (레이아웃 밀림 방지) */
+.auth-error-area {
+    min-height: 24px;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.auth-error-msg {
+    color: #ef4444;
+    font-size: 13px;
+    margin: 0;
+    font-weight: 700;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   공통 — 버튼
+════════════════════════════════════════════════════════════ */
+
+/* 주요 액션 버튼 (Tools.css modal-btn-primary 패턴) */
+.auth-btn-primary {
+    width: 100%;
+    padding: 15px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.auth-btn-primary:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* 보조 버튼 (Tools.css btn-outline 패턴) */
+.auth-btn-outline {
+    width: 100%;
+    padding: 13px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* 하단 페이지 이동 안내 */
+.auth-redirect {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.auth-redirect-link {
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 4px;
+}
+
+.auth-redirect-link:hover {
+    text-decoration: underline;
+}
+
+.auth-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: auth-fadeIn 0.15s ease;
+}
+
+.auth-modal {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    width: 380px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: auth-slideUp 0.2s ease;
+    overflow: hidden;
+}
+
+.auth-modal-body {
+    padding: 30px 30px;
+    text-align: center;
+}
+
+.auth-modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 14px;
+    letter-spacing: -0.3px;
+}
+
+.auth-modal-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0 0 20px;
+}
+
+.auth-modal-desc b {
+    color: var(--text-primary);
+}
+
+/* 발급된 임시 비밀번호 표시 박스 */
+.auth-modal-result-box {
+    padding: 20px;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    margin-bottom: 24px;
+}
+
+.auth-modal-result-warning {
+    font-size: 12px;
+    color: #ef4444;
+    margin: 0 0 8px;
+    font-weight: 700;
+}
+
+.auth-modal-result-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+}
+
+.auth-modal-result-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+/* 모달 내부 버튼 영역 */
+.auth-modal-footer {
+    display: flex;
+    gap: 8px;
+    padding: 0 30px 30px;
+}
+
+/* 모달 내 취소/닫기 버튼 */
+.auth-modal-btn-cancel {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.auth-modal-btn-cancel:hover {
+    border-color: var(--primary-hover);
+    color: var(--text-primary);
+}
+
+/* 모달 내 확인/동의 버튼 */
+.auth-modal-btn-confirm {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.auth-modal-btn-confirm:hover {
+    background: var(--primary-hover);
+}
+
+.auth-modal-btn-confirm:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* 약관 모달 본문 스크롤 영역 */
+.auth-modal-terms-body {
+    height: 150px;
+    overflow-y: auto;
+    background: var(--surface);
+    padding: 14px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    white-space: pre-wrap;
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    border: 1.5px solid var(--border);
+}
+
+/* 약관 모달 */
+.auth-modal--terms {
+    width: 90%;
+    max-width: 380px;
+    padding: 24px;
+}
+
+.auth-modal--terms .auth-modal-title {
+    font-size: 17px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   Login
+════════════════════════════════════════════════════════════ */
+
+.login-input-wrapper {
+    position: relative;
+}
+
+.login-forgot-row {
+    text-align: right;
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+.login-forgot-link {
+    font-size: 13px;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.login-forgot-link:hover {
+    text-decoration: underline;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   Signup — 비밀번호 강도 게이지
+════════════════════════════════════════════════════════════ */
+
+.signup-strength-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 999px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.signup-strength-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   Signup — 약관 동의 섹션
+════════════════════════════════════════════════════════════ */
+
+.signup-terms-box {
+    background: var(--surface);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    margin-bottom: 20px;
+}
+
+/* 전체 동의 행 */
+.signup-terms-all-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1.5px solid var(--border);
+    cursor: pointer;
+}
+
+.signup-terms-all-label {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.signup-terms-all-label--active {
+    color: var(--primary);
+}
+
+.signup-terms-all-label--inactive {
+    color: var(--text-secondary);
+}
+
+/* 개별 약관 행 */
+.signup-terms-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.signup-terms-row:last-child {
+    margin-bottom: 0;
+}
+
+.signup-terms-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.signup-terms-item-label {
+    font-size: 12px;
+}
+
+.signup-terms-item-label--active   { color: var(--text-primary); }
+.signup-terms-item-label--inactive { color: var(--text-secondary); }
+
+.signup-terms-view-link {
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    font-family: 'Pretendard', sans-serif;
+    padding: 0;
+}
+
+.signup-terms-view-link:hover {
+    color: var(--primary);
+}
+
+/* 커스텀 체크박스 */
+.auth-checkbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.auth-checkbox--lg {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+}
+
+.auth-checkbox--sm {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+}
+
+.auth-checkbox--checked {
+    border-color: var(--primary);
+    background: var(--primary);
+}
+
+.auth-checkbox-mark {
+    color: #fff;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.auth-checkbox-mark--lg { font-size: 12px; }
+.auth-checkbox-mark--sm { font-size: 10px; }
+
+
+/* ════════════════════════════════════════════════════════════
+   ProfileSetup
+════════════════════════════════════════════════════════════ */
+
+/* 스텝 바 */
+.setup-step-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.setup-step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.setup-step-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+}
+
+.setup-step-circle--done {
+    background: var(--primary);
+    color: #fff;
+}
+
+.setup-step-circle--active {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    background: transparent;
+}
+
+.setup-step-label {
+    font-size: 10px;
+    margin: 0;
+}
+
+.setup-step-label--done   { color: var(--text-muted); }
+.setup-step-label--active { color: var(--primary); font-weight: 700; }
+
+.setup-step-divider {
+    width: 30px;
+    height: 1.5px;
+    background: var(--border);
+    margin-bottom: 20px;
+}
+
+/* 완료 배지 */
+.setup-complete-badge {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.setup-complete-badge-inner {
+    display: inline-block;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--secondary);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* 타이틀 / 서브타이틀 */
+.setup-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 5px;
+    text-align: center;
+    letter-spacing: -0.3px;
+}
+
+.setup-subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0 0 25px;
+    text-align: center;
+}
+
+/* 아바타 업로드 영역 */
+.setup-avatar-wrapper {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 24px;
+}
+
+.setup-avatar-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid rgba(156, 136, 255, 0.25);
+    overflow: hidden;
+    background: var(--surface);
+}
+
+.setup-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.setup-avatar-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.setup-avatar-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0 0 22px;
+}
+
+/* 가입 정보 확인 카드 */
+.setup-info-card {
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    text-align: left;
+    margin-bottom: 22px;
+}
+
+.setup-info-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin: 0 0 16px;
+}
+
+.setup-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.setup-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.setup-info-key {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+}
+
+.setup-info-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.setup-info-value--ok  { color: var(--secondary); }
+.setup-info-value--off { color: var(--text-muted); }
+
+/* 가입 완료 버튼 shadow */
+.setup-submit-btn {
+    margin-bottom: 12px;
+    box-shadow: 0 8px 20px rgba(156, 136, 255, 0.2);
+}

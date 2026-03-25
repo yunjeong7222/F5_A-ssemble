@@ -1,0 +1,158 @@
+/* ── Comments Section ── */
+
+.detail-comments-section {
+    margin-top: var(--gap-xl);
+    padding-top: var(--gap-xl);
+    border-top: 1.5px solid var(--border);
+}
+
+.detail-comments-section h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--gap-lg);
+}
+
+/* 댓글 아이템 */
+.detail-comment-item {
+    background: var(--bg);
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+}
+
+.detail-comment-item:last-of-type {
+    border-bottom: none;
+}
+
+/* 댓글 헤더 (유저 정보 + 버튼) */
+.detail-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comm-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comm-user-avatar, .detail-comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.comm-user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.detail-meta-text {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* 액션 버튼 (수정/삭제) */
+.detail-comment-action-btn {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Pretendard', sans-serif;
+    transition: color 0.15s;
+}
+
+.detail-comment-action-btn:hover {
+    color: var(--primary);
+}
+
+.detail-comment-action-btn--delete:hover {
+    color: #ef4444;
+}
+
+/* 댓글 내용 */
+.detail-comment-content {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding-left: 42px; /* 아바타 크기 + 간격만큼 정렬 */
+    white-space: pre-wrap;
+}
+
+/* ── 댓글 입력 창 (Wrap) ── */
+.detail-comment-wrap {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: var(--gap-lg);
+    padding: 16px;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border);
+    transition: border-color 0.2s;
+}
+
+.detail-comment-wrap:focus-within {
+    border-color: var(--primary);
+    background: var(--bg);
+}
+
+.detail-comment-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: 'Pretendard', sans-serif;
+    outline: none;
+}
+
+.detail-comment-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* 등록/저장 버튼 */
+.detail-comment-submit {
+    padding: 8px 16px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    white-space: nowrap;
+}
+
+.detail-comment-submit:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+.detail-comment-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 수정 모드용 추가 스타일 */
+.edit-mode-container {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    padding-left: 42px;
+}
