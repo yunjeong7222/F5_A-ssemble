@@ -2,6 +2,7 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import PrivateRoute from './components/common/PrivateRoute';
+import ScrollToTop from './components/common/ScrollToTop';
 
 import Main from './pages/Main';
 import Tools from './pages/Tools';
@@ -11,12 +12,15 @@ import CommunityDetail from './pages/CommunityDetail';
 import CommunityWrite from './pages/CommunityWrite';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import './styles/global.css';
+import ProfileSetup from './pages/ProfileSetup';
+import MyPage from './pages/MyPage';
+import CommunityEdit from './pages/CommunityEdit';
 
 function App() {
     return (
         <BrowserRouter>
             <div className="app-wrapper">
+                <ScrollToTop />
                 <Header />
                 <main className="app-main">
                     <Routes>
@@ -32,9 +36,26 @@ function App() {
                                 </PrivateRoute>
                             }
                         />
+                        <Route
+                            path="/community/edit/:id"
+                            element={
+                                <PrivateRoute>
+                                    <CommunityEdit />
+                                </PrivateRoute>
+                            }
+                        />
                         <Route path="/community/:id" element={<CommunityDetail />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<Signup />} />
+                        <Route path="/profile-setup" element={<ProfileSetup />} />
+                        <Route
+                            path="/mypage"
+                            element={
+                                <PrivateRoute>
+                                    <MyPage />
+                                </PrivateRoute>
+                            }
+                        />
                     </Routes>
                 </main>
                 <Footer />
