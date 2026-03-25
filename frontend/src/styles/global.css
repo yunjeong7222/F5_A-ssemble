@@ -65,5 +65,5 @@ body.snap-scroll {
 .container {
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 0 var(--gap-lg); /* 패딩 없애는거 고려 */
+    /* padding: 0 var(--gap-lg); 패딩 없애는거 고려 */
 }
