@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const postController = require('../controllers/postController');
-const {authMiddleware} = require('../middleware/auth');
+const {authMiddleware, optionalAuth} = require('../middleware/auth');
 
 // 게시글
-router.get('/', postController.getPosts);                        
+router.get('/', optionalAuth, postController.getPosts);                        
 router.get('/liked', authMiddleware, postController.getLikedPosts);
 router.get('/:id', authMiddleware, postController.getPost);                      
 router.post('/', authMiddleware, postController.createPost);     

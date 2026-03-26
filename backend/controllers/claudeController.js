@@ -25,7 +25,7 @@ const suggest = async (req, res) => {
         purpose: "숏폼 제작",
         recommended_categories: ["기획 및 스크립트", "편집 / 숏폼 변환"],
         tools_by_category: {
-          "기획 및 스크립트": ["ChatGPT", "Claude"],
+          "기획 및 스크립트": ["ChatGPT", "Claude", "Gemini","Notion AI"],
           "편집 / 숏폼 변환": ["CapCut AI", "Vrew"]
         },
         reason: "숏폼 제작에 필요한 핵심 단계예요"
@@ -139,7 +139,7 @@ const generateWorkflow = async (req, res) => {
             caution: "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
           }
         ]
-      }
+      },
     });
   }
 ///////////////////////////////////////////////

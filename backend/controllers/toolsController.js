@@ -13,6 +13,7 @@ const getTools = async (req, res) => {
           'category_id', c.id,
           'category_name', c.name,
           'description', tc.description,
+          'desc_short', tc.desc_short, 
           'pros', tc.pros,
           'cons', tc.cons
         )
@@ -52,6 +53,7 @@ const getToolById = async (req, res) => {
           'category_id', c.id,
           'category_name', c.name,
           'description', tc.description,
+          'desc_short', tc.desc_short, 
           'pros', tc.pros,
           'cons', tc.cons
         )
