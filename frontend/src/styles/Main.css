@@ -1,12 +1,19 @@
 /* ── body 스냅 (메인에서만 적용) ── */
-body.snap-scroll {
-    scroll-snap-type: y mandatory;
+html.snap-scroll {
+    /* scroll-snap-type: y mandatory; */
+    scroll-snap-type: y proximity;
     overflow-y: scroll;
+    scroll-padding-top: var(--header-height); /* 추가 */
 }
 
-body.snap-scroll .snap-section {
+html.snap-scroll .snap-section {
     scroll-snap-align: start;
-    scroll-snap-stop: normal;
+    /* scroll-snap-stop: normal; */
+    scroll-snap-stop: always;
+}
+/* 마지막 섹션 snap 제외 */
+html.snap-scroll .section-community {
+    scroll-snap-align: none;
 }
 
 /* ── 메인 래퍼 ── */
@@ -18,7 +25,6 @@ body.snap-scroll .snap-section {
     height: calc(100vh - var(--header-height));
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
     position: relative;
 }
 
@@ -116,8 +122,9 @@ body.snap-scroll .snap-section {
     color: var(--primary);
 }
 .hero-sub {
-    font-size: 24px;
-    color: var(--text-secondary);
+    font-size: 22px;
+    /* color: var(--text-secondary); */
+    color: var(--color-text-secondary);
     line-height: 1.7;
     text-align: center;
 }
@@ -140,7 +147,7 @@ body.snap-scroll .snap-section {
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--text-muted);
     animation: bounce 2s infinite;
 }
@@ -244,7 +251,7 @@ body.snap-scroll .snap-section {
 
 .intro-physics {
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - var(--header-height));
 }
 /* intro-2 */
 @keyframes slideUp {
@@ -272,6 +279,7 @@ body.snap-scroll .snap-section {
     max-width: 1330px;
     width: 90%;
     margin: 0 auto;
+    height: auto;
 }
 
 .intro-col-left,
@@ -302,7 +310,7 @@ body.snap-scroll .snap-section {
 }
 
 .intro-card p {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 200;
     color: #fff;
 }
@@ -327,7 +335,7 @@ body.snap-scroll .snap-section {
 }
 
 .service-header p {
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1.25;
     color: var(--text-secondary);
 }
@@ -341,14 +349,24 @@ body.snap-scroll .snap-section {
 .service-card {
     border-radius: 20px;
     overflow: hidden;
-    border: 0.5px solid var(--color-border-tertiary);
-    background: var(--color-background-secondary);
+    border: 0.5px solid #e2e8f0;
+    background: #f8f8ff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    opacity: 0.4;
+    transform: translateY(8px);
+    transition:
+        opacity 0.6s ease-in-out,
+        transform 0.6s ease-in-out,
+        box-shadow 0.3s ease;
 }
 
-.service-card-img.placeholder {
+.service-card-img {
     width: 100%;
     height: 220px;
-    background: #1c1c51;
+    /* background: #1c1c51; */
+    background: var(--text-primary);
+    object-fit: cover;
+    object-position: top;
 }
 
 .service-card-text {
@@ -368,16 +386,15 @@ body.snap-scroll .snap-section {
 }
 
 .service-card-img {
-    opacity: 0.3;
-    transform: translateY(4px);
-    transition:
-        opacity 0.6s ease-in-out,
-        transform 0.6s ease-in-out;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    object-position: top;
 }
-
-.service-card.active .service-card-img {
+.service-card.active {
     opacity: 1;
     transform: translateY(0);
+    box-shadow: 0 8px 32px rgba(156, 136, 255, 0.15);
 }
 
 /* ── HOW IT WORKS ── */
@@ -386,12 +403,12 @@ body.snap-scroll .snap-section {
     padding: 0;
     overflow: hidden;
     gap: 48px;
-    padding: 48px 0;
+    justify-content: center;
 }
 .how-inner {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
-    height: 100vh;
+    height: calc(100vh - var(--header-height));
 }
 .how-steps-nav {
     padding: 48px 40px;
@@ -531,13 +548,16 @@ body.snap-scroll .snap-section {
 /* ── community ── */
 .section-community {
     background: linear-gradient(to bottom, #ffffff 0%, #ffffff 20%, #e2e8f0 90%);
+    height: auto;
+    min-height: 100vh;
+    padding-bottom: 48px;
 }
 .community-top {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
     align-items: center;
-    margin: 48px 0;
+    padding-top: 24px;
 }
 
 .community-text h2 {
@@ -548,41 +568,123 @@ body.snap-scroll .snap-section {
 }
 
 .community-sub {
-    font-size: 24px;
+    font-size: 22px;
     color: var(--text-muted);
-    line-height: 1.25;
-    margin-bottom: 48px;
+    /* color: var(--color-text-secondary); */
+    line-height: 1.5;
+    margin-bottom: 80px;
 }
 
 .community-mini {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--primary);
-    font-weight: 500;
-    margin-bottom: 12px;
+    font-weight: 600;
+    margin-bottom: 9px;
 }
 .community-illust {
-    width: 500px;
-    border-radius: 50%;
+    width: 100%;
     overflow: hidden;
 }
 .community-illust img {
     width: 100%;
     height: auto;
-    object-fit: contain;
+    object-fit: cover;
+}
+.arrow {
+    padding-left: 24px;
 }
 .btn-primary {
-    padding: 12px 24px;
+    padding: 16px 48px;
     background: var(--primary);
     color: #fff;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
 }
 .btn-primary:hover {
     background: var(--primary-hover);
+}
+/* 커뮤니티 카드영역 */
+.community-cards-text {
+    margin-bottom: 16px;
+}
+.community-cards-text h3 {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.community-cards-text p {
+    color: var(--text-secondary);
+}
+
+.community-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.community-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 0.5px solid #e8e8f0;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.community-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.community-card-img {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.community-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.community-card-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #eeedfe;
+}
+
+.community-card-body {
+    padding: 16px;
+}
+
+.community-card-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+.community-card-user {
+    display: flex;
+    justify-content: space-between;
+}
+.community-card-nick {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+.community-card-like {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 /* ── 플로팅 CTA ── */
@@ -612,8 +714,8 @@ body.snap-scroll .snap-section {
     color: #fff;
     border: none;
     border-radius: 18px;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;

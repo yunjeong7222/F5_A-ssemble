@@ -39,6 +39,14 @@
     --gap-xl: 40px;
 
     /* 텍스트사이즈 추가 필요 */
+    /* 언젠가 지워질 */
+    --color-border-tertiary: #e2e8f0;
+    --color-border-secondary: #cbd5e1;
+    --color-background-secondary: #f8f8ff;
+    --color-background-tertiary: #f1f5f9;
+    --color-text-primary: #1a1a2e;
+    --color-text-secondary: #64748b;
+    --color-text-tertiary: #94a3b8;
 }
 
 /* 초기화 */
@@ -65,4 +73,30 @@ body.snap-scroll {
 .container {
     max-width: var(--content-width);
     margin: 0 auto;
+}
+
+/*  sweetalert2 관련 css */
+.swal-custom-title {
+    font-size: 15px !important;
+}
+.swal-custom-text {
+    font-size: 15px !important;
+}
+.swal-custom-icon {
+    width: 40px !important;
+    height: 40px !important;
+    margin: 12px auto 0 !important;
+}
+
+.swal-custom-icon .swal2-icon-content {
+    font-size: 24px !important;
+}
+
+.swal-custom-confirm {
+    font-size: 13px !important;
+    padding: 6px 20px !important;
+}
+.swal-custom-cancel {
+    font-size: 13px !important;
+    padding: 6px 20px !important;
 }

@@ -1,6 +1,9 @@
 import {useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {getTools} from '../api/tools';
+import {getPosts} from '../api/posts';
+import useAuthStore from '../store/authStore';
+import Swal from 'sweetalert2';
 import IntroPhysics from '../components/main/IntroPhysics';
 import '../styles/Main.css';
 import heroImg from '../assets/images/main-hero2.png';
@@ -10,25 +13,29 @@ import MainStep1Visualizer from '../components/tools/MainStep1Visualizer';
 import MainStep2Visualizer from '../components/tools/MainStep2Visualizer';
 import MainStep3Visualizer from '../components/tools/MainStep3Visualizer';
 import MainStep4Visualizer from '../components/tools/MainStep4Visualizer';
-import communityImg from '../assets/images/main-community.jpeg';
+import serviceImg1 from '../assets/images/service-1.png';
+import serviceImg2 from '../assets/images/service-2.jpeg';
+import serviceImg3 from '../assets/images/service-3.png';
+import communityImg from '../assets/images/main-community.png';
 
 const SECTIONS = ['hero', 'intro-1', 'intro-2', 'service', 'how-it-works', 'community'];
 
 export default function Main() {
     const navigate = useNavigate();
+    const {isLoggedIn} = useAuthStore();
     const [activeSection, setActiveSection] = useState(0);
     const [activeStep, setActiveStep] = useState(1);
     const [showFloat, setShowFloat] = useState(false);
     const [tools, setTools] = useState([]);
     const [physicsActive, setPhysicsActive] = useState(false);
     const [activeCard, setActiveCard] = useState(0);
+    const [topPosts, setTopPosts] = useState([]);
     const sectionRefs = useRef([]);
-    const howSectionRef = useRef(null);
 
     // 메인 마운트 시 body에 snap-scroll 클래스 추가
     useEffect(() => {
-        document.body.classList.add('snap-scroll');
-        return () => document.body.classList.remove('snap-scroll');
+        document.documentElement.classList.add('snap-scroll'); // body → documentElement
+        return () => document.documentElement.classList.remove('snap-scroll');
     }, []);
 
     // 섹션 진입 감지
@@ -51,9 +58,18 @@ export default function Main() {
         return () => observers.forEach((o) => o?.disconnect());
     }, []);
 
+    // 스크롤 + dot 패이지컨트롤
     const scrollToSection = (i) => {
-        sectionRefs.current[i]?.scrollIntoView({behavior: 'smooth'});
+        const el = sectionRefs.current[i];
+        if (!el) return;
+        const headerHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height'));
+        const top = el.getBoundingClientRect().top + window.scrollY - headerHeight;
+        window.scrollTo({top, behavior: 'smooth'});
     };
+
+    // 스크롤 인디케이터
+    const scrollUp = () => window.scrollTo({top: 0, behavior: 'smooth'});
+    const scrollDown = () => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
 
     // intro-1 Tools
     useEffect(() => {
@@ -75,47 +91,10 @@ export default function Main() {
     useEffect(() => {
         const interval = setInterval(() => {
             setActiveCard((prev) => (prev + 1) % 3);
-        }, 5000); // 5초마다 다음 카드
+        }, 3000); // 3초마다 다음 카드
         return () => clearInterval(interval);
     }, []);
-    // HOW 섹션 내부 휠로 스텝 전환
-    useEffect(() => {
-        const el = howSectionRef.current;
-        if (!el) return;
 
-        let locked = false;
-
-        const handleWheel = (e) => {
-            if (activeSection !== 2) return;
-
-            const goingDown = e.deltaY > 0;
-
-            if (goingDown && activeStep < HOW_STEPS.length - 1) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!locked) {
-                    locked = true;
-                    setActiveStep((prev) => prev + 1);
-                    setTimeout(() => {
-                        locked = false;
-                    }, 600);
-                }
-            } else if (!goingDown && activeStep > 0) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!locked) {
-                    locked = true;
-                    setActiveStep((prev) => prev - 1);
-                    setTimeout(() => {
-                        locked = false;
-                    }, 600);
-                }
-            }
-        };
-
-        el.addEventListener('wheel', handleWheel, {passive: false});
-        return () => el.removeEventListener('wheel', handleWheel);
-    }, [activeSection, activeStep]);
     // 쇼케이스 자동 전환 타이머
     const STEP_DURATIONS = {1: 8000, 2: 8000, 3: 6000, 4: 10000};
     useEffect(() => {
@@ -126,6 +105,15 @@ export default function Main() {
         }, duration);
         return () => clearTimeout(timer);
     }, [activeStep]);
+
+    // 커뮤니티 top3 가져오기
+    useEffect(() => {
+        getPosts({sort: 'likes'}).then((data) => {
+            const posts = data.data || [];
+            const top3 = posts.sort((a, b) => (b.like_count || 0) - (a.like_count || 0)).slice(0, 3);
+            setTopPosts(top3);
+        });
+    }, []);
 
     return (
         <div className="main-wrapper">
@@ -141,8 +129,8 @@ export default function Main() {
             </div>
             {/* 페이지 TOP/DOWN : 함수 필요, 위치만 잡음 */}
             <div className="scrollNav">
-                <button>▲</button>
-                <button>▼</button>
+                <button onClick={scrollUp}>▲</button>
+                <button onClick={scrollDown}>▼</button>
             </div>
 
             {/* ── 1. Hero 히어로 ── */}
@@ -227,7 +215,7 @@ export default function Main() {
                     </div>
                     <div className="service-cards">
                         <div className={`service-card ${activeCard === 0 ? 'active' : ''}`}>
-                            <div className="service-card-img placeholder" />
+                            <img src={serviceImg1} className="service-card-img" />
                             <div className="service-card-text">
                                 <h3>AI 툴 탐색</h3>
                                 <p>
@@ -238,7 +226,7 @@ export default function Main() {
                             </div>
                         </div>
                         <div className={`service-card ${activeCard === 1 ? 'active' : ''}`}>
-                            <div className="service-card-img placeholder" />
+                            <img src={serviceImg2} className="service-card-img" />
                             <div className="service-card-text">
                                 <h3>워크플로우 추천</h3>
                                 <p>
@@ -249,7 +237,7 @@ export default function Main() {
                             </div>
                         </div>
                         <div className={`service-card ${activeCard === 2 ? 'active' : ''}`}>
-                            <div className="service-card-img placeholder" />
+                            <img src={serviceImg3} className="service-card-img" />
                             <div className="service-card-text">
                                 <h3>커뮤니티</h3>
                                 <p>
@@ -267,7 +255,6 @@ export default function Main() {
                 className="snap-section section-how"
                 ref={(el) => {
                     sectionRefs.current[4] = el;
-                    howSectionRef.current = el;
                 }}
             >
                 {/* CSS애니메이션 */}
@@ -331,16 +318,59 @@ export default function Main() {
                                 북마크에서 바로 꺼내볼 수 있어요
                             </p>
                             <button className="btn-primary" onClick={() => navigate('/community')}>
-                                커뮤니티 바로가기 →
+                                커뮤니티 바로가기<span className="arrow">→</span>
                             </button>
                         </div>
                         <div className="community-illust">
                             <img src={communityImg} alt="community" />
                         </div>
                     </div>
-                    <div className="community-cards">{/* 카드 컴포넌트 */}</div>
+                    <div className="community-cards-text">
+                        <h3>사람들이 가장 좋아하는 글</h3>
+                        <p>좋아요를 가장 많이 받은 게시글이에요</p>
+                    </div>
+                    <div className="community-cards">
+                        {topPosts.map((post) => (
+                            <div
+                                key={post.id}
+                                className="community-card"
+                                onClick={() => {
+                                    if (isLoggedIn) {
+                                        navigate(`/community/${post.id}`);
+                                    } else {
+                                        Swal.fire({
+                                            title: '로그인이 필요해요',
+                                            text: '게시글을 보려면 로그인해주세요',
+                                            icon: 'info',
+                                            confirmButtonText: '로그인하기',
+                                            showCancelButton: true,
+                                            cancelButtonText: '취소',
+                                        }).then((result) => {
+                                            if (result.isConfirmed) navigate('/login');
+                                        });
+                                    }
+                                }}
+                            >
+                                <div className="community-card-img">
+                                    {post.thumbnail_url ? (
+                                        <img src={post.thumbnail_url} alt={post.title} />
+                                    ) : (
+                                        <div className="community-card-placeholder" />
+                                    )}
+                                </div>
+                                <div className="community-card-body">
+                                    <div className="community-card-title">{post.title}</div>
+                                    <div className="community-card-user">
+                                        <div className="community-card-nick">@{post.nickname}</div>
+                                        <div className="community-card-like">
+                                            <span className="hero-title-accent">♥</span> {post.like_count || 0}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                {/* 푸터는 App.jsx의 <Footer />가 자연스럽게 이 섹션 아래 붙음 */}
             </section>
 
             {/* 플로팅 CTA */}
