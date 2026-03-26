@@ -6,13 +6,14 @@ import useAuthStore from '../store/authStore';
 import Swal from 'sweetalert2';
 import IntroPhysics from '../components/main/IntroPhysics';
 import '../styles/Main.css';
+import visStyles from '../styles/MainVisualizer.module.css';
 import heroImg from '../assets/images/main-hero2.png';
 import introImg1 from '../assets/images/intro2-1.png';
 import introImg2 from '../assets/images/intro2-2.png';
-import MainStep1Visualizer from '../components/tools/MainStep1Visualizer';
-import MainStep2Visualizer from '../components/tools/MainStep2Visualizer';
-import MainStep3Visualizer from '../components/tools/MainStep3Visualizer';
-import MainStep4Visualizer from '../components/tools/MainStep4Visualizer';
+import MainStep1Visualizer from '../components/main/MainStep1Visualizer';
+import MainStep2Visualizer from '../components/main/MainStep2Visualizer';
+import MainStep3Visualizer from '../components/main/MainStep3Visualizer';
+import MainStep4Visualizer from '../components/main/MainStep4Visualizer';
 import serviceImg1 from '../assets/images/service-1.png';
 import serviceImg2 from '../assets/images/service-2.jpeg';
 import serviceImg3 from '../assets/images/service-3.png';
@@ -257,42 +258,39 @@ export default function Main() {
                     sectionRefs.current[4] = el;
                 }}
             >
-                {/* CSS애니메이션 */}
-                <div className="showcase-container">
-                    <div className="showcase-header">
-                        <h2 className="showcase-title">직접 경험하고, 공유해요</h2>
+                <div className={visStyles['showcase-container']}>
+                    <div className={visStyles['showcase-header']}>
+                        <h2 className={visStyles['showcase-title']}>직접 경험하고, 공유해요</h2>
 
-                        {/* 네비게이션 탭 버튼 */}
-                        <div className="showcase-tabs">
+                        <div className={visStyles['showcase-tabs']}>
                             <button
                                 onClick={() => setActiveStep(1)}
-                                className={`showcase-tab ${activeStep === 1 ? 'active' : ''}`}
+                                className={`${visStyles['showcase-tab']} ${activeStep === 1 ? visStyles['active'] : ''}`}
                             >
                                 목적 입력
                             </button>
                             <button
                                 onClick={() => setActiveStep(2)}
-                                className={`showcase-tab ${activeStep === 2 ? 'active' : ''}`}
+                                className={`${visStyles['showcase-tab']} ${activeStep === 2 ? visStyles['active'] : ''}`}
                             >
                                 AI 툴 선택
                             </button>
                             <button
                                 onClick={() => setActiveStep(3)}
-                                className={`showcase-tab ${activeStep === 3 ? 'active' : ''}`}
+                                className={`${visStyles['showcase-tab']} ${activeStep === 3 ? visStyles['active'] : ''}`}
                             >
                                 워크플로우 생성
                             </button>
                             <button
                                 onClick={() => setActiveStep(4)}
-                                className={`showcase-tab ${activeStep === 4 ? 'active' : ''}`}
+                                className={`${visStyles['showcase-tab']} ${activeStep === 4 ? visStyles['active'] : ''}`}
                             >
                                 커뮤니티 공유
                             </button>
                         </div>
                     </div>
 
-                    {/* 선택된 단계의 컴포넌트 렌더링 영역 */}
-                    <div className="showcase-content">
+                    <div className={visStyles['showcase-content']}>
                         {activeStep === 1 && <MainStep1Visualizer />}
                         {activeStep === 2 && <MainStep2Visualizer />}
                         {activeStep === 3 && <MainStep3Visualizer />}

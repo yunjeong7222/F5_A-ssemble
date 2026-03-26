@@ -203,7 +203,7 @@
 .vis-fake-group {
     position: relative;
     transition: border-color 0.3s ease;
-    animation: groupFocus 8s infinite;
+    animation: mv-groupFocus 8s infinite;
 }
 .vis-fake-input {
     display: flex;
@@ -215,7 +215,7 @@
 .vis-placeholder {
     color: #64748b;
     position: absolute;
-    animation: hidePlaceholder 8s infinite;
+    animation: mv-hidePlaceholder 8s infinite;
     font-size: 0.95rem;
 }
 .vis-typing-text {
@@ -223,7 +223,7 @@
     max-width: 0%;
     overflow: hidden;
     display: inline-block;
-    animation: typing 8s infinite;
+    animation: mv-typing 8s infinite;
 }
 .vis-cursor-blink {
     display: inline-block;
@@ -232,7 +232,7 @@
     background-color: #8b5cf6;
     margin-left: 4px;
     opacity: 0;
-    animation: blinkCursorActive 8s infinite;
+    animation: mv-blinkCursorActive 8s infinite;
 }
 .vis-fake-btn {
     display: flex;
@@ -240,7 +240,7 @@
     align-items: center;
     background-color: #334155;
     color: #ffffff;
-    animation: btnActivate 8s infinite;
+    animation: mv-btnActivate 8s infinite;
 }
 .vis-cursor {
     position: absolute;
@@ -249,10 +249,10 @@
     left: 85%;
     transform: translate(-50%, -50%);
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
-    animation: moveMouse 8s infinite;
+    animation: mv-moveMouse 8s infinite;
 }
 
-@keyframes moveMouse {
+@keyframes mv-moveMouse {
     0%,
     15% {
         top: 95%;
@@ -305,7 +305,7 @@
         transform: scale(1);
     }
 }
-@keyframes groupFocus {
+@keyframes mv-groupFocus {
     0%,
     22% {
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -319,7 +319,7 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 }
-@keyframes hidePlaceholder {
+@keyframes mv-hidePlaceholder {
     0%,
     22% {
         opacity: 1;
@@ -333,7 +333,7 @@
         opacity: 1;
     }
 }
-@keyframes typing {
+@keyframes mv-typing {
     0%,
     25% {
         max-width: 0%;
@@ -350,7 +350,7 @@
         opacity: 0;
     }
 }
-@keyframes blinkCursorActive {
+@keyframes mv-blinkCursorActive {
     0%,
     22% {
         opacity: 0;
@@ -364,7 +364,7 @@
         opacity: 0;
     }
 }
-@keyframes btnActivate {
+@keyframes mv-btnActivate {
     0%,
     24% {
         background-color: #334155;
@@ -611,22 +611,22 @@
     animation-iteration-count: infinite;
 }
 .vis-page-1 {
-    animation-name: showPage1;
+    animation-name: mv-showPage1;
     opacity: 1;
     z-index: 10;
 }
 .vis-page-2 {
-    animation-name: showPage2;
+    animation-name: mv-showPage2;
     opacity: 0;
     z-index: 5;
 }
 .vis-page-3 {
-    animation-name: showPage3;
+    animation-name: mv-showPage3;
     opacity: 0;
     z-index: 1;
 }
 
-@keyframes showPage1 {
+@keyframes mv-showPage1 {
     0%,
     18.75% {
         opacity: 1;
@@ -643,7 +643,7 @@
         visibility: visible;
     }
 }
-@keyframes showPage2 {
+@keyframes mv-showPage2 {
     0%,
     18.75% {
         opacity: 0;
@@ -660,7 +660,7 @@
         visibility: hidden;
     }
 }
-@keyframes showPage3 {
+@keyframes mv-showPage3 {
     0%,
     50% {
         opacity: 0;
@@ -680,15 +680,15 @@
 
 /* 선택 카드: 배경 변경 없이 보라 테두리만 */
 .vis-target-1 {
-    animation: selectCard1 8s infinite;
+    animation: mv-selectCard1 8s infinite;
 }
 .vis-target-2 {
-    animation: selectCard2 8s infinite;
+    animation: mv-selectCard2 8s infinite;
 }
 .vis-target-3 {
-    animation: selectCard3 8s infinite;
+    animation: mv-selectCard3 8s infinite;
 }
-@keyframes selectCard1 {
+@keyframes mv-selectCard1 {
     0%,
     12% {
         border-color: var(--border);
@@ -708,7 +708,7 @@
         transform: translateY(0);
     }
 }
-@keyframes selectCard2 {
+@keyframes mv-selectCard2 {
     0%,
     43% {
         border-color: var(--border);
@@ -728,7 +728,7 @@
         transform: translateY(0);
     }
 }
-@keyframes selectCard3 {
+@keyframes mv-selectCard3 {
     0%,
     74.5% {
         border-color: var(--border);
@@ -756,15 +756,15 @@
     transform: scale(0.5);
 }
 .vis-check-1 {
-    animation: showCheck1 8s infinite;
+    animation: mv-showCheck1 8s infinite;
 }
 .vis-check-2 {
-    animation: showCheck2 8s infinite;
+    animation: mv-showCheck2 8s infinite;
 }
 .vis-check-3 {
-    animation: showCheck3 8s infinite;
+    animation: mv-showCheck3 8s infinite;
 }
-@keyframes showCheck1 {
+@keyframes mv-showCheck1 {
     0%,
     12% {
         opacity: 0;
@@ -781,7 +781,7 @@
         transform: scale(0.5);
     }
 }
-@keyframes showCheck2 {
+@keyframes mv-showCheck2 {
     0%,
     43% {
         opacity: 0;
@@ -798,7 +798,7 @@
         transform: scale(0.5);
     }
 }
-@keyframes showCheck3 {
+@keyframes mv-showCheck3 {
     0%,
     74.5% {
         opacity: 0;
@@ -817,15 +817,15 @@
 }
 
 .vis-flow-step-1 {
-    animation: activeFlow1 8s infinite;
+    animation: mv-activeFlow1 8s infinite;
 }
 .vis-flow-step-2 {
-    animation: activeFlow2 8s infinite;
+    animation: mv-activeFlow2 8s infinite;
 }
 .vis-flow-step-3 {
-    animation: activeFlow3 8s infinite;
+    animation: mv-activeFlow3 8s infinite;
 }
-@keyframes activeFlow1 {
+@keyframes mv-activeFlow1 {
     0%,
     12% {
         border-color: var(--text-primary);
@@ -842,7 +842,7 @@
         transform: scale(1.02);
     }
 }
-@keyframes activeFlow2 {
+@keyframes mv-activeFlow2 {
     0%,
     18.75% {
         border-color: var(--border);
@@ -864,7 +864,7 @@
         transform: scale(1);
     }
 }
-@keyframes activeFlow3 {
+@keyframes mv-activeFlow3 {
     0%,
     50% {
         border-color: var(--border);
@@ -902,24 +902,24 @@
     color: var(--text-primary);
 }
 .vis-flow-empty-1 {
-    animation: hideText1 8s infinite;
+    animation: mv-hideText1 8s infinite;
 }
 .vis-flow-selected-1 {
-    animation: showText1 8s infinite;
+    animation: mv-showText1 8s infinite;
 }
 .vis-flow-empty-2 {
-    animation: hideText2 8s infinite;
+    animation: mv-hideText2 8s infinite;
 }
 .vis-flow-selected-2 {
-    animation: showText2 8s infinite;
+    animation: mv-showText2 8s infinite;
 }
 .vis-flow-empty-3 {
-    animation: hideText3 8s infinite;
+    animation: mv-hideText3 8s infinite;
 }
 .vis-flow-selected-3 {
-    animation: showText3 8s infinite;
+    animation: mv-showText3 8s infinite;
 }
-@keyframes hideText1 {
+@keyframes mv-hideText1 {
     0%,
     12% {
         opacity: 1;
@@ -933,7 +933,7 @@
         opacity: 1;
     }
 }
-@keyframes showText1 {
+@keyframes mv-showText1 {
     0%,
     12% {
         opacity: 0;
@@ -947,7 +947,7 @@
         opacity: 0;
     }
 }
-@keyframes hideText2 {
+@keyframes mv-hideText2 {
     0%,
     43% {
         opacity: 1;
@@ -961,7 +961,7 @@
         opacity: 1;
     }
 }
-@keyframes showText2 {
+@keyframes mv-showText2 {
     0%,
     43% {
         opacity: 0;
@@ -975,7 +975,7 @@
         opacity: 0;
     }
 }
-@keyframes hideText3 {
+@keyframes mv-hideText3 {
     0%,
     74.5% {
         opacity: 1;
@@ -989,7 +989,7 @@
         opacity: 1;
     }
 }
-@keyframes showText3 {
+@keyframes mv-showText3 {
     0%,
     74.5% {
         opacity: 0;
@@ -1111,9 +1111,9 @@
 .vis-anim-float {
     opacity: 0;
     transform: translateY(20px);
-    animation: popInFloat 6s infinite;
+    animation: mv-popInFloat 6s infinite;
 }
-@keyframes popInFloat {
+@keyframes mv-popInFloat {
     0%,
     5% {
         opacity: 0;
@@ -1168,19 +1168,19 @@
 .vis-anim-flow-1 {
     opacity: 0;
     transform: translateX(-10px);
-    animation: slideInFlow1 6s infinite;
+    animation: mv-slideInFlow1 6s infinite;
 }
 .vis-anim-flow-2 {
     opacity: 0;
     transform: translateX(-10px);
-    animation: slideInFlow2 6s infinite;
+    animation: mv-slideInFlow2 6s infinite;
 }
 .vis-anim-flow-3 {
     opacity: 0;
     transform: translateX(-10px);
-    animation: slideInFlow3 6s infinite;
+    animation: mv-slideInFlow3 6s infinite;
 }
-@keyframes slideInFlow1 {
+@keyframes mv-slideInFlow1 {
     0%,
     20% {
         opacity: 0;
@@ -1196,7 +1196,7 @@
         opacity: 0;
     }
 }
-@keyframes slideInFlow2 {
+@keyframes mv-slideInFlow2 {
     0%,
     35% {
         opacity: 0;
@@ -1212,7 +1212,7 @@
         opacity: 0;
     }
 }
-@keyframes slideInFlow3 {
+@keyframes mv-slideInFlow3 {
     0%,
     50% {
         opacity: 0;
@@ -1495,9 +1495,9 @@
 .vis-anim-modal {
     opacity: 0;
     visibility: hidden;
-    animation: modalSequence 10s infinite;
+    animation: mv-modalSequence 10s infinite;
 }
-@keyframes modalSequence {
+@keyframes mv-modalSequence {
     0%,
     10% {
         opacity: 0;
@@ -1523,24 +1523,24 @@
     white-space: nowrap;
     display: inline-block;
     vertical-align: bottom;
-    animation: typingTitle 10s infinite;
+    animation: mv-typingTitle 10s infinite;
 }
 .vis-anim-type-desc-1 {
     overflow: hidden;
     white-space: nowrap;
     display: inline-block;
     vertical-align: bottom;
-    animation: typingDesc1 10s infinite;
+    animation: mv-typingDesc1 10s infinite;
 }
 .vis-anim-type-desc-2 {
     overflow: hidden;
     white-space: nowrap;
     display: inline-block;
     vertical-align: bottom;
-    animation: typingDesc2 10s infinite;
+    animation: mv-typingDesc2 10s infinite;
 }
 
-@keyframes typingTitle {
+@keyframes mv-typingTitle {
     0%,
     20% {
         max-width: 0%;
@@ -1556,7 +1556,7 @@
         opacity: 0;
     }
 }
-@keyframes typingDesc1 {
+@keyframes mv-typingDesc1 {
     0%,
     45% {
         max-width: 0%;
@@ -1572,7 +1572,7 @@
         opacity: 0;
     }
 }
-@keyframes typingDesc2 {
+@keyframes mv-typingDesc2 {
     0%,
     60% {
         max-width: 0%;
@@ -1596,7 +1596,7 @@
     background-color: #8b5cf6;
     margin-left: 2px;
     vertical-align: middle;
-    animation: blinkTitle 10s infinite;
+    animation: mv-blinkTitle 10s infinite;
 }
 .vis-cursor-desc-1 {
     display: inline-block;
@@ -1605,7 +1605,7 @@
     background-color: #8b5cf6;
     margin-left: 2px;
     vertical-align: middle;
-    animation: blinkDesc1 10s infinite;
+    animation: mv-blinkDesc1 10s infinite;
 }
 .vis-cursor-desc-2 {
     display: inline-block;
@@ -1614,10 +1614,10 @@
     background-color: #8b5cf6;
     margin-left: 2px;
     vertical-align: middle;
-    animation: blinkDesc2 10s infinite;
+    animation: mv-blinkDesc2 10s infinite;
 }
 
-@keyframes blinkTitle {
+@keyframes mv-blinkTitle {
     0%,
     19.9% {
         opacity: 0;
@@ -1632,7 +1632,7 @@
         opacity: 0;
     }
 }
-@keyframes blinkDesc1 {
+@keyframes mv-blinkDesc1 {
     0%,
     44.9% {
         opacity: 0;
@@ -1647,7 +1647,7 @@
         opacity: 0;
     }
 }
-@keyframes blinkDesc2 {
+@keyframes mv-blinkDesc2 {
     0%,
     59.9% {
         opacity: 0;
@@ -1664,9 +1664,9 @@
 }
 
 .vis-anim-submit-btn {
-    animation: submitClick 10s infinite;
+    animation: mv-submitClick 10s infinite;
 }
-@keyframes submitClick {
+@keyframes mv-submitClick {
     0%,
     47.9% {
         background-color: #334155;
@@ -1692,9 +1692,9 @@
 .vis-anim-new-post {
     opacity: 0;
     transform: scale(0.9) translateY(-10px);
-    animation: popInPost 10s infinite;
+    animation: mv-popInPost 10s infinite;
 }
-@keyframes popInPost {
+@keyframes mv-popInPost {
     0%,
     79.9% {
         opacity: 0;
@@ -1799,13 +1799,13 @@
 }
 
 .vis-anim-img-click {
-    animation: modalImgClick 10s infinite;
+    animation: mv-modalImgClick 10s infinite;
 }
 .vis-anim-img-show {
-    animation: modalImgShow 10s infinite;
+    animation: mv-modalImgShow 10s infinite;
 }
 
-@keyframes modalImgClick {
+@keyframes mv-modalImgClick {
     0%,
     68% {
         opacity: 1;
@@ -1828,7 +1828,7 @@
     }
 }
 
-@keyframes modalImgShow {
+@keyframes mv-modalImgShow {
     0%,
     71% {
         opacity: 0;
