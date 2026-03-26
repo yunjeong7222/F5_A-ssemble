@@ -1,15 +1,19 @@
 .footer {
-    padding: 24px 40px;
+    padding: 40px 0;
     border-top: 0.5px solid var(--color-border-tertiary);
     background: #fff;
 }
 
 .footer-top {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 16px;
 }
-
+.footer-logo-img {
+    height: 40px;
+    width: auto;
+}
 .footer-links {
     display: flex;
     gap: 32px;
@@ -25,8 +29,22 @@
     color: var(--color-text-primary);
 }
 
+.footer-icons {
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+.footer-icons:hover {
+    opacity: 1;
+}
+.footer-icons img {
+    width: 30px;
+    height: 30px;
+}
+
 .footer-bottom {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .footer-bottom p {
