@@ -1,43 +1,27 @@
 import {useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import ToolMarquee from '../components/tools/ToolMarquee';
-import MainToolSection from '../components/tools/MainToolSection';
+import {getTools} from '../api/tools';
+import IntroPhysics from '../components/main/IntroPhysics';
 import '../styles/Main.css';
+import heroImg from '../assets/images/main-hero2.png';
+import introImg1 from '../assets/images/intro2-1.png';
+import introImg2 from '../assets/images/intro2-2.png';
 import MainStep1Visualizer from '../components/tools/MainStep1Visualizer';
 import MainStep2Visualizer from '../components/tools/MainStep2Visualizer';
 import MainStep3Visualizer from '../components/tools/MainStep3Visualizer';
 import MainStep4Visualizer from '../components/tools/MainStep4Visualizer';
+import communityImg from '../assets/images/main-community.jpeg';
 
-const HOW_STEPS = [
-    {
-        num: 'STEP 01',
-        title: '목적을 입력하면\nAI가 툴을 추천해요',
-        desc: '숏폼 제작, 유튜브 영상 등 원하는 목적을 자연어로 입력하면 Claude가 최적의 AI 툴 조합을 추천해드려요.',
-    },
-    {
-        num: 'STEP 02',
-        title: '사용할 툴을\n직접 선택해요',
-        desc: '추천받은 툴 중 원하는 것만 골라서 나만의 워크플로우를 완성하세요.',
-    },
-    {
-        num: 'STEP 03',
-        title: '프롬프트를 복사해서\n바로 실행해요',
-        desc: '각 단계별 프롬프트를 클립보드에 복사하고 AI 툴에 붙여넣기만 하면 끝이에요.',
-    },
-    {
-        num: 'STEP 04',
-        title: '결과물을 저장하고\n커뮤니티에 공유해요',
-        desc: '완성된 워크플로우를 저장하고 다른 크리에이터들과 노하우를 나눠보세요.',
-    },
-];
-
-const SECTIONS = ['hero', 'tools', 'how', 'cta'];
+const SECTIONS = ['hero', 'intro-1', 'intro-2', 'service', 'how-it-works', 'community'];
 
 export default function Main() {
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState(0);
-    const [activeStep, setActiveStep] = useState(0);
+    const [activeStep, setActiveStep] = useState(1);
     const [showFloat, setShowFloat] = useState(false);
+    const [tools, setTools] = useState([]);
+    const [physicsActive, setPhysicsActive] = useState(false);
+    const [activeCard, setActiveCard] = useState(0);
     const sectionRefs = useRef([]);
     const howSectionRef = useRef(null);
 
@@ -56,7 +40,7 @@ export default function Main() {
                     if (entry.isIntersecting) {
                         setActiveSection(i);
                         ref.classList.add('in-view');
-                        setShowFloat(i > 0);
+                        setShowFloat(i > 0 && i < SECTIONS.length - 1);
                     }
                 },
                 {threshold: 0.5},
@@ -67,6 +51,33 @@ export default function Main() {
         return () => observers.forEach((o) => o?.disconnect());
     }, []);
 
+    const scrollToSection = (i) => {
+        sectionRefs.current[i]?.scrollIntoView({behavior: 'smooth'});
+    };
+
+    // intro-1 Tools
+    useEffect(() => {
+        getTools()
+            .then((data) => {
+                setTools([...data.slice(0, 25), ...data.slice(0, 25)]);
+            })
+            .catch((err) => console.error(err));
+    }, []);
+    // intro-1 Tools delay
+    useEffect(() => {
+        if (activeSection === 1 && !physicsActive) {
+            const timer = setTimeout(() => setPhysicsActive(true), 1200);
+            return () => clearTimeout(timer);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeSection]);
+    // service card Loop
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveCard((prev) => (prev + 1) % 3);
+        }, 5000); // 5초마다 다음 카드
+        return () => clearInterval(interval);
+    }, []);
     // HOW 섹션 내부 휠로 스텝 전환
     useEffect(() => {
         const el = howSectionRef.current;
@@ -105,13 +116,8 @@ export default function Main() {
         el.addEventListener('wheel', handleWheel, {passive: false});
         return () => el.removeEventListener('wheel', handleWheel);
     }, [activeSection, activeStep]);
-
-    const scrollToSection = (i) => {
-        sectionRefs.current[i]?.scrollIntoView({behavior: 'smooth'});
-    };
-
     // 쇼케이스 자동 전환 타이머
-    const STEP_DURATIONS = { 1: 8000, 2: 8000, 3: 6000, 4: 10000 };
+    const STEP_DURATIONS = {1: 8000, 2: 8000, 3: 6000, 4: 10000};
     useEffect(() => {
         const duration = STEP_DURATIONS[activeStep];
         if (!duration) return;
@@ -123,7 +129,7 @@ export default function Main() {
 
     return (
         <div className="main-wrapper">
-            {/* 섹션 인디케이터 */}
+            {/* 섹션 인디케이터 -> dot 삭제*/}
             <div className="section-dots">
                 {SECTIONS.map((_, i) => (
                     <div
@@ -133,32 +139,24 @@ export default function Main() {
                     />
                 ))}
             </div>
+            {/* 페이지 TOP/DOWN : 함수 필요, 위치만 잡음 */}
+            <div className="scrollNav">
+                <button>▲</button>
+                <button>▼</button>
+            </div>
 
-            {/* ── 0. 히어로 ── */}
+            {/* ── 1. Hero 히어로 ── */}
             <section className="container snap-section section-hero" ref={(el) => (sectionRefs.current[0] = el)}>
-                <div className="hero-grid">
-                    <div className="hero-left animate-left">
-                        <div className="hero-tag">✦ AI 툴 워크플로우 플랫폼</div>
-                        <h1 className="hero-title">
-                            AI 툴, 혼자 쓰면
-                            <br />
-                            <span className="hero-title-accent">절반의 효과</span>만 납니다
-                        </h1>
-                        <p className="hero-sub">
-                            영상 크리에이터를 위한 AI 툴 조합 레시피.
-                            <br />
-                            복사 가능한 프롬프트와 실제 결과물을 확인하세요.
-                        </p>
-                        <div className="hero-btns">
-                            <button className="btn-primary" onClick={() => navigate('/workflow')}>
-                                워크플로우 만들기
-                            </button>
-                            <button className="btn-ghost" onClick={() => navigate('/tools')}>
-                                툴 탐색하기 →
-                            </button>
-                        </div>
+                <div className="hero-contents">
+                    <h1 className="hero-title">
+                        AI 툴은 넘치는데,
+                        <br />
+                        <span className="hero-title-accent">뭘 써야할 지 </span>모르겠다면
+                    </h1>
+                    <p className="hero-sub">나에게 꼭 맞는 워크플로우, AIssemble이 찾아드릴께요!</p>
+                    <div className="hero-img">
+                        <img src={heroImg} alt="hero"></img>
                     </div>
-                    <div className="hero-right animate-right" />
                 </div>
                 <div className="scroll-hint">
                     <span>스크롤하여 탐색하기</span>
@@ -166,144 +164,181 @@ export default function Main() {
                 </div>
             </section>
 
-            {/* ── 1. 툴 마퀴 + TOP6 ── */}
-            <section className="snap-section section-tools" ref={(el) => (sectionRefs.current[1] = el)}>
-                <div className="tools-marquee-wrap">
-                    <div className="container marquee-header animate-up">
-                        <h2 className="marquee-title">지금 주목받는 AI 툴</h2>
-                        <button className="marquee-link" onClick={() => navigate('/tools')}>
-                            전체 보기 →
-                        </button>
+            {/* ── 2. intro 서비스 제안 배경 ── */}
+            {/* ── 2-1. intro-1 : matter ── */}
+            <section className="snap-section section-intro-1" ref={(el) => (sectionRefs.current[1] = el)}>
+                <div className="intro-text">
+                    <div className="bubbles">
+                        <div className="bubble bubble-left">뭐가 좋지? 🤔</div>
                     </div>
-                    <ToolMarquee />
+                    <h2 className="hero-title intro-text-hook">
+                        AI 툴은 매일같이
+                        <br />
+                        <span className="hero-title-accent">새롭게</span> 쏟아져요
+                    </h2>
+                    <div className="bubbles">
+                        <div className="bubble bubble-right">어떻게 써야 하지? 😅</div>
+                    </div>
                 </div>
-                <div className="container animate-up" style={{animationDelay: '0.15s'}}>
-                    <MainToolSection />
+                <div className="intro-physics">
+                    <IntroPhysics tools={tools} isActive={physicsActive} />
+                </div>
+            </section>
+            {/* ── 2-2. intro-2 : 문제해결 제안 ── */}
+            <section className="snap-section section-intro-2" ref={(el) => (sectionRefs.current[2] = el)}>
+                <div className="intro-2-container">
+                    {/* 왼쪽 덩어리 */}
+                    <div className="intro-col-left">
+                        <div className="intro-card">
+                            <h2>
+                                툴을 조합해서
+                                <br /> 쓰는 방법은 없을까?
+                            </h2>
+                            <p>단계별로 가이드가 있으면 딱 좋을텐데!</p>
+                        </div>
+                        <div className="intro-img-left">
+                            <img src={introImg1} alt="intro-2-1" />
+                        </div>
+                    </div>
+                    {/* 오른쪽 덩어리 */}
+                    <div className="intro-col-right">
+                        <div className="intro-img-right">
+                            <img src={introImg2} alt="intro-2-2" />
+                        </div>
+                        <div className="intro-card">
+                            <h2>
+                                워크플로우와
+                                <br /> 프롬프트 팁, 한번에
+                            </h2>
+                            <p>목적만 말하면 나머지는 AIssemble이 다 알려드려요 😄</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {/* ── 3. service : 주요 기능 ── */}
+            <section className="snap-section section-service" ref={(el) => (sectionRefs.current[3] = el)}>
+                <div className="container">
+                    <div className="service-header">
+                        <h2>
+                            AIssemble에서
+                            <br /> <span className="hero-title-accent">경험</span>할 수 있는 것들
+                        </h2>
+                        <p>툴 탐색부터 워크플로우 추천, 커뮤니티까지 한곳에서</p>
+                    </div>
+                    <div className="service-cards">
+                        <div className={`service-card ${activeCard === 0 ? 'active' : ''}`}>
+                            <div className="service-card-img placeholder" />
+                            <div className="service-card-text">
+                                <h3>AI 툴 탐색</h3>
+                                <p>
+                                    수백 가지 AI 툴을 카테고리별로 탐색해보세요.
+                                    <br />
+                                    평점, 난이도, 무료 여부까지 한눈에
+                                </p>
+                            </div>
+                        </div>
+                        <div className={`service-card ${activeCard === 1 ? 'active' : ''}`}>
+                            <div className="service-card-img placeholder" />
+                            <div className="service-card-text">
+                                <h3>워크플로우 추천</h3>
+                                <p>
+                                    목적만 말하면 AI가 최적의 툴 조합을 추천해드려요.
+                                    <br />
+                                    단계별 프롬프트 팁까지 바로 제공
+                                </p>
+                            </div>
+                        </div>
+                        <div className={`service-card ${activeCard === 2 ? 'active' : ''}`}>
+                            <div className="service-card-img placeholder" />
+                            <div className="service-card-text">
+                                <h3>커뮤니티</h3>
+                                <p>
+                                    다른 크리에이터들의 워크플로우를 구경하고
+                                    <br />내 결과물도 공유해보세요
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            {/* ── 2. HOW IT WORKS ── */}
+            {/* ── 4. HOW IT WORKS ── */}
             <section
                 className="snap-section section-how"
                 ref={(el) => {
-                    sectionRefs.current[2] = el;
+                    sectionRefs.current[4] = el;
                     howSectionRef.current = el;
                 }}
             >
-                <div className="how-inner">
-                    <div className="how-steps-nav">
-                        <p className="how-label">HOW IT WORKS</p>
-                        <h2 className="how-title">4단계로 AI 마스터가 됩니다</h2>
-                        <div className="step-nav-list">
-                            {HOW_STEPS.map((step, i) => (
-                                <div
-                                    key={i}
-                                    className={`step-nav-item ${activeStep === i ? 'active' : ''} ${activeStep > i ? 'done' : ''}`}
-                                    onClick={() => setActiveStep(i)}
-                                >
-                                    <div className="step-nav-num">{String(i + 1).padStart(2, '0')}</div>
-                                    <div className="step-nav-title">{step.title.split('\n')[0]}</div>
-                                </div>
-                            ))}
+                {/* CSS애니메이션 */}
+                <div className="showcase-container">
+                    <div className="showcase-header">
+                        <h2 className="showcase-title">직접 경험하고, 공유해요</h2>
+
+                        {/* 네비게이션 탭 버튼 */}
+                        <div className="showcase-tabs">
+                            <button
+                                onClick={() => setActiveStep(1)}
+                                className={`showcase-tab ${activeStep === 1 ? 'active' : ''}`}
+                            >
+                                목적 입력
+                            </button>
+                            <button
+                                onClick={() => setActiveStep(2)}
+                                className={`showcase-tab ${activeStep === 2 ? 'active' : ''}`}
+                            >
+                                AI 툴 선택
+                            </button>
+                            <button
+                                onClick={() => setActiveStep(3)}
+                                className={`showcase-tab ${activeStep === 3 ? 'active' : ''}`}
+                            >
+                                워크플로우 생성
+                            </button>
+                            <button
+                                onClick={() => setActiveStep(4)}
+                                className={`showcase-tab ${activeStep === 4 ? 'active' : ''}`}
+                            >
+                                커뮤니티 공유
+                            </button>
                         </div>
                     </div>
-                    <div className="how-content">
-                        {HOW_STEPS.map((step, i) => (
-                            <div key={i} className={`how-step-detail ${activeStep === i ? 'active' : ''}`}>
-                                <span className="checker-num">{step.num}</span>
-                                <h3 className="how-step-title">
-                                    {step.title.split('\n').map((line, j) => (
-                                        <span key={j}>
-                                            {line}
-                                            <br />
-                                        </span>
-                                    ))}
-                                </h3>
-                                <p className="how-step-desc">{step.desc}</p>
-                                <div className="how-step-img" />
-                                {i === HOW_STEPS.length - 1 && (
-                                    <button className="btn-primary" onClick={() => navigate('/workflow')}>
-                                        지금 시작하기
-                                    </button>
-                                )}
-                            </div>
-                        ))}
+
+                    {/* 선택된 단계의 컴포넌트 렌더링 영역 */}
+                    <div className="showcase-content">
+                        {activeStep === 1 && <MainStep1Visualizer />}
+                        {activeStep === 2 && <MainStep2Visualizer />}
+                        {activeStep === 3 && <MainStep3Visualizer />}
+                        {activeStep === 4 && <MainStep4Visualizer />}
                     </div>
-                </div>
-                <div className="step-progress">
-                    {HOW_STEPS.map((_, i) => (
-                        <div
-                            key={i}
-                            className={`step-progress-bar ${activeStep >= i ? 'active' : ''}`}
-                            onClick={() => setActiveStep(i)}
-                        />
-                    ))}
                 </div>
             </section>
-                {/* CSS애니메이션 */}
-            <div className="showcase-container snap-section section-tools">
-      
-      <div className="showcase-header">
-        <h2 className="showcase-title">AIssemble 핵심 기능 미리보기</h2>
-        
-        {/* 네비게이션 탭 버튼 */}
-        <div className="showcase-tabs">
-          <button 
-            onClick={() => setActiveStep(1)} 
-            className={`showcase-tab ${activeStep === 1 ? 'active' : ''}`}
-          >
-            1. 목적 입력
-          </button>
-          <button 
-            onClick={() => setActiveStep(2)} 
-            className={`showcase-tab ${activeStep === 2 ? 'active' : ''}`}
-          >
-            2. 툴 조립
-          </button>
-          <button 
-            onClick={() => setActiveStep(3)} 
-            className={`showcase-tab ${activeStep === 3 ? 'active' : ''}`}
-          >
-            3. 결과 확인
-          </button>
-          <button 
-            onClick={() => setActiveStep(4)} 
-            className={`showcase-tab ${activeStep === 4 ? 'active' : ''}`}
-          >
-            4. 레시피 공유
-          </button>
-        </div>
-      </div>
 
-      {/* 선택된 단계의 컴포넌트 렌더링 영역 */}
-      <div className="showcase-content">
-        {activeStep === 1 && <MainStep1Visualizer />}
-        {activeStep === 2 && <MainStep2Visualizer />}
-        {activeStep === 3 && <MainStep3Visualizer />}
-        {activeStep === 4 && <MainStep4Visualizer />}
-      </div>
-
-    </div>
-
-            {/* ── 3. CTA + 푸터 ── */}
-            <section className="snap-section section-cta" ref={(el) => (sectionRefs.current[3] = el)}>
+            {/* ── 5. Commuinity + CTA ── */}
+            <section className="snap-section section-community" ref={(el) => (sectionRefs.current[5] = el)}>
                 <div className="container">
-                    <div className="cta-banner animate-up">
-                        <div className="cta-left">
-                            <h2 className="cta-title">지금 바로 시작하세요 🚀</h2>
-                            <p className="cta-sub">
-                                무료로 모든 레시피를 탐색하고 나만의 AI 워크플로우를 만들어보세요.
+                    <div className="community-top">
+                        <div className="community-text">
+                            <p className="community-mini">우리끼리 공유하는 워크플로우</p>
+                            <h2>
+                                다른 <span className="hero-title-accent">크리에이터</span>들은
+                                <br />
+                                어떻게 만들고 있을까요?
+                            </h2>
+                            <p className="community-sub">
+                                마음에 드는 워크플로우를 저장하고,
+                                <br />
+                                북마크에서 바로 꺼내볼 수 있어요
                             </p>
+                            <button className="btn-primary" onClick={() => navigate('/community')}>
+                                커뮤니티 바로가기 →
+                            </button>
                         </div>
-                        <div className="cta-btns">
-                            <button className="btn-primary" onClick={() => navigate('/workflow')}>
-                                무료로 시작하기
-                            </button>
-                            <button className="btn-ghost" onClick={() => navigate('/tools')}>
-                                레시피 둘러보기
-                            </button>
+                        <div className="community-illust">
+                            <img src={communityImg} alt="community" />
                         </div>
                     </div>
+                    <div className="community-cards">{/* 카드 컴포넌트 */}</div>
                 </div>
                 {/* 푸터는 App.jsx의 <Footer />가 자연스럽게 이 섹션 아래 붙음 */}
             </section>
@@ -311,14 +346,9 @@ export default function Main() {
             {/* 플로팅 CTA */}
             {showFloat && (
                 <div className="floating-cta">
-                    <div className="floating-inner">
-                        <button className="float-btn-primary" onClick={() => navigate('/workflow')}>
-                            워크플로우 만들기
-                        </button>
-                        <button className="float-btn-ghost" onClick={() => navigate('/tools')}>
-                            툴 탐색하기
-                        </button>
-                    </div>
+                    <button className="float-btn-primary" onClick={() => navigate('/workflow')}>
+                        워크플로우 만들러가기
+                    </button>
                 </div>
             )}
         </div>

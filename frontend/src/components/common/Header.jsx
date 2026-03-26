@@ -52,29 +52,29 @@ export default function Header() {
         ))}
       </nav>
 
-      {/* 검색창
-      <div className="header__search">
-        <span className="header__search-icon">🔍</span>
-        <input
-          className="header__search-input"
-          type="text"
-          placeholder="레시피 검색..."
-        />
-      </div> */}
-
-      {/* 로그인 상태 */}
       <div className="header__auth">
         {isLoggedIn ? (
           <>
             <span className="header__nickname" onClick={() => navigate('/mypage')}>
-              {user?.nickname ?? '유저'}
+              {user?.profile_url ? (
+                <img
+                  src={user.profile_url}
+                  alt={user.nickname}
+                  className="header__profile-img"
+                />
+              ) : (
+                <div className="header__profile-placeholder">
+                  {(user?.nickname || 'U').charAt(0).toUpperCase()}
+                </div>
+              )}
+              <span className="header__nickname-text">{user?.nickname ?? '유저'}</span>
             </span>
-            <button className="btn--ghost" onClick={handleLogout}>로그아웃</button>
+            <button className="btn--ghost header__logout" onClick={handleLogout}>로그아웃</button>
           </>
         ) : (
           <>
-            <button className="btn--ghost" onClick={() => navigate('/login')}>로그인</button>
-            <button className="btn--primary" onClick={() => navigate('/workflow')}>무료 시작</button>
+            <button className="btn--ghost header__login" onClick={() => navigate('/login')}>로그인</button>
+            <button className="btn--primary header__start" onClick={() => navigate('/workflow')}>무료 시작</button>
           </>
         )}
       </div>

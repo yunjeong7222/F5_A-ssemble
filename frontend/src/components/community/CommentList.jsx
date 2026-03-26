@@ -142,7 +142,28 @@ const CommentList = ({ postId }) => {
     <section className="detail-comments-section">
       <h4 style={{ marginBottom: '20px' }}>댓글 {totalCount}개</h4>
 
-      {comments.map(comment => (
+      {/* 댓글 입력 */}
+      <div className="detail-comment-wrap">
+        <Avatar url={user?.profile_url} nickname={user?.nickname} className="detail-comment-avatar" />
+        <input
+          type="text"
+          placeholder={user ? '댓글을 입력하세요...' : '로그인 후 댓글을 남길 수 있습니다.'}
+          className="detail-comment-input"
+          value={newComment}
+          disabled={!user}
+          onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !isLoading) handleSubmit(); }}
+        />
+        <button
+          className="detail-comment-submit"
+          onClick={handleSubmit}
+          disabled={!user || isLoading || !newComment.trim()}
+        >
+          {isLoading ? '...' : '등록'}
+        </button>
+      </div>
+
+      {[...comments].reverse().map(comment => (
         <div key={comment.id} className="detail-comment-item">
 
           {/* ── 부모 댓글 ── */}
@@ -166,7 +187,7 @@ const CommentList = ({ postId }) => {
           {user && (
             <button
               className="detail-comment-action-btn"
-              style={{ marginTop: 4, fontSize: 12 }}
+              style={{ marginTop: 4, fontSize: 12, paddingLeft: 40 }}
               onClick={() => {
                 setReplyingId(replyingId === comment.id ? null : comment.id);
                 setReplyText('');
@@ -225,26 +246,7 @@ const CommentList = ({ postId }) => {
         </div>
       ))}
 
-      {/* 댓글 입력 */}
-      <div className="detail-comment-wrap">
-        <Avatar url={user?.profile_url} nickname={user?.nickname} className="detail-comment-avatar" />
-        <input
-          type="text"
-          placeholder={user ? '댓글을 입력하세요...' : '로그인 후 댓글을 남길 수 있습니다.'}
-          className="detail-comment-input"
-          value={newComment}
-          disabled={!user}
-          onChange={(e) => setNewComment(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !isLoading) handleSubmit(); }}
-        />
-        <button
-          className="detail-comment-submit"
-          onClick={handleSubmit}
-          disabled={!user || isLoading || !newComment.trim()}
-        >
-          {isLoading ? '...' : '등록'}
-        </button>
-      </div>
+      
     </section>
   );
 };

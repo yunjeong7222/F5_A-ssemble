@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getPost } from '../api/posts';
+import { getPost, deletePost } from '../api/posts';
 import { likePost, unlikePost } from '../api/likes';
 import { fetchWorkflowById } from '../api/workflows';
 import { addBookmark, removeBookmark, checkBookmark } from '../api/workflowBookmarks';
 import useAuthStore from '../store/authStore';
 import EmbedPreview from '../components/community/EmbedPreview';
 import CommentList from '../components/community/CommentList';
-
+import CommunityEdit from './CommunityEdit';
+import Alert from '../utils/alert';
 import '../styles/Community.css';
 
 const CommunityDetail = () => {
@@ -172,7 +173,7 @@ const CommunityDetail = () => {
               <img
                 src={post.profile_url}
                 alt={post.nickname}
-                style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }}
+                style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover'}}
               />
             ) : (
               <span className="detail-avatar-user">
@@ -191,6 +192,35 @@ const CommunityDetail = () => {
             >
               {isLiked ? '❤️' : '🤍'} 좋아요 {likeCount}
             </button>
+
+            {user?.id === post.user_id && (
+              <>
+                <button
+                  className="detail-like-btn"
+                  onClick={() => navigate(`/community/edit/${post.id}`)}
+                >
+                  수정
+                </button>
+                <button
+                  className="detail-like-btn"
+                  onClick={async () => {
+                    const result = await Alert.fire({
+                      icon: 'warning',
+                      title: '게시글을 삭제하시겠습니까?',
+                      showCancelButton: true,
+                      confirmButtonText: '삭제',
+                      cancelButtonText: '취소',
+                    });
+                    if (result.isConfirmed) {
+                      await deletePost(post.id);
+                      navigate('/community');
+                    }
+                  }}
+                >
+                  삭제
+                </button>
+              </>
+            )}
             {post.workflow_id && post.user_id !== user?.id && (
               <button
                 onClick={handleBookmarkToggle}
@@ -214,7 +244,7 @@ const CommunityDetail = () => {
             <div className="write-sel-info">
               <div className="write-sel-icon">✦</div>
               <div>
-                <span className="write-sel-badge">연결된 레시피</span>
+                <span className="write-sel-badge">연결된 워크플로우</span>
                 <strong className="write-sel-title">{workflow.title}</strong>
               </div>
             </div>

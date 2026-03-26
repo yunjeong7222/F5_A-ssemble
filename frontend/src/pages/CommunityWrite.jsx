@@ -17,7 +17,7 @@ const CommunityWrite = () => {
   const [isLoadingWorkflows, setIsLoadingWorkflows] = useState(true);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState(null);
   const [editablePrompts, setEditablePrompts]       = useState({});
-
+  
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl]     = useState(null);
   const fileInputRef = useRef(null);
@@ -169,12 +169,18 @@ const CommunityWrite = () => {
     }
   };
 
+  const toggleCategory = (cat) => {
+    setSelectedCategories(prev =>
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    );
+  };
+  
   return (
     <div className="write-wrapper">
       <div className="write-container">
 
         <header className="write-header">
-          <h2 className="write-title">워크플로우 공유하기</h2>
+          <h2 className="write-title">게시글 작성</h2>
         </header>
 
         {/* 제목 */}
@@ -267,7 +273,7 @@ const CommunityWrite = () => {
         {/* 레시피 연결 */}
         <section className="write-section">
           <label className="write-label">
-            {selectedWorkflow ? '연결된 레시피' : '레시피 연결'}
+            {selectedWorkflow ? '연결된 워크플로우' : '워크플로우 연결'}
           </label>
           <div className="write-recipe-box">
 
@@ -281,7 +287,14 @@ const CommunityWrite = () => {
               <div className="write-no-recipe">
                 <div className="write-no-recipe-icon">✦</div>
                 <h3 className="write-no-recipe-title">저장된 워크플로우가 없어요</h3>
-                <p className="write-no-recipe-desc">워크플로우를 먼저 생성하면<br />레시피를 연결할 수 있어요</p>
+                <p className="write-no-recipe-desc">워크플로우를 먼저 생성하면 연결할 수 있어요</p>
+                <button
+                  type="button"
+                  className="write-no-recipe-btn"
+                  onClick={() => navigate('/workflow')}
+                >
+                  워크플로우 만들러 가기 →
+                </button>
               </div>
             )}
 
@@ -344,7 +357,7 @@ const CommunityWrite = () => {
 
             {/* 선택된 워크플로우 */}
             {!isLoadingWorkflows && selectedWorkflow && (
-              <div>
+              <div className="write-sel-animate">
                 <div className="write-sel-header">
                   <div className="write-sel-info">
                     <div className="write-sel-icon">✦</div>

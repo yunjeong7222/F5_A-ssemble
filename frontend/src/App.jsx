@@ -3,7 +3,7 @@ import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import PrivateRoute from "./components/common/PrivateRoute";
 import ScrollToTop from './components/common/ScrollToTop';
-import { Toaster } from 'react-hot-toast'; 
+
 
 import Main from "./pages/Main";
 import Tools from "./pages/Tools";
@@ -15,7 +15,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProfileSetup from "./pages/ProfileSetup";
 import MyPage from "./pages/MyPage";
-
+import CommunityEdit from './pages/CommunityEdit';
 
 function App() {
   return (
@@ -31,6 +31,9 @@ function App() {
           <Route path="/community" element={<Community />} />
           <Route path="/community/write" element={
             <PrivateRoute><CommunityWrite /></PrivateRoute>
+          } />
+          <Route path="/community/edit/:id" element={
+            <PrivateRoute><CommunityEdit /></PrivateRoute>
           } />
           <Route path="/community/:id" element={<CommunityDetail />} /> 
           <Route path="/login" element={<Login />} />

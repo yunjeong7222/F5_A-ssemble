@@ -228,11 +228,10 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
   );
 };
 
-const WorkflowSection = ({ myWorkflows, setMyWorkflows }) => {
+const WorkflowSection = ({ myWorkflows, setMyWorkflows, myPosts, setMyPosts }) => {
   const [workflowSubTab, setWorkflowSubTab] = useState('mine');
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);
   const [bookmarkedWorkflows, setBookmarkedWorkflows] = useState([]);
-  const [myPosts, setMyPosts] = useState([]);
   const navigate = useNavigate();
 
   const handleDeleteWorkflow = async (id) => {
@@ -244,18 +243,6 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows }) => {
       alert('삭제에 실패했습니다.');
     }
   };
-
-  useEffect(() => {
-    const loadPosts = async () => {
-      try {
-        const res = await getPosts({ user_id: 'me' });
-        setMyPosts(res.data || []);
-      } catch (err) {
-        console.error('내 글 불러오기 실패:', err);
-      }
-    };
-    loadPosts();
-  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -336,7 +323,7 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows }) => {
           </div>
 
           {wf.tags?.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', gap: '7px', flexWrap: 'wrap', marginBottom: '12px' }}>
               {wf.tags.map(tag => (
                 <span key={tag} style={{ fontSize: '11px', fontWeight: '700', background: '#ede9fe', color: '#6d28d9', padding: '3px 10px', borderRadius: '20px' }}>
                   {tag}
@@ -367,7 +354,7 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows }) => {
 
       {/* 내가 쓴 글 */}
     {workflowSubTab === 'posts' && (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginTop: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
         {myPosts.map(post => (
         <div
             key={post.id}

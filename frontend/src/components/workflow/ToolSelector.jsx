@@ -9,6 +9,7 @@ const ToolSelector = () => {
   // 💡 현재 보여줄 단계(카테고리)의 인덱스를 관리하는 상태 추가
 const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
 const [hoveredTooltip, setHoveredTooltip] = useState(null);
+const [isTransitioning, setIsTransitioning] = useState(false);
 
   const getCategoryColor = (categoryName) => {
     const colors = {
@@ -24,18 +25,18 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
 
   const getPricingStyle = (pricing) => {
     return pricing === '무료 지원' 
-      ? { bg: '#e0f2fe', color: '#0369a1', icon: '✨' } 
-      : { bg: '#f1f5f9', color: '#475569', icon: '💳' }; 
+      ? { bg: '#e0f2fe', color: '#0369a1', } 
+      : { bg: '#f1f5f9', color: '#475569', }; 
   };
 
   const getLevelStyle = (level) => {
-    if (level === '초급') return { bg: '#dcfce3', color: '#15803d', icon: '🌱' }; 
-    if (level === '중급') return { bg: '#fef3c7', color: '#b45309', icon: '⭐' }; 
-    if (level === '고급') return { bg: '#fee2e2', color: '#b91c1c', icon: '🔥' }; 
-    return { bg: '#f3f4f6', color: '#374151', icon: '📌' }; 
+    if (level === '초급') return { bg: '#dcfce3', color: '#15803d',}; 
+    if (level === '중급') return { bg: '#fef3c7', color: '#b45309',}; 
+    if (level === '고급') return { bg: '#fee2e2', color: '#b91c1c',}; 
+    return { bg: '#f3f4f6', color: '#374151',}; 
   };
 
-  // 💡 툴 선택 시 처리하는 함수 (자동으로 다음 단계 이동)
+  // 툴 선택 시 처리하는 함수 (자동으로 다음 단계 이동)
   const handleToolSelect = (toolId) => {
     toggleSelectedTool(toolId);
     
@@ -43,7 +44,11 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
     if (!selectedTools.includes(toolId) && currentCategoryIndex < categories.length - 1) {
       // 선택된 효과를 아주 잠깐(0.35초) 보여준 뒤 다음 카테고리로 부드럽게 이동
       setTimeout(() => {
-        setCurrentCategoryIndex(prev => prev + 1);
+        setIsTransitioning(true);            
+        setTimeout(() => {
+          setCurrentCategoryIndex(prev => prev + 1);
+          setIsTransitioning(false);        
+        }, 300);                             
       }, 350);
     }
   };
@@ -62,13 +67,13 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
             (tool) => tool.category === category && selectedTools.includes(tool.id)
           );
           
-          // 💡 현재 보고 있는 단계인지 확인
+          // 현재 보고 있는 단계인지 확인
           const isActiveView = currentCategoryIndex === index;
 
           return (
             <React.Fragment key={`flow-${category}`}>
               <div 
-                // 💡 onClick 이벤트 추가 및 활성화 클래스(active-view) 부여
+                // onClick 이벤트 추가 및 활성화 클래스(active-view) 부여
                 className={`ts-flow-step ${selectedInCat.length > 0 ? 'selected' : ''} ${isActiveView ? 'active-view' : ''}`}
                 onClick={() => setCurrentCategoryIndex(index)}
               >
@@ -100,9 +105,10 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
         })}
       </div>
 
-      {/* 💡 전체 카테고리 map을 지우고 현재 카테고리 1개만 렌더링하도록 수정 */}
+      {/* 전체 카테고리 map을 지우고 현재 카테고리 1개만 렌더링하도록 수정 */}
       {currentCategory && (
-        <div key={currentCategory} className="ts-category-section ts-fade-in">
+        <div key={currentCategory} 
+          className={`ts-category-section ${isTransitioning ? 'ts-fade-out' : 'ts-fade-in'}`}>
           
           <h3 className="ts-category-title">{currentCategory}</h3>
           
@@ -113,7 +119,7 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
               .map(tool => {
                 const isSelected = selectedTools.includes(tool.id);
                 
-                // ⭐ 안전하게 배열로 파싱하는 로직 (유지)
+                // 안전하게 배열로 파싱하는 로직 (유지)
                 const safeParseArray = (data) => {
                   if (!data) return [];
                   if (Array.isArray(data)) return data;
@@ -137,7 +143,8 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
                   specialized: tool.description || '특화 분야 없음',
                   color: getCategoryColor(tool.category), 
                   pros: safeParseArray(tool.pros), 
-                  cons: safeParseArray(tool.cons)  
+                  cons: safeParseArray(tool.cons),
+                  desc_short: tool.desc_short || ''
                 };
 
                 return (
@@ -157,28 +164,26 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
                               className="ts-tool-img"
                               onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
                             />
-                            <span className="ts-fallback-icon">🤖</span>
+                            <span className="ts-fallback-icon"></span>
                           </div>
                           <div className="ts-title-wrap">
                             <h4 className="ts-tool-title">{tool.name}</h4>
                             <div className="ts-badges-wrap">
                               <span className="ts-badge" style={{ backgroundColor: getPricingStyle(displayData.pricing).bg, color: getPricingStyle(displayData.pricing).color }}>
-                                <span>{getPricingStyle(displayData.pricing).icon}</span>
                                 {displayData.pricing}
                               </span>
                               <span className="ts-badge" style={{ backgroundColor: getLevelStyle(displayData.level).bg, color: getLevelStyle(displayData.level).color }}>
-                                <span>{getLevelStyle(displayData.level).icon}</span>
                                 {displayData.level}
                               </span>
                             </div>
                           </div>
                         </div>
-                        <div className="ts-specialized" style={{ color: displayData.color }}>
-                          ✦ {tool.desc_short || displayData.specialized}
+                        <div className="ts-specialized" style={{gap:10}}>
+                        {tool.desc_short || displayData.specialized}
                         </div>
 
-                          {hoveredTooltip === tool.id && (
-                          <div className="ts-overlay">
+                          {/* {hoveredTooltip === tool.id && ( */}
+                          <div className={`ts-overlay ${hoveredTooltip === tool.id ? 'visible' : ''}`}>
                             <div className="ts-overlay-inner">
                               <div className="ts-proscons-block">
                                 <span className="ts-pros-badge">장점</span>
@@ -198,8 +203,9 @@ const [hoveredTooltip, setHoveredTooltip] = useState(null);
                               </div>
                             </div>
                           </div>
-                        )}
+                        {/* )} */}
                       </div>
+                     
                     );
               })}
           </div>        

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import useWorkflowStore from '../store/workflowStore';
 import { useWorkflow } from '../hooks/useWorkflow';
 import ToolSelector from '../components/workflow/ToolSelector';
-import StepCard from '../components/workflow/StepCard';
 import WorkflowResult from '../components/workflow/WorkflowResult';
+import Loading from '../components/workflow/Loading';
 import '../styles/Workflow.css';
 
 const Workflow = () => {
@@ -12,8 +12,13 @@ const Workflow = () => {
 
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  const SUGGEST_PROMPTS = {
+    '유튜브 영상 제작': '유튜브 영상을 제작하고 싶은데 기획부터 영상, 편집, 업로드까지 전 과정에 필요한 AI 툴을 추천해줘',
+    '무료 BGM 생성 및 동영상 제작': '무료로 배경음악을 생성하고 동영상까지 제작할 수 있는 AI 툴 조합을 추천해줘',
+    '무료 이미지 생성': '무료로 고퀄리티 이미지를 생성할 수 있는 AI 툴을 추천해줘',
+  };
   const handleExampleClick = (text) => {
-    setPurpose(text);
+    setPurpose(SUGGEST_PROMPTS[text] || text);
   };
 
   return (
@@ -41,20 +46,16 @@ const Workflow = () => {
       {step === 1 && (
         <section className="wf-step1-section">
           {isLoading ? (
-            /* ⏳ 로딩 중일 때 보여줄 화면 (버튼 밖으로 빼냄) */
-            <div className="wf-loading-wrap">
-              <div className="wf-spinner"></div>
-              <p className="wf-loading-text">
-                AI가 목적에 맞는 최적의 툴 조합을 찾고 있어요<br />
-                <span className="wf-loading-sub">잠시만 기다려주세요</span>
-              </p>
-            </div>
+             <Loading
+              message={`AI가 목적에 맞는 최적의 툴 조합을 찾고 있어요`}
+              subMessage="잠시만 기다려주세요"
+            />
           ) : (
             /* 📝 로딩 중이 아닐 때 보여줄 기존 화면 전체 */
             <>
               <h3 className="wf-step1-badge">STEP 1</h3>
               <h2 className="wf-step1-title">어떤 분야의 워크플로우를<br/>만들고 싶으신가요?</h2>
-              <p className="wf-step1-desc">목적을 입력하거나 직군을 선택하면 최적의 AI 툴 조합을 추천해드릴게요</p>
+              <p className="wf-step1-desc">직군과 목적을 구체적으로 입력하면 최적의 AI 툴 조합을 추천해드릴게요</p>
 
               <div className="wf-input-wrap">
                 <div className="wf-input-group">
@@ -79,8 +80,8 @@ const Workflow = () => {
               </div>
 
               <div className="wf-suggest-wrap">
-                <span className="wf-suggest-label">💡 이런 목적은 어때요?</span>
-                {['유튜브 영상 편집', '무료 BGM 생성', '무료 이미지 생성'].map((tag) => (
+                <span className="wf-suggest-label">이런 목적은 어때요?</span>
+                {['유튜브 영상 제작', '무료 BGM 생성 및 동영상 제작', '무료 이미지 생성'].map((tag) => (
                   <button 
                     key={tag}
                     onClick={() => handleExampleClick(tag)}
@@ -100,20 +101,19 @@ const Workflow = () => {
         <section>
           {isLoading ? (
             /* ⏳ 로딩 중일 때 보여줄 화면 */
-            <div className="wf-loading-wrap">
-              <div className="wf-spinner"></div>
-              <p className="wf-loading-text">
-                선택하신 툴을 바탕으로 맞춤형 워크플로우를 생성하고 있어요.<br />
-                <span className="wf-loading-sub">잠시만 기다려주세요...</span>
-              </p>
-            </div>
+            <Loading
+              message="선택하신 툴을 바탕으로 맞춤형 워크플로우를 생성하고 있어요"
+              subMessage="잠시만 기다려주세요..."
+            />
           ) : (
             <>
-              <h2 className="wf-step2-title">"{purpose}"에 추천하는 AI 툴 조합이에요. 사용하실 툴을 선택하세요.</h2>
+              <h2 className="wf-step2-title">"{purpose}"</h2>
+              <p style={{fontSize:20, fontWeight:400}}>단계별로 툴을 하나씩 선택해 나만의 워크플로우를 만들어보세요.</p> 
+              
               <ToolSelector />
               
               {/* 하단 버튼 영역 (양쪽 끝으로 배치) */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px',paddingTop:'10px' }}>
                 
                 <button 
                   onClick={prevStep} 

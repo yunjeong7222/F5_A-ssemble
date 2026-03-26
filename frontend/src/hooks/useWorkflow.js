@@ -26,6 +26,7 @@ export const useWorkflow = () => {
             category: matchedCat.category_name,
             description: matchedCat.description,
             rating: tool.rating,
+            desc_short: matchedCat.desc_short || '',
             pros: matchedCat.pros || [],
             cons: matchedCat.cons || [],
             thumbnail: tool.thumbnail,

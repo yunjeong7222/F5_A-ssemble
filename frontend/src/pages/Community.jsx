@@ -5,6 +5,7 @@ import PostCard from '../components/community/PostCard';
 import PostList from '../components/community/PostList';
 import useAuthStore from '../store/authStore';
 import '../styles/Community.css';
+import Alert from '../utils/alert';
 
 const categories = [
   '전체',
@@ -79,11 +80,20 @@ const CommunityMain = () => {
       <div className="comm-header-area">
         <h1 className="comm-page-title">커뮤니티</h1>
         <div className="comm-header-actions">
-          <button className="comm-workflow-btn" onClick={() => navigate('/mypage?tab=workflow')}>
+          <button className="comm-workflow-btn" onClick={async () => {
+            if (!user) {
+              await Alert.fire({text: '로그인이 필요한 서비스입니다.' });
+              return;
+            }
+            navigate('/mypage?tab=workflow');
+          }}>
             내 워크플로우
           </button>
-          <button className="comm-write-btn" onClick={() => {
-            if (!user) { alert('로그인이 필요한 서비스입니다.'); return; }
+          <button className="comm-write-btn" onClick={async () => {
+            if (!user) {
+              await Alert.fire({text: '로그인이 필요한 서비스입니다.' });
+              return;
+            }
             navigate('/community/write');
           }}>
             게시글 작성
@@ -115,11 +125,14 @@ const CommunityMain = () => {
           </button>
           <button
             className={`comm-filter-btn${activeFilter === '좋아요한 글' ? ' active' : ''}`}
-            onClick={() => {
-              if (!user) { alert('로그인이 필요한 서비스입니다.'); return; }
-              setActiveFilter('좋아요한 글');
-            }}
-          >
+              onClick={async () => {
+                if (!user) {
+                  await Alert.fire({ icon: 'warning', title: '로그인이 필요한 서비스입니다.' });
+                  return;
+                }
+                setActiveFilter('좋아요한 글');
+              }}
+            >
             좋아요한 글
           </button>
         </div>

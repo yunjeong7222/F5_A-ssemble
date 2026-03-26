@@ -4,7 +4,10 @@ const getYoutubeId = (url) =>
 
 // attachments 배열에서 미디어(image/video/youtube) 첫 번째 항목을 렌더링
 const EmbedPreview = ({ attachments = [] }) => {
-  const media = attachments.find(a => ['image', 'video', 'youtube'].includes(a.type));
+  const media = attachments.find(a => 
+    ['image', 'video', 'youtube'].includes(a.type) &&
+    !a.url?.startsWith('/icons/category-')  // 플레이스홀더 제외
+  );
 
   if (!media) {
     return (

@@ -7,6 +7,7 @@ import PasswordSection from '../components/user/PasswordSection';
 import AccountSection from '../components/user/AccountSection';
 import WorkflowSection from '../components/user/WorkflowSection';
 import { fetchMyWorkflows } from '../api/workflows';
+import { getPosts } from '../api/posts';
 import '../styles/mypage.css';
 
 export default function MyPage() {
@@ -15,6 +16,7 @@ export default function MyPage() {
   const [bookmarkedWorkflows, setBookmarkedWorkflows] = useState([]);
   const [activeTab, setActiveTab] = useState('workflows');
   const fileInputRef = useRef(null);
+  const [myPosts, setMyPosts] = useState([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -45,6 +47,18 @@ export default function MyPage() {
       }
     };
     fetchWorkflowData();
+  }, []);
+
+  useEffect(() => {
+    const fetchMyPosts = async () => {
+      try {
+        const res = await getPosts({ user_id: 'me' });
+        setMyPosts(res.data || []);
+      } catch (err) {
+        console.error('내 글 불러오기 실패:', err);
+      }
+    };
+    fetchMyPosts();
   }, []);
 
   const handleImageClick = () => {
@@ -110,7 +124,7 @@ export default function MyPage() {
               />
             </div>
             <div className="mypage-avatar-edit-btn" onClick={handleImageClick}>
-              <span className="mypage-avatar-edit-label">EDIT</span>
+              <span className="mypage-avatar-edit-label">+</span>
             </div>
             <input
               type="file"
@@ -124,7 +138,6 @@ export default function MyPage() {
           <div>
             <h2 className="mypage-profile-name">{user?.nickname || '레시피마스터'}</h2>
             <p className="mypage-profile-email">{user?.email || 'user@example.com'}</p>
-            <span className="mypage-profile-badge">🪄 레시피 작성자</span>
           </div>
         </div>
 
@@ -134,9 +147,13 @@ export default function MyPage() {
               <p className="mypage-stat-number">{myWorkflows.length}</p>
               <p className="mypage-stat-label">내 워크플로우</p>
             </div>
-            <div className="mypage-stat-item">
+            <div className="mypage-stat-item mypage-stat-item--border">
               <p className="mypage-stat-number">{bookmarkedWorkflows.length}</p>
               <p className="mypage-stat-label">북마크</p>
+            </div>
+            <div className="mypage-stat-item">
+              <p className="mypage-stat-number">{myPosts.length}</p>
+              <p className="mypage-stat-label">내가 쓴 글</p>
             </div>
           </div>
 
@@ -181,6 +198,8 @@ export default function MyPage() {
           <WorkflowSection
             myWorkflows={myWorkflows}
             setMyWorkflows={setMyWorkflows}
+            myPosts={myPosts}
+            setMyPosts={setMyPosts}
           />
         )}
       </div>

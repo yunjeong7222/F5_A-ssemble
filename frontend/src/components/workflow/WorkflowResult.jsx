@@ -15,8 +15,8 @@ const OptimizationVisualizer = () => {
   React.useEffect(() => {
     let animationFrame;
     const animate = () => {
-      const duration = 2500; 
-      const pause = 2500; 
+      const duration = 3000; 
+      const pause = 3000; 
       const totalCycle = duration + pause;
       
       const now = performance.now();
@@ -26,15 +26,15 @@ const OptimizationVisualizer = () => {
         const progress = cycleTime / duration;
         const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
         
-        setViews(Math.floor(easeOut * 2541388));
+        setViews(Math.floor(easeOut * 79));
         setCtr((easeOut * 8.5).toFixed(1));
-        setSeo(Math.floor(easeOut * 100));
-        setTime(Math.floor(easeOut * 48));
+        setSeo(Math.floor(easeOut * 32));
+        setTime(Math.floor(easeOut * 10));
       } else {
-        setViews(2541388);
+        setViews(79);
         setCtr((8.5).toFixed(1));
-        setSeo(100);
-        setTime(48);
+        setSeo(32);
+        setTime(10);
       }
       animationFrame = requestAnimationFrame(animate);
     };
@@ -42,37 +42,96 @@ const OptimizationVisualizer = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  return (
-    <div className="wr-opt-container">
-      {[
-        { label: 'Total Views', icon: '👀', iconBg: '#dcfce3', iconColor: '#16a34a', val: views.toLocaleString(), unit: '', trend: '+573%', trendColor: '#10b981' },
-        { label: 'Click-Thru', icon: '🖱️', iconBg: '#dbeafe', iconColor: '#2563eb', val: ctr, unit: '%', trend: '+433%', trendColor: '#10b981' },
-        { label: 'SEO Score', icon: '🎯', iconBg: '#fef08a', iconColor: '#ca8a04', val: seo, unit: '/100', trend: 'Top 1%', trendColor: '#ca8a04' },
-        { label: 'Time Saved', icon: '⚡', iconBg: '#fce7f3', iconColor: '#db2777', val: time, unit: 'hrs', trend: 'Monthly', trendColor: '#db2777' },
-      ].map((item, idx) => (
-        <div key={idx} className="wr-opt-card">
-          <div className="wr-opt-header">
-            <div className="wr-opt-icon" style={{ backgroundColor: item.iconBg, color: item.iconColor }}>{item.icon}</div>
-            {idx === 0 && (
-              <div className="wr-opt-live">
-                <span className="wr-opt-dot"></span> LIVE
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="wr-opt-label">{item.label}</div>
-            <div className="wr-opt-value">
-              <span className="tb-counter">{item.val}</span>
-              {item.unit && <span className="wr-opt-unit">{item.unit}</span>}
-            </div>
-          </div>
-          <div className="wr-opt-trend" style={{ color: item.trendColor }}>
-            {item.trend.includes('+') ? '↗' : ''} {item.trend}
+ const cards = [
+  {
+    label: 'Total Views',
+    sub: 'more views per video',
+    accent: '#2563eb',
+    iconColor: '#2563eb',
+    trend: 'more',
+    trendColor: '#2563eb',
+    val: views.toLocaleString(),
+    unit: '%',
+    icon: (
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Click-Thru',
+    sub: 'than manual methods',
+    accent: '#d97706',
+    iconColor: '#d97706',
+    trend: 'faster',
+    trendColor: '#d97706',
+    val: ctr,
+    unit: 'x',
+    icon: (
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'SEO Score',
+    sub: 'subscribers growth',
+    accent: '#10b981',
+    iconColor: '#10b981',
+    trend: 'more',
+    trendColor: '#10b981',
+    val: seo,
+    unit: '%',
+    icon: (
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Time Saved',
+    sub: 'creators like you',
+    accent: '#7c3aed',
+    iconColor: '#7c3aed',
+    trend: 'users',
+    trendColor: '#7c3aed',
+    val: time,
+    unit: 'M+',
+    icon: (
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/>
+      </svg>
+    ),
+  },
+];
+
+return (
+  <div className="wr-opt-container">
+    {cards.map((item, idx) => (
+      <div key={idx} className="wr-opt-card">
+        <div className="wr-opt-header">
+          <div className="wr-opt-icon" style={{ color: item.iconColor }}>
+            {item.icon}
           </div>
         </div>
-      ))}
-    </div>
-  );
+        <div>
+          <div className="wr-opt-value">
+            <span className="tb-counter" style={{ fontSize: '3rem', fontWeight: '600', color: '#0f172a', letterSpacing: '-0.04em' }}>
+              {item.val}
+            </span>
+            <span className="wr-opt-unit">{item.unit}</span>
+          </div>
+          <div className="wr-opt-trend" style={{ color: item.trendColor, fontSize: '1.3rem', fontWeight: '600'}}>
+            {item.trend}
+          </div>
+          <div className="wr-opt-label" style={{ color: '#94a3b8'}}>
+            {item.sub}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
 };
 
 // 🎨 카테고리별 시각화 컴포넌트
@@ -90,7 +149,9 @@ const CategoryVisualizer = ({ category }) => {
         </div>
         <div className="wr-cat-ai">
           <strong style={{ color: '#4f46e5', display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>✨ AI의 답변</strong>
-          1. 오프닝 (0~3초): 시선 집중!<br/>2. 본론 (3~45초): 핵심 정보 전달<br/>3. 결론: 좋아요 및 구독 유도
+          1. 오프닝 (0~3초): 강렬한 한 줄로 시선 강탈<br/>
+          2. 본론 (3~45초): 숫자·사례로 신뢰감 형성<br/>
+          3. 결론 (45~60초): 저장 유도 + 다음 편 예고
         </div>
       </div>
     );
@@ -149,7 +210,7 @@ const CategoryVisualizer = ({ category }) => {
             <div style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: '700', letterSpacing: '0.05em', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ display: 'inline-block', width: '6px', height: '6px', background: '#ef4444', borderRadius: '50%' }}></span>GENERATING AUDIO...
             </div>
-            <div style={{ color: '#f8fafc', fontSize: '1.1rem', fontWeight: '800', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Natural AI Voiceover Generation</div>
+            <div style={{ color: '#f8fafc', fontSize: '1.1rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Natural AI Voiceover Generation</div>
           </div>
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderBottom: '2px solid #334155', paddingBottom: '2px', position: 'relative' }}>
             {[...Array(31)].map((_, i) => {
@@ -190,6 +251,7 @@ const WorkflowResult = ({ workflowResult }) => {
   const [isSaving, setIsSaving] = useState(false); // 추가
   
   const [expandedSteps, setExpandedSteps] = useState([0]);
+  const [closingSteps, setClosingSteps] = useState([]);
 
   // 방어 코드: workflowResult 데이터가 없거나 올바르지 않을 때 로딩/빈 화면 처리
   if (!workflowResult || !workflowResult.steps) {
@@ -202,11 +264,15 @@ const WorkflowResult = ({ workflowResult }) => {
 
   const toggleStep = (index) => {
     if (expandedSteps.includes(index)) {
-      setExpandedSteps(expandedSteps.filter(i => i !== index));
+        setClosingSteps(prev => [...prev, index]);
+        setTimeout(() => {
+            setExpandedSteps(prev => prev.filter(i => i !== index));
+            setClosingSteps(prev => prev.filter(i => i !== index));
+        }, 300);
     } else {
-      setExpandedSteps([...expandedSteps, index]);
+        setExpandedSteps(prev => [...prev, index]);
     }
-  };
+};
 
   const displayData = workflowResult;
 
@@ -286,7 +352,7 @@ const WorkflowResult = ({ workflowResult }) => {
           <div className="wr-float-time" style={{ top: '-20px', right: '-20px', bottom: 'auto', left: 'auto' }}>
             <div style={{ color: '#eab308', fontSize: '1.2rem' }}>⚡</div>
             <div>
-              <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0f172a' }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0f172a' }}>
                 총 {displayData.steps.reduce((acc, cur) => acc + (parseInt(cur.estimated_time) || 0), 0)}분 완성
               </div>
               <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '500' }}>단계별 시간 포함</div>
@@ -294,15 +360,15 @@ const WorkflowResult = ({ workflowResult }) => {
           </div>
 
           <div className="wr-float-card">
-            <div style={{ fontSize: '1.5rem', marginBottom: '12px' }}>✍️</div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#1e293b', margin: '0 0 16px 0' }}>선택한 AI 워크플로우</h3>
+            {/* <div style={{ fontSize: '1.5rem', marginBottom: '12px' }}>✍️</div> */}
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', margin: '10px 0 14px 0' }}>선택한 AI 워크플로우</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {displayData.steps.slice(0, 3).map((step, idx) => (
                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: ['#ecfdf5', '#e0e7ff', '#f1f5f9'][idx % 3], padding: '10px 14px', borderRadius: '12px' }}>
                   <div style={{ width: '24px', height: '24px', backgroundColor: ['#10b981', '#6366f1', '#64748b'][idx % 3], color: '#fff', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
                     {step.step}
                   </div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: '700', color: ['#059669', '#4338ca', '#334155'][idx % 3] }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: '600', color: ['#059669', '#4338ca', '#334155'][idx % 3] }}>
                     {step.tool}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -311,7 +377,7 @@ const WorkflowResult = ({ workflowResult }) => {
                 </div>
               ))}
               {displayData.steps.length > 3 && (
-                <div style={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center', marginTop: '4px', fontWeight: '600' }}>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center', marginTop: '4px', fontWeight: '500' }}>
                   + {displayData.steps.length - 3}개의 단계 더보기
                 </div>
               )}
@@ -333,12 +399,25 @@ const WorkflowResult = ({ workflowResult }) => {
                   <img
                     src={step.thumbnail || `https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`}
                     alt={step.tool}
-                    style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                    style={{ width: '45px', height: '45px', objectFit: 'contain' }}
                     onError={(e) => { e.target.style.display='none'; }}
                   />
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#1e293b' }}>{step.tool}</div>
-                    <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#10b981', marginTop: '4px' }}>{toolInfo.category.split('·')[0].trim()} 특화</div>
+                    <div style={{ 
+                        fontSize: '0.85rem', 
+                        fontWeight: '700', 
+                        color: '#1e293b',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        wordBreak: 'keep-all',
+                        lineHeight: '1.4',
+                    }}>
+                        {step.tool}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#10b981', marginTop: '2px' }}>{toolInfo.category.split('·')[0].trim()}</div>
                   </div>
                 </div>
 
@@ -353,12 +432,13 @@ const WorkflowResult = ({ workflowResult }) => {
         </div>
       </div>
 
-      <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f172a', marginBottom: '24px' }}>단계별 가이드 & 프롬프트</h3>
+      <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0f172a', marginBottom: '15px' }}>단계별 가이드 & 프롬프트</h3>
 
       {/* 3. 스텝 리스트 (아코디언) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px' }}>
         {displayData.steps.map((step, index) => {
           const isExpanded = expandedSteps.includes(index);
+          const isClosing = closingSteps.includes(index);
           const toolInfo = getToolInfo(step.tool, step.category_display);
 
           return (
@@ -402,50 +482,64 @@ const WorkflowResult = ({ workflowResult }) => {
                     </div>
                   </div>
                 </div>
-                <div style={{ color: '#94a3b8', fontSize: '1.5rem' }}>
-                  {isExpanded ? '⌃' : '⌄'}
-                </div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      flexShrink: 0,
+                  }}
+              >
+                  <polyline points="6 9 12 15 18 9" />
+              </svg>
               </div>
 
-              {isExpanded && (
-                <div className="wr-step-content">
+              {(isExpanded || isClosing) && (
+                  <div className={`wr-step-content ${isClosing ? 'wr-step-content-close' : 'wr-step-content-open'}`}>
                   <div style={{ marginBottom: '20px' }}>
                     <CategoryVisualizer category={toolInfo.category} />
-                  </div>
-
-                  <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '12px', fontWeight: '500' }}>타겟 독자와 핵심 키워드를 정의하고 콘텐츠 방향을 잡는 단계</p>
-                  
+                  </div>                  
                   <div style={{ marginBottom: '8px', fontSize: '0.85rem', fontWeight: '600', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     📋 복사 가능한 프롬프트
                   </div>
                   
                   <div className="wr-prompt-box">
-                    <pre style={{ margin: 0, color: '#f8fafc', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.95rem', lineHeight: '1.6', fontFamily: "'Pretendard', sans-serif" }}>
+                    <pre style={{ margin: 0, color: '#f8fafc', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.9rem', lineHeight: '1.6', fontFamily: "'Pretendard', sans-serif" }}>
                       {step.prompt_example}
                     </pre>
                     <button onClick={() => handleCopy(step.prompt_example)} className="wr-copy-btn">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                       복사
                     </button>
                   </div>
 
-                  <div className="wr-result-box">
-                    <div style={{ backgroundColor: '#22c55e', color: '#ffffff', borderRadius: '8px', width: '28px', height: '28px', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.8rem', color: '#166534', fontWeight: '700', marginBottom: '4px' }}>이 단계 결과물</div>
-                      <div style={{ fontSize: '0.95rem', color: '#15803d', fontWeight: '600' }}>
-                        {getExpectedOutput(toolInfo.category)}
-                      </div> 
+                  <div style={{ border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4', padding: '16px', borderRadius: '12px', marginTop:'20px' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#166534', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ backgroundColor: '#22c55e', color: '#ffffff', borderRadius: '8px', width: '22px', height: '22px', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
+                        <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      이 단계 결과물
+                    </h4>
+                    <div style={{ fontSize: '0.9rem', color: '#15803d', fontWeight: '500', lineHeight: '1.5' }}>
+                      {getExpectedOutput(toolInfo.category)}
                     </div>
                   </div>
 
                   <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {step.tip && (
                       <div style={{ border: '1px solid #fef08a', backgroundColor: '#fefce8', padding: '16px', borderRadius: '12px' }}>
-                        <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#854d0e', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontSize: '1.1rem' }}>💡</span> 활용 팁
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#854d0e', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '1.2rem' }}>💡</span> 활용 팁
                         </h4>
                         <div style={{ color: '#854d0e', fontSize: '0.9rem', fontWeight: '500', lineHeight: '1.5' }}>
                           {step.tip}
@@ -455,8 +549,8 @@ const WorkflowResult = ({ workflowResult }) => {
                     
                     {step.precautions && (
                       <div style={{ border: '1px solid #fecdd3', backgroundColor: '#fff1f2', padding: '16px', borderRadius: '12px' }}>
-                        <h4 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#9f1239', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontSize: '1.1rem' }}>⚠️</span> 주의사항
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#9f1239', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '1.2rem' }}>⚠️</span> 주의사항
                         </h4>
                         <div style={{ color: '#9f1239', fontSize: '0.9rem', fontWeight: '500', lineHeight: '1.5' }}>
                           {step.precautions}
@@ -475,10 +569,10 @@ const WorkflowResult = ({ workflowResult }) => {
       {/* 4. 하단 재생성/저장 버튼 */}
       <div className="wr-footer">
         <div>
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem', color: '#0f172a' }}>이 워크플로우가 마음에 드셨나요?</h4>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>저장하거나 직접 레시피로 등록해보세요</p>
+          <h4 style={{ margin: '0 0 4px 0', fontSize: '1.2rem', color: '#0f172a' }}>이 워크플로우가 마음에 드셨나요?</h4>
+          <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>저장하거나 직접 게시글로 등록해보세요</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
           
           <button onClick={() => setStep(2)} className="wr-btn-outline">
             ← 이전 단계
@@ -490,7 +584,7 @@ const WorkflowResult = ({ workflowResult }) => {
           
           {/* 커뮤니티 저장 기능 */}
           <button onClick={handleSave} disabled={isSaving} className="wr-btn-primary">
-            {isSaving ? '저장 중...' : '🚀 레시피로 저장'}
+            {isSaving ? '저장 중...' : '내 워크플로우 저장'}
           </button>
         </div>
       </div>
