@@ -1,5 +1,8 @@
 /* 전체 컨테이너 */
 .workflow-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
