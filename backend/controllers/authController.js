@@ -1,80 +1,297 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { Redis } = require("@upstash/redis");
+
+const SALT_ROUNDS = 10;
+const REFRESH_TOKEN_TTL = 60 * 60 * 24 * 1; 
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
+
+// 이메일/닉네임 중복 확인
+// POST /api/auth/check-duplicate
+const checkDuplicate = async (req, res) => {
+  const { field, value } = req.body;
+ 
+  if (!field || !value) {
+    return res.status(400).json({ success: false, message: '필드와 값을 입력해주세요.' });
+  }
+ 
+  if (!['email', 'nickname'].includes(field)) {
+    return res.status(400).json({ success: false, message: '유효하지 않은 필드입니다.' });
+  }
+ 
+  try {
+    const column = field === 'email' ? 'email' : 'nickname';
+    const [rows] = await db.promise().query(
+      `SELECT id FROM users WHERE ${column} = ?`,
+      [value]
+    );
+ 
+    const isDuplicate = rows.length > 0;
+    return res.status(200).json({
+      success: true,
+      isDuplicate,
+      message: isDuplicate
+        ? `이미 사용 중인 ${field === 'email' ? '이메일' : '닉네임'}입니다.`
+        : `사용 가능한 ${field === 'email' ? '이메일' : '닉네임'}입니다.`,
+    });
+  } catch (err) {
+    console.error('checkDuplicate error:', err);
+    return res.status(500).json({ success: false, message: '서버 오류' });
+  }
+};
 
 // 회원가입
-const register = (req, res) => {
+// post  /api/auth/register
+const register = async (req, res) => {
   const { email, password, nickname } = req.body;
-
+  // 필수값 검증
   if (!email || !password || !nickname) {
-    return res.status(400).json({ success: false, message: "이메일, 비밀번호, 닉네임은 필수입니다." });
+    return res.status(400).json({
+      success: false,
+      message: "이메일, 비밀번호, 닉네임은 필수입니다.",
+    });
   }
 
-  // 이메일 중복 체크
-  const checkSql = "SELECT id FROM users WHERE email = ?";
-  db.query(checkSql, [email], (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: "서버 오류" });
-    if (results.length > 0) {
-      return res.status(409).json({ success: false, message: "이미 사용 중인 이메일입니다." });
+  try {
+    const [existing] = await db.promise().query(
+      "SELECT email, nickname FROM users WHERE email = ? OR nickname = ?",
+      [email, nickname]
+    );
+
+    if (existing.length > 0) {
+      const isEmailDup = existing.some((u) => u.email === email);
+      return res.status(409).json({
+        success: false,
+        message: isEmailDup
+          ? "이미 사용 중인 이메일입니다."
+          : "이미 사용 중인 닉네임입니다.",
+      });
     }
 
-    // 비밀번호 해싱
-    bcrypt.hash(password, 10, (err, hash) => {
-      if (err) return res.status(500).json({ success: false, message: "서버 오류" });
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    const [result] = await db.promise().query(
+      "INSERT INTO users (email, password_hash, nickname) VALUES (?, ?, ?)",
+      [email, passwordHash, nickname]
+    );
 
-      const insertSql = "INSERT INTO users (email, password_hash, nickname) VALUES (?, ?, ?)";
-      db.query(insertSql, [email, hash, nickname], (err, result) => {
-        if (err) return res.status(500).json({ success: false, message: "서버 오류" });
-        return res.status(201).json({ success: true, message: "회원가입이 완료되었습니다." });
-      });
+    return res.status(201).json({
+      success: true,
+      message: "회원가입이 완료되었습니다.",
+      data: { userId: result.insertId },
     });
-  });
+  } catch (err) {
+    console.error("register error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
 };
+
 
 // 로그인
-const login = (req, res) => {
+// POST /api/auth/login
+const login = async (req, res) => {
   const { email, password } = req.body;
 
+  // 필수값 검증
   if (!email || !password) {
-    return res.status(400).json({ success: false, message: "이메일과 비밀번호를 입력해주세요." });
+    return res.status(400).json({
+      success: false,
+      message: "이메일과 비밀번호를 입력해주세요.",
+    });
   }
 
-  const sql = "SELECT * FROM users WHERE email = ?";
-  db.query(sql, [email], (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: "서버 오류" });
-    if (results.length === 0) {
-      return res.status(401).json({ success: false, message: "이메일 또는 비밀번호가 올바르지 않습니다." });
+  try {
+    const [rows] = await db.promise().query(
+      "SELECT id, email, password_hash, nickname, role, bio, profile_url FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: "이메일 또는 비밀번호가 올바르지 않습니다.",
+      });
     }
 
-    const user = results[0];
+    const user = rows[0];
 
-    bcrypt.compare(password, user.password_hash, (err, isMatch) => {
-      if (err) return res.status(500).json({ success: false, message: "서버 오류" });
-      if (!isMatch) {
-        return res.status(401).json({ success: false, message: "이메일 또는 비밀번호가 올바르지 않습니다." });
-      }
-
-      const token = jwt.sign(
-        { id: user.id, email: user.email, nickname: user.nickname },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
-
-      return res.status(200).json({
-        success: true,
-        message: "로그인 성공",
-        data: {
-          token,
-          user: {
-            id: user.id,
-            email: user.email,
-            nickname: user.nickname,
-            profile_img: user.profile_img,
-          },
-        },
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "이메일 또는 비밀번호가 올바르지 않습니다.",
       });
+    }
+
+    const accessToken = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // DB 저장 → Redis 저장으로 교체
+    await redis.set(`refresh_token:${user.id}`, refreshToken, {
+      ex: REFRESH_TOKEN_TTL,
     });
-  });
+
+    return res.status(200).json({
+      success: true,
+      message: "로그인 성공",
+      data: {
+        accessToken,
+        refreshToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          nickname: user.nickname,
+          role: user.role,
+          bio: user.bio, 
+          profile_url: user.profile_url
+        },
+      },
+    });
+  } catch (err) {
+    console.error("login error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
 };
 
-module.exports = { register, login };
+// Access Token 재발급
+// POST /api/auth/refresh
+const refresh = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({
+      success: false,
+      message: "Refresh Token이 필요합니다.",
+    });
+  }
+
+  try {
+    // 1. JWT 서명 검증
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "유효하지 않은 Refresh Token입니다.",
+      });
+    }
+
+    // DB 조회 → Redis 조회로 교체
+    const storedToken = await redis.get(`refresh_token:${decoded.id}`);
+
+    // 저장된 토큰이 없거나 요청 토큰과 다르면 탈취 가능성 → Redis 키 삭제
+    if (!storedToken || storedToken !== refreshToken) {
+      await redis.del(`refresh_token:${decoded.id}`);
+      return res.status(401).json({
+        success: false,
+        message: "유효하지 않은 Refresh Token입니다. 다시 로그인해주세요.",
+      });
+    }
+
+    // 3. 유저 조회
+    const [users] = await db.promise().query(
+      "SELECT id, email, role FROM users WHERE id = ?",
+      [decoded.id]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "유저를 찾을 수 없습니다.",
+      });
+    }
+
+    const user = users[0];
+
+    // 4. 새 토큰 발급
+    const newAccessToken = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const newRefreshToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // DB 저장 → Redis 갱신으로 교체 (기존 키 덮어쓰기)
+    await redis.set(`refresh_token:${user.id}`, newRefreshToken, {
+      ex: REFRESH_TOKEN_TTL,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Access Token이 재발급되었습니다.",
+      data: {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      },
+    });
+  } catch (err) {
+    console.error("refresh error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
+};
+
+// 로그아웃
+// POST /api/auth/logout
+const logout = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({
+      success: false,
+      message: "Refresh Token이 필요합니다.",
+    });
+  }
+
+  try {
+    // JWT에서 userId 추출 후 Redis 키 삭제
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    await redis.del(`refresh_token:${decoded.id}`);
+
+    return res.status(200).json({ success: true, message: "로그아웃 되었습니다." });
+  } catch (err) {
+    // 토큰이 만료됐어도 로그아웃은 성공 처리
+    return res.status(200).json({ success: true, message: "로그아웃 되었습니다." });
+  }
+};
+
+// 로그인 유지
+// GET /api/users/me
+const getMe = async (req, res) => {
+  try {
+    const [rows] = await db.promise().query(
+      "SELECT id, email, nickname, role, bio, profile_url FROM users WHERE id = ?",
+      [req.user.id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "유저를 찾을 수 없습니다.",
+      });
+    }
+    return res.status(200).json({ success: true, data: rows[0] });
+  } catch (err) {
+    console.error("getMe error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
+};
+
+module.exports = { register, login, getMe, refresh, logout, checkDuplicate}

@@ -1,54 +1,73 @@
 const db = require("../config/db");
 
 // 워크플로우 생성
-const createWorkflow = (req, res) => {
+const createWorkflow = async (req, res) => {
   const { user_input, result_json, title, tool_ids } = req.body;
   const user_id = req.user ? req.user.id : null;
 
   if (!user_input || !result_json) {
-    return res.status(400).json({ success: false, message: "user_input과 result_json은 필수입니다." });
+    return res.status(400).json({
+      success: false,
+      message: "user_input과 result_json은 필수입니다.",
+    });
   }
 
-  const sql = "INSERT INTO workflows (user_id, user_input, result_json, title) VALUES (?, ?, ?, ?)";
-  db.query(sql, [user_id, user_input, JSON.stringify(result_json), title], (err, result) => {
-    if (err) return res.status(500).json({ success: false, message: "서버 오류" });
+  try {
+    const [result] = await db.promise().query(
+      "INSERT INTO workflows (user_id, user_input, result_json, title) VALUES (?, ?, ?, ?)",
+      [user_id, user_input, JSON.stringify(result_json), title]
+    );
 
     const workflowId = result.insertId;
 
-    // tool_ids 없으면 바로 응답
     if (!tool_ids || tool_ids.length === 0) {
-      return res.status(201).json({ success: true, message: "워크플로우 생성 완료", data: { id: workflowId } });
+      return res.status(201).json({
+        success: true,
+        message: "워크플로우 생성 완료",
+        data: { id: workflowId },
+      });
     }
 
-    // workflow_tools INSERT
     const toolValues = tool_ids.map((tool_id, index) => [workflowId, tool_id, index + 1]);
-    const toolSql = "INSERT INTO workflow_tools (workflow_id, tool_id, step_order) VALUES ?";
-    db.query(toolSql, [toolValues], (err) => {
-      if (err) return res.status(500).json({ success: false, message: "툴 연결 중 오류" });
-      return res.status(201).json({ success: true, message: "워크플로우 생성 완료", data: { id: workflowId } });
+    await db.promise().query(
+      "INSERT INTO workflow_tools (workflow_id, tool_id, step_order) VALUES ?",
+      [toolValues]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "워크플로우 생성 완료",
+      data: { id: workflowId },
     });
-  });
+  } catch (err) {
+    console.error("createWorkflow error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
 };
 
 // 워크플로우 상세 조회
-const getWorkflowById = (req, res) => {
+const getWorkflowById = async (req, res) => {
   const { id } = req.params;
 
-  const sql = `
-    SELECT w.*, 
-      t.id AS tool_id, t.name AS tool_name, t.thumbnail, t.url,
-      wt.step_order
-    FROM workflows w
-    LEFT JOIN workflow_tools wt ON w.id = wt.workflow_id
-    LEFT JOIN tools t ON wt.tool_id = t.id
-    WHERE w.id = ?
-    ORDER BY wt.step_order
-  `;
+  try {
+    const [results] = await db.promise().query(
+      `SELECT w.*, 
+        t.id AS tool_id, t.name AS tool_name, t.thumbnail, t.url, tc.pros, tc.cons, tc.desc_short,
+        wt.step_order
+      FROM workflows w
+      LEFT JOIN workflow_tools wt ON w.id = wt.workflow_id
+      LEFT JOIN tools t ON wt.tool_id = t.id
+      LEFT JOIN tool_categories tc ON t.id = tc.tool_id
+      WHERE w.id = ?
+      ORDER BY wt.step_order`,
+      [id]
+    );
 
-  db.query(sql, [id], (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: "서버 오류" });
     if (results.length === 0) {
-      return res.status(404).json({ success: false, message: "워크플로우를 찾을 수 없습니다." });
+      return res.status(404).json({
+        success: false,
+        message: "워크플로우를 찾을 수 없습니다.",
+      });
     }
 
     // 워크플로우 정보 + 툴 목록 분리
@@ -60,29 +79,119 @@ const getWorkflowById = (req, res) => {
       title: results[0].title,
       created_at: results[0].created_at,
       tools: results
-        .filter(r => r.tool_id)
-        .map(r => ({
+        .filter((r) => r.tool_id)
+        .map((r) => ({
           step_order: r.step_order,
           tool_id: r.tool_id,
           tool_name: r.tool_name,
           thumbnail: r.thumbnail,
           url: r.url,
+          desc_short: r.desc_short,
+          pros: r.pros,          
+          cons: r.cons, 
         })),
     };
 
     return res.status(200).json({ success: true, data: workflow });
-  });
+  } catch (err) {
+    console.error("getWorkflowById error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
 };
 
-// 내 워크플로우 목록
-const getMyWorkflows = (req, res) => {
+const getMyWorkflows = async (req, res) => {
   const user_id = req.user.id;
 
-  const sql = "SELECT * FROM workflows WHERE user_id = ? ORDER BY created_at DESC";
-  db.query(sql, [user_id], (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: "서버 오류" });
-    return res.status(200).json({ success: true, data: results });
-  });
+  try {
+    const [results] = await db.promise().query(
+      `SELECT w.id, w.title, w.user_input, w.result_json, w.created_at,
+              t.thumbnail, t.name AS tool_name, wtool.step_order,
+              (SELECT GROUP_CONCAT(DISTINCT wtag.category_name)
+               FROM workflow_tags wtag
+               WHERE wtag.workflow_id = w.id) AS tags
+       FROM workflows w
+       LEFT JOIN workflow_tools wtool ON w.id = wtool.workflow_id
+       LEFT JOIN tools t ON wtool.tool_id = t.id
+       WHERE w.user_id = ?
+       ORDER BY w.created_at DESC, wtool.step_order ASC`,
+      [user_id]
+    );
+
+    const workflowMap = {};
+    results.forEach(row => {
+      if (!workflowMap[row.id]) {
+        workflowMap[row.id] = {
+          id: row.id,
+          title: row.title,
+          result_json: row.result_json,
+          created_at: row.created_at,
+          tags: row.tags ? row.tags.split(',') : [],  // ← 문자열 → 배열 변환
+          tools: [],
+        };
+      }
+      if (row.tool_name) {
+        workflowMap[row.id].tools.push({
+          name: row.tool_name,
+          thumbnail: row.thumbnail,
+        });
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: Object.values(workflowMap),
+    });
+  } catch (err) {
+    console.error("getMyWorkflows error:", err);
+    return res.status(500).json({ success: false, message: "서버 오류" });
+  }
 };
 
-module.exports = { createWorkflow, getWorkflowById, getMyWorkflows };
+const updateWorkflow = async (req, res) => {
+  const { id } = req.params;
+  const { result_json } = req.body;
+  const user_id = req.user.id;
+
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT user_id FROM workflows WHERE id = ?', [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ success: false, message: '워크플로우를 찾을 수 없습니다.' });
+    if (rows[0].user_id !== user_id)
+      return res.status(403).json({ success: false, message: '수정 권한이 없습니다.' });
+
+    await db.promise().query(
+      'UPDATE workflows SET result_json = ? WHERE id = ?',
+      [JSON.stringify(result_json), id]
+    );
+
+    return res.status(200).json({ success: true, message: '워크플로우가 수정되었습니다.' });
+  } catch (err) {
+    console.error('updateWorkflow error:', err);
+    return res.status(500).json({ success: false, message: '서버 오류' });
+  }
+};
+
+const deleteWorkflow = async (req, res) => {
+  const { id } = req.params;
+  const user_id = req.user.id;
+
+  try {
+    // 본인 워크플로우인지 확인
+    const [rows] = await db.promise().query(
+      'SELECT user_id FROM workflows WHERE id = ?', [id]
+    );
+    if (rows.length === 0) return res.status(404).json({ success: false, message: '워크플로우를 찾을 수 없습니다.' });
+    if (rows[0].user_id !== user_id) return res.status(403).json({ success: false, message: '삭제 권한이 없습니다.' });
+
+    await db.promise().query('DELETE FROM workflows WHERE id = ?', [id]);
+
+    return res.status(200).json({ success: true, message: '워크플로우가 삭제되었습니다.' });
+  } catch (err) {
+    console.error('deleteWorkflow error:', err);
+    return res.status(500).json({ success: false, message: '서버 오류' });
+  }
+};
+
+module.exports = { createWorkflow, getWorkflowById, getMyWorkflows, deleteWorkflow, updateWorkflow};
