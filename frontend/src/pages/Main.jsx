@@ -7,7 +7,10 @@ import Swal from 'sweetalert2';
 import IntroPhysics from '../components/main/IntroPhysics';
 import '../styles/Main.css';
 import visStyles from '../styles/MainVisualizer.module.css';
-import heroImg from '../assets/images/main-hero2.png';
+import heroBg from '../assets/images/main-hero-bg.png';
+import heroH from '../assets/images/main-hero-h.png';
+import heroLb from '../assets/images/main-hero-lb.png';
+import heroRb from '../assets/images/main-hero-rb.png';
 import introImg1 from '../assets/images/intro2-1.png';
 import introImg2 from '../assets/images/intro2-2.png';
 import MainStep1Visualizer from '../components/main/MainStep1Visualizer';
@@ -33,9 +36,9 @@ export default function Main() {
     const [topPosts, setTopPosts] = useState([]);
     const sectionRefs = useRef([]);
 
-    // 메인 마운트 시 body에 snap-scroll 클래스 추가
+    // 메인 마운트 시 html에 snap-scroll 클래스 추가
     useEffect(() => {
-        document.documentElement.classList.add('snap-scroll'); // body → documentElement
+        document.documentElement.classList.add('snap-scroll');
         return () => document.documentElement.classList.remove('snap-scroll');
     }, []);
 
@@ -106,6 +109,12 @@ export default function Main() {
         }, duration);
         return () => clearTimeout(timer);
     }, [activeStep]);
+    // section 진입 시 step 리셋
+    useEffect(() => {
+        if (activeSection === 4) {
+            setActiveStep(1);
+        }
+    }, [activeSection]);
 
     // 커뮤니티 top3 가져오기
     useEffect(() => {
@@ -118,7 +127,6 @@ export default function Main() {
 
     return (
         <div className="main-wrapper">
-            {/* 섹션 인디케이터 -> dot 삭제*/}
             <div className="section-dots">
                 {SECTIONS.map((_, i) => (
                     <div
@@ -128,10 +136,9 @@ export default function Main() {
                     />
                 ))}
             </div>
-            {/* 페이지 TOP/DOWN : 함수 필요, 위치만 잡음 */}
             <div className="scrollNav">
-                <button onClick={scrollUp}>▲</button>
-                <button onClick={scrollDown}>▼</button>
+                <button onClick={scrollUp}>⬆</button>
+                <button onClick={scrollDown}>⬇</button>
             </div>
 
             {/* ── 1. Hero 히어로 ── */}
@@ -144,7 +151,10 @@ export default function Main() {
                     </h1>
                     <p className="hero-sub">나에게 꼭 맞는 워크플로우, AIssemble이 찾아드릴께요!</p>
                     <div className="hero-img">
-                        <img src={heroImg} alt="hero"></img>
+                        <img src={heroBg} alt="" className="hero-layer hero-layer-bg" />
+                        <img src={heroLb} alt="" className="hero-layer hero-layer-lb" />
+                        <img src={heroRb} alt="" className="hero-layer hero-layer-rb" />
+                        <img src={heroH} alt="" className="hero-layer hero-layer-h" />
                     </div>
                 </div>
                 <div className="scroll-hint">
@@ -186,13 +196,13 @@ export default function Main() {
                             <p>단계별로 가이드가 있으면 딱 좋을텐데!</p>
                         </div>
                         <div className="intro-img-left">
-                            <img src={introImg1} alt="intro-2-1" />
+                            <img src={introImg1} alt="intro2-1" />
                         </div>
                     </div>
                     {/* 오른쪽 덩어리 */}
                     <div className="intro-col-right">
                         <div className="intro-img-right">
-                            <img src={introImg2} alt="intro-2-2" />
+                            <img src={introImg2} alt="intro2-2" />
                         </div>
                         <div className="intro-card">
                             <h2>

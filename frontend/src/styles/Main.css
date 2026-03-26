@@ -81,24 +81,31 @@ html.snap-scroll .section-community {
 /* -- 스크롤 -- */
 .scrollNav {
     position: fixed;
-    right: 32px;
-    bottom: 0;
-    transform: translateY(-50%);
+    right: 24px;
+    bottom: 40px;
+    transform: none;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     z-index: 1000;
 }
 
 .scrollNav button {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background-color: #cbd5e1;
+    background-color: rgba(203, 213, 225, 0.7);
     border: none;
     cursor: pointer;
+    font-size: 10px;
+    color: #475569;
+    transition: background-color 0.2s;
 }
 
+.scrollNav button:hover {
+    background-color: #9c88ff;
+    color: white;
+}
 /* ── 히어로 ── */
 .section-hero {
     background: #fff;
@@ -117,26 +124,100 @@ html.snap-scroll .section-community {
     color: var(--text-primary);
     line-height: 1.25;
     text-align: center;
+    animation: heroFadeUp 0.8s ease forwards;
 }
 .hero-title-accent {
     color: var(--primary);
 }
 .hero-sub {
     font-size: 22px;
-    /* color: var(--text-secondary); */
     color: var(--color-text-secondary);
     line-height: 1.7;
     text-align: center;
+    animation: heroFadeUp 0.8s ease 0.3s forwards;
+    opacity: 0;
+}
+
+@keyframes heroFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 .hero-img {
+    position: relative;
+    max-width: 761px;
     display: flex;
-    width: 100%;
     justify-content: center;
-    align-items: center;
+    margin: 0 auto;
 }
-.hero-img image {
+
+.hero-layer {
     width: 100%;
     height: auto;
+}
+
+.hero-layer-lb,
+.hero-layer-rb,
+.hero-layer-h {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* 각각 다른 애니메이션 */
+.hero-layer-bg {
+    animation: float-slow 4s ease-in-out infinite;
+}
+.hero-layer-lb {
+    animation: float-left 3.5s ease-in-out infinite;
+}
+.hero-layer-rb {
+    animation: float-right 3s ease-in-out infinite;
+}
+.hero-layer-h {
+    animation: float-char 4.5s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+@keyframes float-left {
+    0%,
+    100% {
+        transform: translateY(0) rotate(-1deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+}
+@keyframes float-right {
+    0%,
+    100% {
+        transform: translateY(0) rotate(1deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(-1deg);
+    }
+}
+@keyframes float-char {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
 .scroll-hint {
     position: absolute;
@@ -267,6 +348,7 @@ html.snap-scroll .section-community {
 /* ── intro-2 ── */
 .section-intro-2 {
     background: #fff;
+    justify-content: center;
 }
 
 .intro-2-container {
@@ -313,6 +395,46 @@ html.snap-scroll .section-community {
     font-size: 22px;
     font-weight: 200;
     color: #fff;
+}
+/* 기본 상태 - 숨겨진 상태 */
+.section-intro-2 .intro-col-left .intro-card,
+.section-intro-2 .intro-img-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.section-intro-2 .intro-col-right .intro-card,
+.section-intro-2 .intro-img-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+/* in-view 진입 시 */
+.section-intro-2.in-view .intro-col-left .intro-card {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.1s;
+}
+.section-intro-2.in-view .intro-img-left {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.3s;
+}
+.section-intro-2.in-view .intro-col-right .intro-img-right {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.2s;
+}
+.section-intro-2.in-view .intro-col-right .intro-card {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.4s;
 }
 
 /* ── service ── */
@@ -395,6 +517,53 @@ html.snap-scroll .section-community {
     opacity: 1;
     transform: translateY(0);
     box-shadow: 0 8px 32px rgba(156, 136, 255, 0.15);
+}
+/* service - 애니메이션 */
+.section-service .service-header h2,
+.section-service .service-header p {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.section-service .service-header p {
+    transition-delay: 0.2s;
+}
+
+.section-service.in-view .service-header h2,
+.section-service.in-view .service-header p {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 카드들도 순차적으로 */
+.section-service .service-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.section-service.in-view .service-card:nth-child(1) {
+    transition-delay: 0.3s;
+}
+.section-service.in-view .service-card:nth-child(2) {
+    transition-delay: 0.5s;
+}
+.section-service.in-view .service-card:nth-child(3) {
+    transition-delay: 0.7s;
+}
+
+.section-service.in-view .service-card {
+    opacity: 0.4; /* active 아닌 카드는 0.4 유지 */
+    transform: translateY(0);
+}
+
+.section-service.in-view .service-card.active {
+    opacity: 1;
 }
 
 /* ── HOW IT WORKS ── */
@@ -606,6 +775,25 @@ html.snap-scroll .section-community {
 }
 .btn-primary:hover {
     background: var(--primary-hover);
+}
+/* 커뮤니티 진입 애니메이션 */
+.section-community .community-text,
+.section-community .community-illust {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.section-community .community-illust {
+    transition-delay: 0.2s;
+}
+
+.section-community.in-view .community-text,
+.section-community.in-view .community-illust {
+    opacity: 1;
+    transform: translateY(0);
 }
 /* 커뮤니티 카드영역 */
 .community-cards-text {

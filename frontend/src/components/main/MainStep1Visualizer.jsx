@@ -5,13 +5,13 @@ const MainStep1Visualizer = () => {
     return (
         <div className={`${styles['vis-mockup-wrapper']} ${styles['vis-step1-wrapper']}`}>
             <div className={styles['vis-workflow-container']}>
-                <div className={styles['wf-step1-section']} style={{padding: '0 20px'}}>
-                    <h2 className={styles['wf-step1-title']} style={{color: 'white'}}>
+                <div className={styles['wf-step1-section']}>
+                    <h2 className={styles['wf-step1-title']}>
                         어떤 분야의 워크플로우를
                         <br />
                         만들고 싶으신가요?
                     </h2>
-                    <p className={styles['wf-step1-desc']} style={{marginBottom: '30px'}}>
+                    <p className={styles['wf-step1-desc']}>
                         목적을 입력하거나 직군을 선택하면 최적의 AI 툴 조합을 추천해드릴게요
                     </p>
 
