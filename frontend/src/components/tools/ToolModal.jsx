@@ -14,17 +14,14 @@ const ToolModal = ({tool, onClose}) => {
     const cat = tool.categories?.[0];
     const catName = cat?.category_name || '';
     const desc = cat?.description || '';
-    const prosList = cat?.pros
-        ? String(cat.pros)
-              .split(',')
-              .map((s) => s.trim())
-        : [];
-    const consList = cat?.cons
-        ? String(cat.cons)
-              .split(',')
-              .map((s) => s.trim())
-        : [];
+    const prosList = cat?.pros || [];
+    const consList = cat?.cons || [];
     const catColor = CAT_COLORS[catName] || '#9c88ff';
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return null;
+        return new Date(dateStr).toLocaleDateString('ko-KR', {year: 'numeric', month: 'long', day: 'numeric'});
+    };
 
     const handleOverlayClick = (e) => {
         if (e.target === e.currentTarget) onClose();
@@ -33,7 +30,6 @@ const ToolModal = ({tool, onClose}) => {
     return (
         <div className="modal-overlay" onClick={handleOverlayClick}>
             <div className="modal">
-                {/* 헤더 */}
                 <div className="modal-header">
                     <div className="modal-thumb">
                         {tool.thumbnail ? (
@@ -47,7 +43,6 @@ const ToolModal = ({tool, onClose}) => {
                         )}
                     </div>
                     <div className="modal-title-wrap">
-                        <div className="modal-name">{tool.name}</div>
                         <div className="modal-badges">
                             <span className="badge" style={{background: `${catColor}18`, color: catColor}}>
                                 {catName}
@@ -58,16 +53,17 @@ const ToolModal = ({tool, onClose}) => {
                             <span className="badge badge-diff">{tool.difficulty}</span>
                             <span className="badge badge-rating">★ {tool.rating}</span>
                         </div>
+                        <div className="modal-name">{tool.name}</div>
                     </div>
                     <button className="modal-close" onClick={onClose}>
                         ✕
                     </button>
                 </div>
+                {/* last_updated 헤더 아래 중앙 */}
+                {tool.last_updated && <div className="modal-updated">{formatDate(tool.last_updated)} 업데이트</div>}
 
-                {/* 바디 */}
                 <div className="modal-body">
                     <p className="modal-desc">{desc}</p>
-
                     {prosList.length > 0 && (
                         <div className="modal-section">
                             <h4>장점</h4>
@@ -81,7 +77,6 @@ const ToolModal = ({tool, onClose}) => {
                             </div>
                         </div>
                     )}
-
                     {consList.length > 0 && (
                         <div className="modal-section">
                             <h4>단점</h4>
@@ -97,14 +92,10 @@ const ToolModal = ({tool, onClose}) => {
                     )}
                 </div>
 
-                {/* 푸터 */}
                 <div className="modal-footer">
                     <a className="modal-btn-primary" href={tool.url} target="_blank" rel="noreferrer">
                         공식 사이트 바로가기 →
                     </a>
-                    <button className="btn-outline" onClick={onClose}>
-                        닫기
-                    </button>
                 </div>
             </div>
         </div>

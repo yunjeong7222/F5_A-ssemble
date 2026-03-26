@@ -11,8 +11,13 @@ const CAT_COLORS = {
 const ToolCard = ({tool, showDescription = true, showDetail = true, onDetail}) => {
     const cat = tool.categories?.[0];
     const catName = cat?.category_name || '';
-    const desc = cat?.description || '';
+    const descShort = cat?.desc_short || '';
     const catColor = CAT_COLORS[catName] || '#9c88ff';
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return null;
+        return new Date(dateStr).toLocaleDateString('ko-KR', {year: 'numeric', month: 'short'});
+    };
 
     const handleClick = () => {
         if (showDetail && onDetail) onDetail(tool);
@@ -20,7 +25,18 @@ const ToolCard = ({tool, showDescription = true, showDetail = true, onDetail}) =
 
     return (
         <div className="tool-card" onClick={handleClick}>
-            {/* 상단: 썸네일 + 이름 + 뱃지 */}
+            {/* 뱃지 상단 */}
+            <div className="card-badges">
+                <span className="badge" style={{background: `${catColor}18`, color: catColor}}>
+                    {catName}
+                </span>
+                <span className={`badge ${tool.free_plan ? 'badge-free' : 'badge-paid'}`}>
+                    {tool.free_plan ? '무료' : '유료'}
+                </span>
+                <span className="badge badge-diff">{tool.difficulty}</span>
+            </div>
+
+            {/* 썸네일 + 이름 + desc + updated */}
             <div className="card-top">
                 {tool.thumbnail ? (
                     <img className="card-thumb" src={tool.thumbnail} alt={tool.name} />
@@ -29,22 +45,11 @@ const ToolCard = ({tool, showDescription = true, showDetail = true, onDetail}) =
                 )}
                 <div className="card-title-wrap">
                     <div className="card-name">{tool.name}</div>
-                    <div className="card-badges">
-                        <span className="badge" style={{background: `${catColor}18`, color: catColor}}>
-                            {catName}
-                        </span>
-                        <span className={`badge ${tool.free_plan ? 'badge-free' : 'badge-paid'}`}>
-                            {tool.free_plan ? '무료' : '유료'}
-                        </span>
-                        <span className="badge badge-diff">{tool.difficulty}</span>
-                    </div>
+                    {showDescription && <p className="card-desc">{descShort}</p>}
+                    {tool.last_updated && <div className="card-updated">{formatDate(tool.last_updated)} 업데이트</div>}
                 </div>
             </div>
 
-            {/* 설명 */}
-            {showDescription && <p className="card-desc">{desc}</p>}
-
-            {/* 하단: 평점 + 자세히 보기 */}
             <div className="card-bottom">
                 <div className="card-rating">
                     <span className="star">★</span>
