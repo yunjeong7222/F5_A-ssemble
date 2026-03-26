@@ -25,7 +25,7 @@
     /* 사이즈 */
     --max-width: 1440px;
     --content-width: 1200px;
-    --header-height: 64px;
+    --header-height: 55px;
 
     /* 라디우스 */
     --radius-sm: 8px;
@@ -76,4 +76,32 @@ body {
     max-width: var(--content-width);
     margin: 0 auto;
     padding: 0 var(--gap-lg); /* 패딩 없애는거 고려 */
+}
+
+
+
+/*  sweetalert2 관련 css */
+.swal-custom-title {
+  font-size: 15px !important;
+}
+.swal-custom-text {
+  font-size: 15px !important;
+}
+.swal-custom-icon {
+  width: 40px !important;
+  height: 40px !important;
+  margin: 12px auto 0 !important;
+}
+
+.swal-custom-icon .swal2-icon-content {
+  font-size: 24px !important;
+}
+
+.swal-custom-confirm {
+  font-size: 13px !important;
+  padding: 6px 20px !important;
+}
+.swal-custom-cancel {
+  font-size: 13px !important;
+  padding: 6px 20px !important;
 }

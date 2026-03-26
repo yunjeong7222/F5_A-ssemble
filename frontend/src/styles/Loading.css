@@ -1,0 +1,127 @@
+.gl-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 80%;
+}
+
+/* ── 스피너 ── */
+.gl-spinner-area {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  margin: 32px 0;
+}
+
+.gl-spinner {
+  width: 56px;
+  height: 56px;
+  border: 3px solid #ede9fe;
+  border-top: 3px solid #8b5cf6;
+  border-radius: 50%;
+  animation: glSpin 0.9s linear infinite;
+  position: relative;
+  z-index: 1;
+}
+
+/* 스피너 아래 부드러운 보라 광원 */
+.gl-spinner-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+  animation: glPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes glSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glPulse {
+  0%, 100% { transform: scale(1);   opacity: 0.6; }
+  50%       { transform: scale(1.5); opacity: 1;   }
+}
+
+/* ── 로딩 텍스트 ── */
+.gl-main-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 6px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.gl-sub-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin: 0;
+  text-align: center;
+}
+
+/* ── 구분선 ── */
+.gl-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 680px;
+  gap: 12px;
+  margin: 80px 0 24px;
+}
+
+.gl-divider::before,
+.gl-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.gl-divider-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* ── 가십 영역 ── */
+.gl-gossip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 680px;
+  width: 100%;
+  text-align: center;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.gl-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gl-fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.gl-gossip-tag {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #8b5cf6;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gl-gossip-text {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.7;
+  margin: 0;
+  word-break: keep-all;
+}

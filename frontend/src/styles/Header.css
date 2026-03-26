@@ -1,7 +1,7 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,8 +47,8 @@
   cursor: pointer;
   padding: 6px 14px;
   border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text-secondary);
   transition: color 0.15s, background 0.15s;
   white-space: nowrap;
@@ -111,12 +111,12 @@
 
 .btn--ghost {
   cursor: pointer;
-  padding: 8px 18px;
+  padding: 7px 13px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
+  border: 1.5px solid white;
   background: transparent;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 0.9em;
   font-weight: 500;
   transition: border-color 0.15s, color 0.15s;
   white-space: nowrap;
@@ -145,12 +145,64 @@
 }
 
 .header__nickname {
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-secondary);
-  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.header__nickname:hover {
+.header__profile-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.header__profile-placeholder {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.header__nickname-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+  font-weight: 500;
+}
+
+.header__nickname:hover .header__nickname-text {
   color: var(--primary);
+}
+
+/* 태블릿 반응형 (768px ~ 1024px) */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 20px;
+  }
+
+  .header__logout,
+  .header__login,
+  .header__start {
+    display: none;
+  }
+
+  .header__nickname-text {
+    display: none;
+  }
+}
+
+/* 모바일 (768px 이하) */
+@media (max-width: 768px) {
+  .header__nav {
+    display: none;
+  }
 }

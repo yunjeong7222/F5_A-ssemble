@@ -15,6 +15,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 32px;
+    position: relative;
 }
 .comm-page-title {
     font-size: 26px;
@@ -22,14 +23,18 @@
     color: var(--text-primary);
     letter-spacing: -0.5px;
     margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 .comm-header-actions {
     display: flex;
     gap: 8px;
+    margin-left: auto;
 }
 .comm-workflow-btn {
-    padding: 10px 18px;
-    font-size: 14px;
+    padding: 10px 15px;
+    font-size: 13px;
     font-family: 'Pretendard', sans-serif;
     font-weight: 600;
     background: transparent;
@@ -44,8 +49,8 @@
     color: var(--primary);
 }
 .comm-write-btn {
-    padding: 10px 18px;
-    font-size: 14px;
+    padding: 10px 15px;
+    font-size: 13px;
     font-family: 'Pretendard', sans-serif;
     font-weight: 700;
     background: var(--primary);
@@ -175,8 +180,8 @@
 }
 
 .comm-card {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
+    /* background: var(--surface); */
+    /* border: 1px solid var(--border); */
     border-radius: var(--radius-md);
     overflow: hidden;
     display: flex;
@@ -184,23 +189,26 @@
     cursor: pointer;
     text-decoration: none;
     color: inherit;
+    margin-bottom: 10px;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .comm-card:hover {
     border-color: var(--primary);
-    box-shadow: 0 4px 16px rgba(156, 136, 255, 0.12);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(197, 136, 255, 0.12);
+    transform: scale(1.01);
 }
 .comm-card-image {
     width: 100%;
-    aspect-ratio: 4/3;
+    border-radius: var(--radius-md);
+    aspect-ratio: 16/9;
     object-fit: cover;
+    /* object-position: top; */
     background: var(--surface-hover);
 }
 .comm-card-content {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
+    padding: 10px 12px 14px;
+    display: flex; 
+    flex-direction: row;
     gap: 10px;
     flex: 1;
 }
@@ -215,7 +223,7 @@
 }
 .comm-card-title {
     font-size: 15px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
     margin: 0;
     line-height: 1.5;
@@ -238,11 +246,14 @@
     border-radius: 999px;
 }
 .comm-card-footer {
+    color: var(--text-secondary);
+    font-size: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: auto;
-    padding-top: 8px;
+    margin-top: 2px;
+    /* padding-top: 5px; */
 }
 .comm-user-info {
     display: flex;
@@ -250,8 +261,8 @@
     gap: 6px;
 }
 .comm-user-avatar {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: rgba(156, 136, 255, 0.12);
     color: var(--primary);
@@ -262,8 +273,8 @@
     font-weight: 700;
 }
 .comm-user-name {
-    font-size: 13px;
-    color: var(--text-muted);
+    font-size: 12px;
+    color: var(--text-secondary);
 }
 .comm-stats-info {
     display: flex;
@@ -314,7 +325,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 16px 0 24px;
+    margin: 16px 0 20px;
     flex-wrap: wrap;
     gap: 12px;
 }
@@ -332,7 +343,7 @@
     margin-right: 8px;
 }
 .detail-meta-text {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-muted);
     margin-left: 8px;
 }
@@ -341,8 +352,8 @@
     gap: 8px;
 }
 .detail-like-btn {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 8px 12px;
+    font-size: 12px;
     font-family: 'Pretendard', sans-serif;
     font-weight: 600;
     background: transparent;
@@ -406,7 +417,7 @@
     overflow-x: auto;
     padding-bottom: 8px;
     scrollbar-width: none;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 .detail-flow-wrap::-webkit-scrollbar { display: none; }
 .detail-flow-badge {
@@ -550,9 +561,9 @@
 
 /* 댓글 */
 .detail-comments-section {
-    margin-top: 40px;
+    margin-top: 20px;
     border-top: 1.5px solid var(--border);
-    padding-top: 24px;
+    padding-top: 20px;
 }
 .detail-comment-wrap {
     display: flex;
@@ -617,7 +628,7 @@
 .write-container {
     max-width: 800px;
     width: 100%;
-    margin: 60px 0;
+    margin: 40px 0;
     padding: 0 24px;
     box-sizing: border-box;
     font-family: 'Pretendard', sans-serif;
@@ -628,8 +639,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
     border-bottom: 1.5px solid var(--border);
 }
 .write-title {
@@ -657,7 +668,7 @@
 
 /* 섹션 */
 .write-section {
-    margin-bottom: 36px;
+    margin-bottom: 20px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -668,7 +679,7 @@
     color: var(--text-muted);
     letter-spacing: 0.6px;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 /* 입력 */
@@ -775,31 +786,46 @@
     box-sizing: border-box;
     border: 1.5px solid var(--border);
     border-radius: var(--radius-md);
-    padding: 24px;
+    padding: 20px 24px;
     background: var(--surface);
 }
 .write-no-recipe {
     text-align: center;
-    padding: 40px 0;
+    padding: 20px 0;
 }
 .write-no-recipe-icon {
     font-size: 32px;
     color: var(--primary);
     opacity: 0.3;
-    margin-bottom: 14px;
+    margin-bottom: 9px;
 }
 .write-no-recipe-title {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 600;
     color: var(--text-primary);
-    margin: 0 0 8px;
+    margin: 0 0 6px;
 }
 .write-no-recipe-desc {
     font-size: 14px;
     color: var(--text-muted);
-    line-height: 1.6;
+    line-height: 1.5;
+}
+.write-no-recipe-btn {
+  margin-top: 12px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--primary);
+  background-color: var(--primary);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
+.write-no-recipe-btn:hover {
+  background-color: var(--primary-hover);
+}
 /* 워크플로우 목록 */
 .write-wf-header {
     display: flex;
@@ -856,6 +882,20 @@
 }
 
 /* 선택된 워크플로우 */
+.write-sel-animate {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .write-sel-header {
     display: flex;
     justify-content: space-between;
@@ -864,7 +904,7 @@
     border: 1.5px solid var(--primary);
     padding: 14px 16px;
     border-radius: var(--radius-sm);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 .write-sel-info {
     display: flex;
@@ -910,9 +950,37 @@
     text-decoration: underline;
 }
 
+.write-wf-cat-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.write-cat-tag {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: #94a3b8;
+  transition: all 0.15s ease;
+}
+
+.write-cat-tag:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.write-cat-tag.active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+}
 /* 카테고리 / 플로우 */
 .write-cat-section {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 .write-cat-title {
     font-size: 12px;
@@ -938,11 +1006,11 @@
 }
 
 .write-flow-section {
-    margin-bottom: 32px;
+    margin-bottom: 15px;
 }
 .write-flow-wrap {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 14px;
     overflow-x: auto;
     padding-bottom: 8px;
@@ -970,13 +1038,18 @@
     color: var(--text-primary);
 }
 .write-flow-name {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
     font-weight: 600;
+    width: 56px;
+    text-align: center;
+    word-break: keep-all;
+    white-space: normal;
+    line-height: 1.4;
 }
 .write-flow-arrow {
     color: var(--text-muted);
-    padding-bottom: 20px;
+    padding: 20px 0;
     font-size: 14px;
     flex-shrink: 0;
 }
@@ -984,14 +1057,14 @@
 /* 프롬프트 */
 .write-prompt-area {
     border-top: 1.5px solid var(--border);
-    padding-top: 24px;
+    /* padding-top: 12px; */
 }
 .write-prompt-card {
     background: var(--bg);
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 20px;
-    margin-bottom: 12px;
+    padding: 14px 20px;
+    margin-bottom: 10px;
     transition: border-color 0.15s;
 }
 .write-prompt-card:hover {
@@ -1023,7 +1096,7 @@
 }
 .write-prompt-tool {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
 }
 .write-prompt-cat {
@@ -1033,7 +1106,8 @@
 .write-prompt-desc {
     font-size: 13px;
     color: var(--text-secondary);
-    margin: 0 0 12px;
+    margin: 0 0 10px;
+    padding: 0 5px;
     line-height: 1.5;
 }
 .write-textarea-prompt {
@@ -1044,8 +1118,8 @@
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--text-secondary);
-    font-family: monospace;
-    font-size: 13px;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    font-size: 14px;
     min-height: 80px;
     resize: vertical;
     outline: none;
@@ -1057,12 +1131,12 @@
 .write-textarea-desc {
     width: 100%;
     box-sizing: border-box;
-    padding: 14px 16px;
+    padding: 14px 20px;
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
-    font-family: 'Pretendard', sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
     font-size: 14px;
     min-height: 180px;
     line-height: 1.7;
@@ -1081,10 +1155,10 @@
     gap: 10px;
     padding-top: 20px;
     border-top: 1.5px solid var(--border);
-    margin-top: 40px;
+    margin-top: 20px;
 }
 .write-btn-cancel {
-    padding: 12px 24px;
+    padding: 10px 18px;
     font-size: 14px;
     font-family: 'Pretendard', sans-serif;
     font-weight: 600;
@@ -1096,14 +1170,14 @@
     transition: all 0.15s;
 }
 .write-btn-cancel:hover {
-    border-color: var(--text-primary);
-    color: var(--text-primary);
+    border-color: var(--primary);
+    color: var(--primary);
 }
 .write-btn-submit {
-    padding: 12px 28px;
+    padding: 10px 22px;
     font-size: 14px;
     font-family: 'Pretendard', sans-serif;
-    font-weight: 700;
+    font-weight: 600;
     background: var(--primary);
     color: #fff;
     border: none;
@@ -1155,8 +1229,8 @@
 .comm-list-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 18px;
+  padding: 10px 20px;
   border-radius: 12px;
   border: 1.5px solid var(--border);
   background: var(--surface);
@@ -1170,9 +1244,10 @@
 }
 
 .comm-list-thumbnail {
-  width: 80px;
+  width: 110px;
   height: 60px;
   object-fit: cover;
+  object-position: top; 
   border-radius: 8px;
   flex-shrink: 0;
 }
@@ -1181,7 +1256,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  /* gap: 5px; */
   min-width: 0;
 }
 
@@ -1214,4 +1289,83 @@
 
 .comm-like-btn.liked {
   color: #ef4444;
+}
+
+
+/* ================================================
+   Community 페이지 — 태블릿 반응형 (max-width: 1024px)
+   기존 Community.css 하단에 @import 또는 직접 추가
+   ================================================ */
+
+@media (max-width: 1024px) {
+
+    /* ── 페이지 여백 ── */
+    .comm-container {
+        padding: 28px 20px;
+    }
+
+    /* ── 헤더: 내 워크플로우 버튼 숨기기 ── */
+    .comm-workflow-btn {
+        display: none;
+    }
+
+    /* ── 카테고리 탭: 2줄 허용 + 글씨 축소 ── */
+    .comm-category-nav {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        border-bottom: none;
+        position: relative;
+        gap: 0;
+    }
+    .comm-category-nav::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1.5px;
+        background: var(--border);
+    }
+    .comm-category-tab {
+        font-size: 12px;
+        padding: 7px 12px;
+        white-space: nowrap;
+    }
+
+    /* ── 뷰 토글 버튼 (카드형/리스트형) 숨기기 ── */
+    .comm-view-toggle {
+        display: none;
+    }
+
+    /* ── 카드 그리드: 3열 → 2열 ── */
+    .comm-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* ── 카드 콘텐츠 패딩 축소 ── */
+    .comm-card-content {
+        padding: 10px 10px 12px;
+        gap: 8px;
+    }
+    .comm-card-title {
+        font-size: 14px;
+    }
+    .comm-category-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+    .comm-user-name,
+    .comm-stat-item {
+        font-size: 12px;
+    }
+
+    /* ── 필터/정렬 바 간격 축소 ── */
+    .comm-grid-header {
+        margin-bottom: 16px;
+    }
+    .comm-filter-btn,
+    .comm-sort-btn {
+        font-size: 12px;
+        padding: 5px 12px;
+    }
 }

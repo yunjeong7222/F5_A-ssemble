@@ -22,7 +22,7 @@
 .mypage-wrapper {
     max-width: 900px;
     margin: 0 auto;
-    padding: 30px 24px;
+    padding: 40px 24px;
     min-height: calc(100vh - var(--header-height));
     font-family: 'Pretendard', sans-serif;
     animation: mp-fadeIn 0.5s ease;
@@ -40,7 +40,7 @@
     background: var(--bg);
     border: 1.5px solid var(--border);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .mypage-profile-left {
@@ -94,11 +94,19 @@
 }
 
 .mypage-avatar-edit-label {
-    font-size: 10px;
+    font-size: 15px;
     color: #fff;
     font-weight: 700;
     font-family: 'Pretendard', sans-serif;
     letter-spacing: 0.4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 
@@ -328,7 +336,7 @@
 /* ── 워크플로우 카드 (Tools.css tool-card 패턴과 동일) ── */
 
 .mypage-workflow-card {
-    padding: 15px 24px;
+    padding: 10px 24px;
     border-radius: var(--radius-md);
     border: 1.5px solid var(--border);
     background: var(--surface);
@@ -339,6 +347,7 @@
 }
 .mypage-post-card {
     /* padding: 15px; */
+    height : 100px;
     border-radius: var(--radius-md);
     border: 1.5px solid var(--border);
     background: var(--surface);
@@ -358,7 +367,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* margin-bottom: 20px; */
+    margin-bottom: 8px;
 }
 
 .mypage-workflow-label {
@@ -393,11 +402,11 @@
 
 .mypage-workflow-tools {
     display: flex;
-    align-items: center;
+    align-items:first baseline;
     gap: 16px;
     overflow-x: auto;
     scrollbar-width: none;
-    padding-bottom: 2px;
+    padding: 2px 0;
 }
 
 .mypage-workflow-tools::-webkit-scrollbar {
@@ -435,9 +444,14 @@
 
 .mypage-tool-name {
     margin: 0;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);
+    width: 56px;
+    text-align: center;
+    word-break: keep-all;
+    white-space: normal;
+    line-height: 1.4;
 }
 
 .mypage-tool-arrow {
@@ -464,11 +478,11 @@
     font-weight: 800;
     color: var(--text-primary);
     letter-spacing: -0.3px;
-    margin: 0 0 28px;
+    margin: 0 0 20px;
 }
 
 .profile-form-group {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
     text-align: left;
 }
 
@@ -527,7 +541,7 @@
     padding: 14px 16px;
     border-radius: var(--radius-md);
     border: 1.5px solid var(--border);
-    height: 90px;
+    height: 70px;
     resize: none;
     outline: none;
     box-sizing: border-box;
@@ -545,7 +559,7 @@
 /* Tools.css modal-btn-primary 패턴과 동일 */
 .profile-submit-btn {
     width: 100%;
-    padding: 14px;
+    padding: 12px;
     border-radius: var(--radius-md);
     border: none;
     background: var(--primary);
@@ -641,11 +655,11 @@
 }
 
 .password-form-group {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .password-form-group--last {
-    margin-bottom: 32px;
+    margin-bottom: 26px;
 }
 
 .password-label {

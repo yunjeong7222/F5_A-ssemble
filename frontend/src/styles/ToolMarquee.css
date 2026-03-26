@@ -65,3 +65,31 @@
     font-size: 22px;
     font-weight: 700;
 }
+
+
+
+/* ================================================
+   ToolMarquee — 태블릿 반응형 (max-width: 1024px)
+   기존 ToolMarquee.css에 이 파일을 import해서 사용
+   ================================================ */
+ 
+@media (max-width: 1024px) {
+ 
+    /* 마퀴 카드 크기 축소 */
+    .marquee-card {
+        width: 52px;
+        height: 52px;
+    }
+ 
+    /* 카드 간격 살짝 축소 */
+    .marquee-track {
+        gap: 10px;
+        padding: 20px 0;
+    }
+ 
+    /* 플레이스홀더 폰트 축소 */
+    .marquee-thumb-placeholder {
+        font-size: 18px;
+    }
+}
+ 
