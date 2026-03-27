@@ -97,8 +97,8 @@
 
 .wf-step1-badge {
     color: #8b5cf6;
-    font-size: 1rem;
-    font-weight: 800;
+    font-size: 1.3rem;
+    font-weight: 700;
     margin-bottom: 16px;
     letter-spacing: 0.05em;
 }
@@ -253,6 +253,14 @@
    STEP 2: 버튼 영역
    ========================================= */
 
+.wf-step2-section {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    /* padding-top: 40px; */
+    /* padding-bottom: 80px; */
+    animation: slideUp 0.8s ease;
+}
 .wf-step2-title {
     font-size: 28px;
     color: #0f172a;
@@ -313,7 +321,7 @@
     animation: slideUp 0.8s ease;
 }
 .ts-category-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 20px;
@@ -324,7 +332,7 @@
 .ts-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
+    gap: 15px;
     width: 90%;
     align-items: center;
     margin: 0 auto;
@@ -546,7 +554,7 @@
     justify-content: flex-start;
     gap: 8px;
     margin: 20px 0;
-    padding: 24px 30px;
+    padding: 20px 30px;
     background-color: #f8fafc;
     border-radius: 16px;
     border: 1px solid var(--primary);

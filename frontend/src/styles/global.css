@@ -84,6 +84,16 @@ body.snap-scroll {
     height: 100%;
 }
 
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+}
+
 /* 공통 레이아웃 */
 .container {
     max-width: var(--content-width);
@@ -91,11 +101,14 @@ body.snap-scroll {
 }
 
 /*  sweetalert2 관련 css */
+.swal2-html-container {
+    font-size: 16px !important;
+}
 .swal-custom-title {
-    font-size: 15px !important;
+    font-size: 16px !important;
 }
 .swal-custom-text {
-    font-size: 15px !important;
+    font-size: 16px !important;
 }
 .swal-custom-icon {
     width: 40px !important;
@@ -114,32 +127,4 @@ body.snap-scroll {
 .swal-custom-cancel {
     font-size: 13px !important;
     padding: 6px 20px !important;
-}
-
-
-
-/*  sweetalert2 관련 css */
-.swal-custom-title {
-  font-size: 15px !important;
-}
-.swal-custom-text {
-  font-size: 15px !important;
-}
-.swal-custom-icon {
-  width: 40px !important;
-  height: 40px !important;
-  margin: 12px auto 0 !important;
-}
-
-.swal-custom-icon .swal2-icon-content {
-  font-size: 24px !important;
-}
-
-.swal-custom-confirm {
-  font-size: 13px !important;
-  padding: 6px 20px !important;
-}
-.swal-custom-cancel {
-  font-size: 13px !important;
-  padding: 6px 20px !important;
 }

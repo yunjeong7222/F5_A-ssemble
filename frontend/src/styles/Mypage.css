@@ -380,9 +380,9 @@
 
 .mypage-workflow-delete-btn {
     padding: 5px 14px;
-    background: var(--bg);
+    background: var(--surface);
     color: var(--text-secondary);
-    border: 1.5px solid var(--bg);
+    border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     font-weight: 600;
     font-size: 12px;

@@ -34,7 +34,7 @@
 /* 로그인은 좀 더 단순한 레이아웃 */
 .auth-page--login {
     max-width: 400px;
-    margin: 100px auto;
+    margin: 140px auto;
     padding: 30px;
     text-align: center;
     background: transparent;
@@ -44,9 +44,9 @@
 
 .auth-page-title {
     text-align: center;
-    margin: 0 0 28px;
-    font-size: 22px;
-    font-weight: 800;
+    margin: 0 0 18px;
+    font-size: 28px;
+    font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.3px;
 }
@@ -77,7 +77,7 @@
 /* 기본 input */
 .auth-input {
     width: 100%;
-    padding: 13px 16px;
+    padding: 12px 14px;
     border-radius: var(--radius-sm);
     border: 1.5px solid var(--border);
     box-sizing: border-box;
@@ -120,7 +120,7 @@
 /* 에러 메시지 고정 영역 (레이아웃 밀림 방지) */
 .auth-error-area {
     min-height: 24px;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
     text-align: left;
 }
 
@@ -128,7 +128,7 @@
     color: #ef4444;
     font-size: 13px;
     margin: 0;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 
@@ -139,7 +139,7 @@
 /* 주요 액션 버튼 (Tools.css modal-btn-primary 패턴) */
 .auth-btn-primary {
     width: 100%;
-    padding: 15px;
+    padding: 12px;
     border-radius: var(--radius-md);
     border: none;
     background: var(--primary);
@@ -376,14 +376,14 @@
 .login-forgot-row {
     text-align: right;
     margin-top: 4px;
-    margin-bottom: 10px;
+    /* margin-bottom: 8px; */
 }
 
 .login-forgot-link {
     font-size: 13px;
     color: var(--primary);
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 600;
     font-family: 'Pretendard', sans-serif;
     background: none;
     border: none;
