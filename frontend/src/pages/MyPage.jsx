@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { updateProfile, getMe } from '../api/users';
+import { getMyBookmarks } from '../api/workflowBookmarks'; 
 import supabase from '../config/supabase';
 import useAuthStore from '../store/authStore';
 import ProfileSection from '../components/user/ProfileSection';
@@ -28,7 +29,7 @@ export default function MyPage() {
       }
     };
     fetchUser();
-  }, []);
+  }, [updateUser]);
 
   useEffect(() => {
     const fetchWorkflowData = async () => {
@@ -61,6 +62,18 @@ export default function MyPage() {
     fetchMyPosts();
   }, []);
 
+  useEffect(() => {
+  const fetchBookmarks = async () => {
+    try {
+      const res = await getMyBookmarks();
+      setBookmarkedWorkflows(res.data.data || []);
+    } catch (err) {
+      console.error('북마크 불러오기 실패:', err);
+    }
+  };
+  fetchBookmarks();
+  }, []);
+
   const handleImageClick = () => {
     if (fileInputRef.current) fileInputRef.current.click();
   };
@@ -89,7 +102,7 @@ export default function MyPage() {
 
       if (res.status === 200 || res.status === 201 || res.data?.success) {
         updateUser({ profile_url: newProfileUrl });
-        alert('프로필 사진이 성공적으로 저장되었습니다! 😎');
+        alert('프로필 사진이 성공적으로 저장되었습니다!');
       }
     } catch (err) {
       console.error('사진 업로드 중 발생한 에러:', err);
@@ -193,11 +206,16 @@ export default function MyPage() {
       <div className="mypage-content-box">
         {activeTab === 'profile'  && <ProfileSection user={{ ...user, profile_url: user?.profile_url || 'https://placehold.co/32' }} />}
         {activeTab === 'password' && <PasswordSection />}
-        {activeTab === 'account'  && <AccountSection />}
+        {activeTab === 'account'  && <AccountSection 
+          workflowCount={myWorkflows.length}
+          bookmarkCount={bookmarkedWorkflows.length}
+        />}
         {activeTab === 'workflows' && (
           <WorkflowSection
             myWorkflows={myWorkflows}
             setMyWorkflows={setMyWorkflows}
+            bookmarkedWorkflows={bookmarkedWorkflows}
+            setBookmarkedWorkflows={setBookmarkedWorkflows}
             myPosts={myPosts}
             setMyPosts={setMyPosts}
           />

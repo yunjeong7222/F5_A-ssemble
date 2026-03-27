@@ -3,7 +3,7 @@ import { deleteAccount } from '../../api/users';
 import useAuthStore from '../../store/authStore';
 import '../../styles/mypage.css';
 
-export default function AccountSection() {
+export default function AccountSection({ workflowCount = 0, bookmarkCount = 0 }) {
   const { user, logout } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [password, setPassword] = useState('');
@@ -43,12 +43,11 @@ export default function AccountSection() {
 
       {/* 1. 탈퇴 전 확인 박스 */}
       <div className="account-info-box">
-        <h3>📋 탈퇴 전 확인해주세요</h3>
+        <h3>탈퇴 전 확인해주세요</h3>
         <ul className="account-info-list">
-          <li>✍️ 작성한 레시피 {user?.recipe_count || 0}개가 모두 삭제돼요</li>
-          <li>📌 북마크한 {user?.bookmark_count || 0}개 레시피 목록이 사라져요</li>
-          <li>💬 작성한 댓글과 평점이 모두 삭제돼요</li>
-          <li>🔄 탈퇴 후 30일 내에 재가입 시 복구 가능해요</li>
+          <li>✅ 작성한 워크플로우 {workflowCount}개가 모두 삭제돼요</li>
+          <li>✅ 북마크한 {bookmarkCount}개 워크플로우 목록이 사라져요</li>
+          <li>✅ 작성한 댓글과 평점이 모두 삭제돼요</li>
         </ul>
       </div>
 
@@ -70,11 +69,6 @@ export default function AccountSection() {
       {isModalOpen && (
         <div className="account-modal-overlay">
           <div className="account-modal-content">
-
-            <div className="account-modal-icon-circle">
-              <span>🗑️</span>
-            </div>
-
             <h3 className="account-modal-title">정말 우리를 떠나시나요?</h3>
 
             <div className="account-modal-desc-wrapper">

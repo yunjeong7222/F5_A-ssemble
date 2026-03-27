@@ -325,7 +325,7 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows, myPosts, setMyPosts }) =
           {wf.tags?.length > 0 && (
             <div style={{ display: 'flex', gap: '7px', flexWrap: 'wrap', marginBottom: '12px' }}>
               {wf.tags.map(tag => (
-                <span key={tag} style={{ fontSize: '11px', fontWeight: '700', background: '#ede9fe', color: '#6d28d9', padding: '3px 10px', borderRadius: '20px' }}>
+                <span key={tag} style={{ fontSize: '11px', fontWeight: '600', background: '#ede9fe', color: '#7b40db', padding: '3px 10px', borderRadius: '20px' }}>
                   {tag}
                 </span>
               ))}
@@ -360,20 +360,20 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows, myPosts, setMyPosts }) =
             key={post.id}
             className="mypage-post-card"
             onClick={() => navigate(`/community/${post.id}`)}
-            style={{ cursor: 'pointer', display: 'flex', gap: '15px', alignItems: 'center' }}
+            style={{ cursor: 'pointer', display: 'flex', gap: '20px', alignItems: 'center' }}
         >
             {post.thumbnail_url && (
             <img
                 src={post.thumbnail_url}
                 alt={post.title}
-                style={{ width: '200px', height: '100px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
+                style={{ width: '140px', height: '80px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
             />
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-            <strong style={{ display: 'block', fontSize: '14px', color: '#1e293b', marginBottom: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <strong style={{ display: 'block', fontSize: '15px', color: '#1e293b', marginBottom: '7px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {post.title}
             </strong>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#94a3b8' }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />

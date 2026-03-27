@@ -105,6 +105,7 @@ const CommunityDetail = () => {
         await removeBookmark(post.workflow_id);
       } else {
         await addBookmark(post.workflow_id);
+        alert('워크플로우를 북마크 했습니다.');
       }
       setIsBookmarked(prev => !prev);
     } catch (err) {
@@ -157,23 +158,14 @@ const CommunityDetail = () => {
 
       {/* ── 1. 헤더 ── */}
       <header>
-        {workflow?.categories?.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-            {workflow.categories.map(cat => (
-              <span key={cat} className="comm-category-badge">
-                {cat}
-              </span>
-            ))}
-          </div>
-        )}
-        <h2>{post.title}</h2>
+        <p className="detail-header-title">{post.title}</p>
         <div className="detail-header-info">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {post.profile_url ? (
               <img
                 src={post.profile_url}
                 alt={post.nickname}
-                style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover'}}
+                style={{ width: 35, height: 35, borderRadius: '50%', objectFit: 'cover'}}
               />
             ) : (
               <span className="detail-avatar-user">
@@ -184,25 +176,16 @@ const CommunityDetail = () => {
             <span className="detail-meta-text">
               {new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count}
             </span>
-          </div>
-          <div className="detail-header-btns">
-            <button
-              className={`detail-like-btn${isLiked ? ' detail-like-btn--active' : ''}`}
-              onClick={handleLikeToggle}
-            >
-              {isLiked ? '❤️' : '🤍'} 좋아요 {likeCount}
-            </button>
-
             {user?.id === post.user_id && (
               <>
                 <button
-                  className="detail-like-btn"
+                  className="detail-btn"
                   onClick={() => navigate(`/community/edit/${post.id}`)}
                 >
                   수정
                 </button>
                 <button
-                  className="detail-like-btn"
+                  className="detail-btn"
                   onClick={async () => {
                     const result = await Alert.fire({
                       icon: 'warning',
@@ -221,14 +204,41 @@ const CommunityDetail = () => {
                 </button>
               </>
             )}
-            {post.workflow_id && post.user_id !== user?.id && (
-              <button
-                onClick={handleBookmarkToggle}
-                className={`detail-like-btn${isBookmarked ? ' detail-like-btn--active' : ''}`}
+          </div>
+          <div className="detail-header-btns">
+            <button
+              className={`detail-like-btn${isLiked ? ' detail-like-btn--active' : ''}`}
+              onClick={handleLikeToggle}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24"
+                fill={isLiked ? '#ef4444' : 'none'}
+                stroke="#ef4444"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                {isBookmarked ? '🔖' : '📄'} {isBookmarked ? '저장됨' : '워크플로우 저장'}
-              </button>
-            )}
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              {likeCount}
+            </button>
+
+            
+            {post.workflow_id && post.user_id !== user?.id && (
+            <button
+              onClick={handleBookmarkToggle}
+              className={`detail-bookmark-btn${isBookmarked ? ' detail-bookmark-btn--active' : ''}`}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24"
+                fill={isBookmarked ? 'var(--primary)' : 'none'}
+                stroke="var(--primary)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+              </svg>
+            </button>
+          )}
           </div>
         </div>
       </header>
@@ -283,7 +293,7 @@ const CommunityDetail = () => {
           {/* 단계별 프롬프트 */}
           {workflow.steps.length > 0 && (
             <div className="write-prompt-area">
-              <h5 className="write-cat-title" style={{ marginBottom: 20 }}>단계별 프롬프트</h5>
+              <h5 className="write-cat-title">단계별 프롬프트</h5>
               {workflow.steps.map(step => (
                 <div key={step.step} className="detail-step-card">
                   <div className="detail-step-header">
@@ -340,7 +350,18 @@ const CommunityDetail = () => {
         </section>
       )}
 
-      {/* ── 5. 댓글 ── */}
+      {/* ── 5. 태그 ── */}
+      {workflow?.categories?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '18px 0' }}>
+            {workflow.categories.map(cat => (
+              <span key={cat} className="comm-category-badge">
+                # {cat}
+              </span>
+            ))}
+          </div>
+        )}
+
+      {/* ── 6. 댓글 ── */}
       <CommentList postId={id} />
 
     </div>

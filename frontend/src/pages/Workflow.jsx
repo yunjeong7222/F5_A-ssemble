@@ -107,7 +107,7 @@ const Workflow = () => {
             />
           ) : (
             <>
-              <h2 className="wf-step2-title">"{purpose}"</h2>
+              <p className="wf-step2-title">"{purpose}"</p>
               <p style={{fontSize:20, fontWeight:400}}>단계별로 툴을 하나씩 선택해 나만의 워크플로우를 만들어보세요.</p> 
               
               <ToolSelector />

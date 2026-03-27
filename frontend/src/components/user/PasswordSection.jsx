@@ -31,8 +31,8 @@ export default function PasswordSection() {
   const getLevelText = () => {
     switch (passwordLevel) {
       case 'weak':   return '비밀번호가 짧음 (8자 이상)';
-      case 'medium': return '보안 수준: 보통';
-      case 'strong': return '보안 수준: 안전함';
+      case 'medium': return '보안 수준 : 보통';
+      case 'strong': return '보안 수준 : 안전함';
       default:       return '';
     }
   };

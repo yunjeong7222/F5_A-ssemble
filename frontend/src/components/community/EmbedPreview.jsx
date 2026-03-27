@@ -18,16 +18,27 @@ const EmbedPreview = ({ attachments = [] }) => {
   }
 
   if (media.type === 'image') {
-    return (
-      <div className="detail-hero-box">
-        <img
-          src={media.url}
-          alt="결과물 이미지"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-md)' }}
-        />
-      </div>
-    );
-  }
+  return (
+    <div className="detail-hero-box">
+      <img
+        src={media.url}
+        alt="결과물 이미지"
+        style={{ width: '100%', height: '100%', borderRadius: 'var(--radius-md)' }}
+        onLoad={(e) => {
+          const img = e.target;
+          const ratio = img.naturalWidth / img.naturalHeight;
+          if (ratio < 1) {
+            // 세로 이미지 — 여백 있어도 전체 보여줌
+            img.style.objectFit = 'contain';
+          } else {
+            // 가로 이미지 — 꽉 채움
+            img.style.objectFit = 'cover';
+          }
+        }}
+      />
+    </div>
+  );
+}
 
   if (media.type === 'video') {
     return (
@@ -45,13 +56,13 @@ const EmbedPreview = ({ attachments = [] }) => {
     const videoId = getYoutubeId(media.url);
     if (!videoId) return null;
     return (
-      <div className="detail-hero-box" style={{ aspectRatio: '16/9', padding: 0 }}>
+      <div className="detail-hero-box" >
         <iframe
           src={`https://www.youtube.com/embed/${videoId}`}
           style={{ width: '100%', height: '100%', border: 'none', borderRadius: 'var(--radius-md)' }}
           allowFullScreen
         />
-      </div>
+    </div>
     );
   }
 

@@ -3,6 +3,8 @@ import { getComments, createComment, createReply, updateComment, deleteComment }
 import useAuthStore from '../../store/authStore';
 import '../../styles/Comments.css';
 
+/* ── 컴포넌트 외부 선언 (리렌더 시 재마운트 방지) ── */
+
 const Avatar = ({ url, nickname, className }) => {
   if (url) {
     return <img src={url} alt={nickname} className={className} style={{ objectFit: 'cover' }} />;
@@ -10,13 +12,49 @@ const Avatar = ({ url, nickname, className }) => {
   return <div className={className}>{(nickname || 'U').charAt(0).toUpperCase()}</div>;
 };
 
+const ActionButtons = ({ comment, user, onEditStart, onDelete }) =>
+  user?.id === comment.user_id ? (
+    <div style={{ display: 'flex', gap: 6 }}>
+      <button className="detail-comment-action-btn" onClick={() => onEditStart(comment)}>수정</button>
+      <button
+        className="detail-comment-action-btn detail-comment-action-btn--delete"
+        onClick={() => onDelete(comment.id)}
+      >
+        삭제
+      </button>
+    </div>
+  ) : null;
+
+const EditInput = ({ commentId, editText, setEditText, onSave, onCancel, isChanged }) => (
+  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+    <input
+      className="detail-comment-input"
+      value={editText}
+      onChange={(e) => setEditText(e.target.value)}
+      onKeyDown={(e) => { if (e.key === 'Enter' && isChanged) onSave(commentId); }}
+      autoFocus
+    />
+    <button className="detail-comment-submit" onClick={() => onSave(commentId)} disabled={!isChanged}>저장</button>
+    <button
+      className="detail-comment-submit"
+      style={{ background: 'var(--surface)', color: 'var(--text-secondary)', border: '1.5px solid var(--border)' }}
+      onClick={onCancel}
+    >
+      취소
+    </button>
+  </div>
+);
+
+/* ── 메인 컴포넌트 ── */
+
 const CommentList = ({ postId }) => {
   const { user } = useAuthStore();
   const [comments, setComments]     = useState([]);
   const [newComment, setNewComment] = useState('');
-  const [editingId, setEditingId]   = useState(null);
-  const [editText, setEditText]     = useState('');
-  const [replyingId, setReplyingId] = useState(null);  // 답글 입력창 열린 댓글 id
+  const [editingId, setEditingId]       = useState(null);
+  const [editText, setEditText]         = useState('');
+  const [editOriginalText, setEditOriginalText] = useState('');
+  const [replyingId, setReplyingId] = useState(null);
   const [replyText, setReplyText]   = useState('');
   const [isLoading, setIsLoading]   = useState(false);
 
@@ -34,7 +72,6 @@ const CommentList = ({ postId }) => {
     loadComments();
   }, [postId]);
 
-  // 댓글 등록
   const handleSubmit = async () => {
     if (!newComment.trim()) return;
     setIsLoading(true);
@@ -49,7 +86,6 @@ const CommentList = ({ postId }) => {
     }
   };
 
-  // 답글 등록
   const handleReplySubmit = async (commentId) => {
     if (!replyText.trim()) return;
     try {
@@ -62,13 +98,12 @@ const CommentList = ({ postId }) => {
     }
   };
 
-  // 수정 시작
   const handleEditStart = (comment) => {
     setEditingId(comment.id);
     setEditText(comment.content);
+    setEditOriginalText(comment.content);
   };
 
-  // 수정 저장
   const handleEditSave = async (commentId) => {
     if (!editText.trim()) return;
     try {
@@ -90,7 +125,6 @@ const CommentList = ({ postId }) => {
     }
   };
 
-  // 삭제
   const handleDelete = async (commentId) => {
     if (!window.confirm('댓글을 삭제할까요?')) return;
     try {
@@ -101,42 +135,8 @@ const CommentList = ({ postId }) => {
     }
   };
 
-  // 댓글/대댓글 공통 액션 버튼
-  const ActionButtons = ({ comment }) => (
-    user?.id === comment.user_id && (
-      <div style={{ display: 'flex', gap: 6 }}>
-        <button className="detail-comment-action-btn" onClick={() => handleEditStart(comment)}>수정</button>
-        <button
-          className="detail-comment-action-btn detail-comment-action-btn--delete"
-          onClick={() => handleDelete(comment.id)}
-        >
-          삭제
-        </button>
-      </div>
-    )
-  );
-
-  // 수정 인풋
-  const EditInput = ({ commentId }) => (
-    <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-      <input
-        className="detail-comment-input"
-        value={editText}
-        onChange={(e) => setEditText(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter') handleEditSave(commentId); }}
-      />
-      <button className="detail-comment-submit" onClick={() => handleEditSave(commentId)}>저장</button>
-      <button
-        className="detail-comment-submit"
-        style={{ background: 'var(--surface)', color: 'var(--text-secondary)', border: '1.5px solid var(--border)' }}
-        onClick={() => setEditingId(null)}
-      >
-        취소
-      </button>
-    </div>
-  );
-
   const totalCount = comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0);
+  const isChanged = editText.trim() !== editOriginalText.trim() && editText.trim() !== '';
 
   return (
     <section className="detail-comments-section">
@@ -147,7 +147,7 @@ const CommentList = ({ postId }) => {
         <Avatar url={user?.profile_url} nickname={user?.nickname} className="detail-comment-avatar" />
         <input
           type="text"
-          placeholder={user ? '댓글을 입력하세요...' : '로그인 후 댓글을 남길 수 있습니다.'}
+          placeholder={user ? '댓글을 입력하세요' : '로그인 후 댓글을 남길 수 있습니다.'}
           className="detail-comment-input"
           value={newComment}
           disabled={!user}
@@ -166,7 +166,7 @@ const CommentList = ({ postId }) => {
       {[...comments].reverse().map(comment => (
         <div key={comment.id} className="detail-comment-item">
 
-          {/* ── 부모 댓글 ── */}
+          {/* 부모 댓글 */}
           <div className="detail-comment-header">
             <div className="comm-user-info">
               <Avatar url={comment.profile_url} nickname={comment.nickname} className="comm-user-avatar" />
@@ -175,13 +175,26 @@ const CommentList = ({ postId }) => {
                 {new Date(comment.created_at).toLocaleDateString('ko-KR')}
               </span>
             </div>
-            <ActionButtons comment={comment} />
+            <ActionButtons
+              comment={comment}
+              user={user}
+              onEditStart={handleEditStart}
+              onDelete={handleDelete}
+            />
           </div>
 
-          {editingId === comment.id
-            ? <EditInput commentId={comment.id} />
-            : <p className="detail-comment-content">{comment.content}</p>
-          }
+          {editingId === comment.id ? (
+            <EditInput
+              commentId={comment.id}
+              editText={editText}
+              setEditText={setEditText}
+              onSave={handleEditSave}
+              onCancel={() => setEditingId(null)}
+              isChanged={isChanged}
+            />
+          ) : (
+            <p className="detail-comment-content">{comment.content}</p>
+          )}
 
           {/* 답글 버튼 */}
           {user && (
@@ -219,7 +232,7 @@ const CommentList = ({ postId }) => {
             </div>
           )}
 
-          {/* ── 대댓글 목록 ── */}
+          {/* 대댓글 목록 */}
           {comment.replies?.length > 0 && (
             <div style={{ paddingLeft: 24, marginTop: 8, borderLeft: '2px solid var(--border)' }}>
               {comment.replies.map(reply => (
@@ -232,21 +245,33 @@ const CommentList = ({ postId }) => {
                         {new Date(reply.created_at).toLocaleDateString('ko-KR')}
                       </span>
                     </div>
-                    <ActionButtons comment={reply} />
+                    <ActionButtons
+                      comment={reply}
+                      user={user}
+                      onEditStart={handleEditStart}
+                      onDelete={handleDelete}
+                    />
                   </div>
 
-                  {editingId === reply.id
-                    ? <EditInput commentId={reply.id} />
-                    : <p className="detail-comment-content">{reply.content}</p>
-                  }
+                  {editingId === reply.id ? (
+                    <EditInput
+                      commentId={reply.id}
+                      editText={editText}
+                      setEditText={setEditText}
+                      onSave={handleEditSave}
+                      onCancel={() => setEditingId(null)}
+                      isChanged={isChanged}
+                    />
+                  ) : (
+                    <p className="detail-comment-content">{reply.content}</p>
+                  )}
                 </div>
               ))}
             </div>
           )}
+
         </div>
       ))}
-
-      
     </section>
   );
 };

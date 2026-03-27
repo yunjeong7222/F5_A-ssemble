@@ -55,7 +55,7 @@ export default function ProfileSection() {
 
       if (res.data.success) {
         updateUser(res.data.data);
-        setIsModalOpen(true);
+        alert('회원 정보가 성공적으로 변경되었습니다.');
         setNickname('');
         setBio('');
       }
@@ -102,7 +102,7 @@ export default function ProfileSection() {
             placeholder="수정할 닉네임을 입력하세요"
           />
           {nicknameStatus === 'ok' && (
-            <p className="profile-input-hint">멋진 닉네임이네요!</p>
+            <p className="profile-input-hint">Good!</p>
           )}
         </div>
 
@@ -125,25 +125,6 @@ export default function ProfileSection() {
           {loading ? '저장 중...' : '정보 업데이트'}
         </button>
       </form>
-
-      {/* 수정 완료 모달 */}
-      {isModalOpen && (
-        <div className="profile-modal-overlay">
-          <div className="profile-modal-content">
-            <div className="profile-modal-icon">✨</div>
-            <h3 className="profile-modal-title">수정 완료!</h3>
-            <p className="profile-modal-desc">
-              회원 정보가 성공적으로<br />변경되었습니다.
-            </p>
-            <button
-              className="profile-modal-btn"
-              onClick={() => setIsModalOpen(false)}
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
