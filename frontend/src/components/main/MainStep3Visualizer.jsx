@@ -17,7 +17,6 @@ const MainStep3Visualizer = () => {
 
                         <div className={`${styles['vis-float-wrap']} ${styles['vis-anim-float']}`}>
                             <div className={styles['vis-float-time']}>
-                                <div style={{color: '#eab308', fontSize: '1.2rem'}}>⚡</div>
                                 <div>
                                     <div style={{fontSize: '0.95rem', fontWeight: '800', color: 'white'}}>
                                         총 120분 완성
@@ -29,7 +28,6 @@ const MainStep3Visualizer = () => {
                             </div>
 
                             <div className={styles['vis-float-card']}>
-                                <div style={{fontSize: '1.5rem', marginBottom: '12px'}}>✍️</div>
                                 <h3
                                     style={{
                                         fontSize: '1.1rem',
@@ -40,30 +38,30 @@ const MainStep3Visualizer = () => {
                                 >
                                     선택한 AI 워크플로우
                                 </h3>
-                                <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                                    <div className={styles['vis-float-item']} style={{backgroundColor: '#ecfdf5'}}>
-                                        <div className={styles['vis-float-num']} style={{backgroundColor: '#10b981'}}>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                                    <div className={styles['vis-float-item']} style={{backgroundColor: '#fffbf4'}}>
+                                        <div className={styles['vis-float-num']} style={{backgroundColor: '#f59e0b'}}>
                                             1
                                         </div>
-                                        <div className={styles['vis-float-tool']} style={{color: '#059669'}}>
+                                        <div className={styles['vis-float-tool']} style={{color: '#f59e0b'}}>
                                             Claude
                                         </div>
                                         <div className={styles['vis-float-cat']}>기획 · 아이디어</div>
                                     </div>
-                                    <div className={styles['vis-float-item']} style={{backgroundColor: '#e0e7ff'}}>
-                                        <div className={styles['vis-float-num']} style={{backgroundColor: '#6366f1'}}>
+                                    <div className={styles['vis-float-item']} style={{backgroundColor: '#dceef8'}}>
+                                        <div className={styles['vis-float-num']} style={{backgroundColor: '#0ea5e9'}}>
                                             2
                                         </div>
-                                        <div className={styles['vis-float-tool']} style={{color: '#4338ca'}}>
+                                        <div className={styles['vis-float-tool']} style={{color: '#0ea5e9'}}>
                                             Vrew
                                         </div>
                                         <div className={styles['vis-float-cat']}>성우/TTS</div>
                                     </div>
-                                    <div className={styles['vis-float-item']} style={{backgroundColor: '#f1f5f9'}}>
-                                        <div className={styles['vis-float-num']} style={{backgroundColor: '#64748b'}}>
+                                    <div className={styles['vis-float-item']} style={{backgroundColor: '#e1e1ff'}}>
+                                        <div className={styles['vis-float-num']} style={{backgroundColor: '#6366f1'}}>
                                             3
                                         </div>
-                                        <div className={styles['vis-float-tool']} style={{color: '#334155'}}>
+                                        <div className={styles['vis-float-tool']} style={{color: '#6366f1'}}>
                                             CapCut AI
                                         </div>
                                         <div className={styles['vis-float-cat']}>영상 소스 생성 및 편집</div>
@@ -78,18 +76,18 @@ const MainStep3Visualizer = () => {
                         <div className={styles['vis-flow-list']}>
                             <div className={`${styles['vis-flow-item']} ${styles['vis-anim-flow-1']}`}>
                                 <img
-                                    src="https://www.google.com/s2/favicons?domain=anthropic.com&sz=64"
+                                    src="https://www.google.com/s2/favicons?domain=claude.ai&sz=64"
                                     alt="Claude"
-                                    style={{width: '40px', height: '40px'}}
+                                    style={{width: '40px', height: '40px', borderRadius: '10px'}}
                                 />
                                 <div>
-                                    <div style={{fontSize: '0.9rem', fontWeight: '800', color: 'white'}}>Claude</div>
+                                    <div style={{fontSize: '14px', fontWeight: '600', color: 'white'}}>Claude</div>
                                     <div
                                         style={{
-                                            fontSize: '0.7rem',
-                                            fontWeight: '600',
-                                            color: '#10b981',
-                                            marginTop: '4px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            color: '#f59e0b',
+                                            marginTop: '3px',
                                         }}
                                     >
                                         기획 특화
@@ -115,16 +113,16 @@ const MainStep3Visualizer = () => {
                                 <img
                                     src="https://www.google.com/s2/favicons?domain=vrew.ai&sz=64"
                                     alt="Vrew"
-                                    style={{width: '40px', height: '40px'}}
+                                    style={{width: '40px', height: '40px', borderRadius: '10px'}}
                                 />
                                 <div>
-                                    <div style={{fontSize: '0.9rem', fontWeight: '800', color: 'white'}}>Vrew</div>
+                                    <div style={{fontSize: '14px', fontWeight: '600', color: 'white'}}>Vrew</div>
                                     <div
                                         style={{
-                                            fontSize: '0.7rem',
-                                            fontWeight: '600',
-                                            color: '#10b981',
-                                            marginTop: '4px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            color: '#0ea5e9',
+                                            marginTop: '3px',
                                         }}
                                     >
                                         성우 특화
@@ -150,16 +148,16 @@ const MainStep3Visualizer = () => {
                                 <img
                                     src="https://www.google.com/s2/favicons?domain=capcut.com&sz=64"
                                     alt="CapCut AI"
-                                    style={{width: '40px', height: '40px'}}
+                                    style={{width: '40px', height: '40px', borderRadius: '10px'}}
                                 />
                                 <div>
-                                    <div style={{fontSize: '0.9rem', fontWeight: '800', color: 'white'}}>CapCut AI</div>
+                                    <div style={{fontSize: '14px', fontWeight: '600', color: 'white'}}>CapCut AI</div>
                                     <div
                                         style={{
-                                            fontSize: '0.7rem',
-                                            fontWeight: '600',
-                                            color: '#10b981',
-                                            marginTop: '4px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            color: '#6366f1',
+                                            marginTop: '3px',
                                         }}
                                     >
                                         영상 소스 생성 및 편집 특화

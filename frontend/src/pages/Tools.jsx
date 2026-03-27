@@ -32,6 +32,7 @@ const Tools = () => {
     // 카드 클릭 시 → 상세 API 호출 후 모달 오픈
     const handleDetail = async (tool) => {
         const detail = await getToolById(tool.id);
+        console.log('tool detail:', detail);
         setSelectedTool(detail);
     };
 
