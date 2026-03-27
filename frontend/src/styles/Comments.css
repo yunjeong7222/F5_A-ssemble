@@ -8,7 +8,7 @@
 
 .detail-comments-section h4 {
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
     margin-bottom: var(--gap-lg);
 }
@@ -68,7 +68,7 @@
 
 /* 액션 버튼 (수정/삭제) */
 .detail-comment-action-btn {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-muted);
     background: none;
     border: none;
@@ -78,7 +78,7 @@
 }
 
 .detail-comment-action-btn:hover {
-    color: var(--primary);
+    color: var(--primary-hover);
 }
 
 .detail-comment-action-btn--delete:hover {
@@ -123,7 +123,10 @@
     outline: none;
     padding: 8px 0;
 }
-
+.detail-comment-input:focus {
+    outline: none;
+    border-bottom: 1.5px solid var(--primary);
+}
 .detail-comment-input::placeholder {
     color: var(--text-muted);
 }
@@ -135,8 +138,8 @@
     color: #fff;
     border: none;
     border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.15s, opacity 0.15s;
     white-space: nowrap;
