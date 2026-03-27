@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {getTools} from '../api/tools';
 import {getPosts} from '../api/posts';
 import useAuthStore from '../store/authStore';
-import Swal from 'sweetalert2';
+import Alert from '../utils/alert';
 import IntroPhysics from '../components/main/IntroPhysics';
 import '../styles/Main.css';
 import visStyles from '../styles/MainVisualizer.module.css';
@@ -26,7 +26,7 @@ const SECTIONS = ['hero', 'intro-1', 'intro-2', 'service', 'how-it-works', 'comm
 
 export default function Main() {
     const navigate = useNavigate();
-    const {isLoggedIn} = useAuthStore();
+    const {user} = useAuthStore();
     const [activeSection, setActiveSection] = useState(0);
     const [activeStep, setActiveStep] = useState(1);
     const [showFloat, setShowFloat] = useState(false);
@@ -342,20 +342,15 @@ export default function Main() {
                             <div
                                 key={post.id}
                                 className="community-card"
-                                onClick={() => {
-                                    if (isLoggedIn) {
+                                onClick={async () => {
+                                    if (user) {
                                         navigate(`/community/${post.id}`);
                                     } else {
-                                        Swal.fire({
-                                            title: '로그인이 필요해요',
-                                            text: '게시글을 보려면 로그인해주세요',
-                                            icon: 'info',
-                                            confirmButtonText: '로그인하기',
-                                            showCancelButton: true,
-                                            cancelButtonText: '취소',
-                                        }).then((result) => {
-                                            if (result.isConfirmed) navigate('/login');
+                                        await Alert.fire({
+                                            text: '로그인이 필요한 서비스입니다.',
+                                            scrollbarPadding: false,
                                         });
+                                        return;
                                     }
                                 }}
                             >

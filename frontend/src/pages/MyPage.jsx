@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { updateProfile, getMe } from '../api/users';
-import { getMyBookmarks } from '../api/workflowBookmarks'; 
+import { getMyBookmarks } from '../api/workflowBookmarks';
 import supabase from '../config/supabase';
 import useAuthStore from '../store/authStore';
 import ProfileSection from '../components/user/ProfileSection';
@@ -10,7 +10,8 @@ import AccountSection from '../components/user/AccountSection';
 import WorkflowSection from '../components/user/WorkflowSection';
 import { fetchMyWorkflows } from '../api/workflows';
 import { getPosts } from '../api/posts';
-import '../styles/mypage.css';
+import Alert from '../utils/alert';
+import '../styles/Mypage.css';
 
 export default function MyPage() {
   const { user, updateUser } = useAuthStore();
@@ -46,11 +47,11 @@ export default function MyPage() {
       try {
         const res = await fetchMyWorkflows();
         const list = res.data.data || [];
-        const parsed = list.map(wf => ({
+        const parsed = list.map((wf) => ({
           id: wf.id,
           title: wf.title,
           tools: wf.tools,
-          tags : wf.tags || [],
+          tags: wf.tags || [],
         }));
         setMyWorkflows(parsed);
       } catch (err) {
@@ -73,15 +74,15 @@ export default function MyPage() {
   }, []);
 
   useEffect(() => {
-  const fetchBookmarks = async () => {
-    try {
-      const res = await getMyBookmarks();
-      setBookmarkedWorkflows(res.data.data || []);
-    } catch (err) {
-      console.error('북마크 불러오기 실패:', err);
-    }
-  };
-  fetchBookmarks();
+    const fetchBookmarks = async () => {
+      try {
+        const res = await getMyBookmarks();
+        setBookmarkedWorkflows(res.data.data || []);
+      } catch (err) {
+        console.error('북마크 불러오기 실패:', err);
+      }
+    };
+    fetchBookmarks();
   }, []);
 
   const handleImageClick = () => {
@@ -112,32 +113,35 @@ export default function MyPage() {
 
       if (res.status === 200 || res.status === 201 || res.data?.success) {
         updateUser({ profile_url: newProfileUrl });
-        alert('프로필 사진이 성공적으로 저장되었습니다!');
+        await Alert.fire({
+          text: '프로필 사진이 성공적으로 저장되었습니다!',
+          timer: 1500,
+          showConfirmButton: false,
+        });
       }
     } catch (err) {
       console.error('사진 업로드 중 발생한 에러:', err);
       const errorMsg = err.response?.data?.message || err.message || '';
-      alert(
-        errorMsg.includes('403') || errorMsg.includes('인증')
-          ? '세션이 만료되었습니다. 다시 로그인 후 시도해주세요.'
-          : '사진 저장 중 문제가 발생했습니다.'
-      );
+      await Alert.fire({
+        text:
+          errorMsg.includes('403') || errorMsg.includes('인증')
+            ? '세션이 만료되었습니다. 다시 로그인 후 시도해주세요.'
+            : '사진 저장 중 문제가 발생했습니다.',
+      });
     }
   };
 
   const subTabs = [
-    { id: 'profile',  label: '기본 정보' },
+    { id: 'profile', label: '기본 정보' },
     { id: 'password', label: '보안 설정' },
-    { id: 'account',  label: '계정 관리' },
+    { id: 'account', label: '계정 관리' },
   ];
 
   return (
     <div className="mypage-wrapper">
-
       {/* 1. 상단 프로필 요약 카드 */}
       <div className="mypage-profile-card">
         <div className="mypage-profile-left">
-
           <div className="mypage-avatar-container">
             <div className="mypage-avatar-img-wrapper">
               <img
@@ -159,7 +163,7 @@ export default function MyPage() {
           </div>
 
           <div>
-            <h2 className="mypage-profile-name">{user?.nickname || '레시피마스터'}</h2>
+            <h2 className="mypage-profile-name">{user?.nickname || '유저'}</h2>
             <p className="mypage-profile-email">{user?.email || 'user@example.com'}</p>
           </div>
         </div>
@@ -200,7 +204,7 @@ export default function MyPage() {
       {/* 2. 서브 탭 바 */}
       {activeTab !== 'workflows' && (
         <div className="mypage-subtab-bar">
-          {subTabs.map(tab => (
+          {subTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -214,12 +218,17 @@ export default function MyPage() {
 
       {/* 3. 콘텐츠 영역 */}
       <div className="mypage-content-box">
-        {activeTab === 'profile'  && <ProfileSection user={{ ...user, profile_url: user?.profile_url || 'https://placehold.co/32' }} />}
+        {activeTab === 'profile' && (
+          <ProfileSection user={{ ...user, profile_url: user?.profile_url || 'https://placehold.co/32' }} />
+        )}
         {activeTab === 'password' && <PasswordSection />}
-        {activeTab === 'account'  && <AccountSection 
-          workflowCount={myWorkflows.length}
-          bookmarkCount={bookmarkedWorkflows.length}
-        />}
+        {activeTab === 'account' && (
+          <AccountSection
+            workflowCount={myWorkflows.length}
+            bookmarkCount={bookmarkedWorkflows.length}
+          />
+        )}
+        {/* ✅ workflowSubTab, setWorkflowSubTab 추가 */}
         {activeTab === 'workflows' && (
           <WorkflowSection
             myWorkflows={myWorkflows}

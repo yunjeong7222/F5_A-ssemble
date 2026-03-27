@@ -1,14 +1,15 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import {logout as logoutAPI} from '../../api/auth';
+import Alert from '../../utils/alert';
 import '../../styles/Header.css';
 import HeaderLogo from '../../assets/common/Aissemble-header.png';
 import HeaderLogoM from '../../assets/common/Aissemble-logo.png';
 
 export default function Header() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { isLoggedIn, user, logout } = useAuthStore();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const {user, logout} = useAuthStore();
 
     const navItems = [
         {label: '홈', path: '/'},
@@ -27,6 +28,12 @@ export default function Header() {
             console.error('logout error :', err);
         } finally {
             logout();
+            await Alert.fire({
+                text: '로그아웃 되었습니다',
+                timer: 2000,
+                showConfirmButton: false,
+                scrollbarPadding: false,
+            });
             const isPrivate = privateRoutes.some((path) => location.pathname.startsWith(path));
             navigate(isPrivate ? '/' : location.pathname);
         }
@@ -53,7 +60,7 @@ export default function Header() {
                 </nav>
 
                 <div className="header-auth">
-                    {isLoggedIn ? (
+                    {user ? (
                         <>
                             <span className="header-nick" onClick={() => navigate('/mypage')}>
                                 {user?.profile_url ? (

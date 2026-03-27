@@ -4,9 +4,8 @@ const Alert = Swal.mixin({
     background: '#f8fafc',
     confirmButtonColor: '#9c88ff',
     cancelButtonColor: '#aaa',
-    width: '330px',
+    width: '350px',
     padding: '40px 20px',
-    // scrollbarPadding: false, // 스크롤바삭제 자동패딩 끄기
     customClass: {
         popup: 'swal-custom-popup',
         icon: 'swal-custom-icon',
