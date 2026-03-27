@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { updateProfile, getMe } from '../api/users';
 import { getMyBookmarks } from '../api/workflowBookmarks'; 
 import supabase from '../config/supabase';
@@ -18,6 +19,15 @@ export default function MyPage() {
   const [activeTab, setActiveTab] = useState('workflows');
   const fileInputRef = useRef(null);
   const [myPosts, setMyPosts] = useState([]);
+  const [workflowSubTab, setWorkflowSubTab] = useState('mine');
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.tab === 'posts') {
+      setActiveTab('workflows');
+      setWorkflowSubTab('posts');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -218,6 +228,8 @@ export default function MyPage() {
             setBookmarkedWorkflows={setBookmarkedWorkflows}
             myPosts={myPosts}
             setMyPosts={setMyPosts}
+            workflowSubTab={workflowSubTab}
+            setWorkflowSubTab={setWorkflowSubTab}
           />
         )}
       </div>

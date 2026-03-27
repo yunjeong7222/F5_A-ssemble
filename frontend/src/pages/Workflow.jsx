@@ -98,7 +98,7 @@ const Workflow = () => {
 
       {/* 화면 2: 툴 선택 (WORKFLOW_02) */}
       {step === 2 && (
-        <section>
+        <section className={`wf-step2-section ${isLoading ? "wf-step1-section" : ""}`}>
           {isLoading ? (
             /* ⏳ 로딩 중일 때 보여줄 화면 */
             <Loading
@@ -113,7 +113,7 @@ const Workflow = () => {
               <ToolSelector />
               
               {/* 하단 버튼 영역 (양쪽 끝으로 배치) */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px',paddingTop:'10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between'}}>
                 
                 <button 
                   onClick={prevStep} 

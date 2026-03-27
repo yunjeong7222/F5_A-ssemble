@@ -172,7 +172,8 @@ const Login = () => {
         }
       }
 
-      navigate('/');
+      const from = location.state?.from || '/';
+      navigate(from, { replace: true });
     } catch (err) {
       setMessage(err.response?.data?.message || '로그인 정보를 확인해주세요.');
     } finally {
@@ -220,7 +221,7 @@ const Login = () => {
         </div>
 
         <button type="submit" className="auth-btn-primary" disabled={isLoading}>
-          {isLoading ? '로그인 중...' : '로그인'}
+          {isLoading ? '로그인 중' : '로그인'}
         </button>
 
         <div className="auth-redirect">

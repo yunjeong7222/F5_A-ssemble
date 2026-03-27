@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { likePost, unlikePost } from '../../api/likes';
 import useAuthStore from '../../store/authStore';
+import Alert from '../../utils/alert';
 
 const PostList = ({ post }) => {
   const navigate = useNavigate();
@@ -13,7 +14,14 @@ const PostList = ({ post }) => {
 
   const handleLike = async (e) => {
     e.stopPropagation();
-    if (!user) return alert('로그인 후 이용해주세요.');
+    if (!user) {
+    Alert.fire({
+      title: '로그인 후 이용해주세요.',
+      showConfirmButton: false,
+      timer: 1500,
+    });
+    return;
+  }
     if (isLiking) return;
 
     setIsLiking(true);
@@ -74,14 +82,14 @@ const PostList = ({ post }) => {
               </svg>
               <span>{post.view_count || 0}</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleLike}>
                 <svg width="12" height="12" viewBox="0 0 24 24"
                     fill="#ef4444" stroke="#ef4444" strokeWidth="2"
                 >
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
                 <span style={{ color: '#ef4444', fontSize: 12 }}>{post.like_count || 0}</span>
-                </div>
+             </div>
           </div>
         </div>
       </div>

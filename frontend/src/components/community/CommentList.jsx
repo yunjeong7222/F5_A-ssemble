@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getComments, createComment, createReply, updateComment, deleteComment } from '../../api/comments';
 import useAuthStore from '../../store/authStore';
 import '../../styles/Comments.css';
+import Alert from '../../utils/alert';
 
 /* ── 컴포넌트 외부 선언 (리렌더 시 재마운트 방지) ── */
 
@@ -80,7 +81,11 @@ const CommentList = ({ postId }) => {
       await loadComments();
       setNewComment('');
     } catch (err) {
-      alert('댓글 등록에 실패했습니다.');
+      Alert.fire({
+        title: '댓글 등록에 실패했습니다.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +99,11 @@ const CommentList = ({ postId }) => {
       setReplyingId(null);
       setReplyText('');
     } catch (err) {
-      alert('답글 등록에 실패했습니다.');
+      Alert.fire({
+        title: '댓글 등록에 실패했습니다.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
   };
 
@@ -121,7 +130,11 @@ const CommentList = ({ postId }) => {
       );
       setEditingId(null);
     } catch (err) {
-      alert('댓글 수정에 실패했습니다.');
+      Alert.fire({
+      title: '댓글 수정에 실패했습니다.',
+      showConfirmButton: false,
+      timer: 1500,
+    });
     }
   };
 
@@ -131,7 +144,11 @@ const CommentList = ({ postId }) => {
       await deleteComment(postId, commentId);
       await loadComments();
     } catch (err) {
-      alert('댓글 삭제에 실패했습니다.');
+      Alert.fire({
+      title: '댓글 삭제에 실패했습니다.',
+      showConfirmButton: false,
+      timer: 1500,
+    });
     }
   };
 

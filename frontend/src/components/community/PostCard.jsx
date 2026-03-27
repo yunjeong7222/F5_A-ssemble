@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { likePost, unlikePost } from '../../api/likes';
 import useAuthStore from '../../store/authStore';
+import Alert from '../../utils/alert';
 
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
@@ -17,7 +18,14 @@ const PostCard = ({ post }) => {
   
   const handleLike = async (e) => {
     e.stopPropagation();
-    if (!user) return alert('로그인 후 이용해주세요.');
+    if (!user) {
+       Alert.fire({
+        title: '로그인 후 이용해주세요.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    return;
+    }
     if (isLiking) return;
 
     setIsLiking(true);
@@ -101,7 +109,7 @@ const PostCard = ({ post }) => {
       <iframe
         src={isHovered
           ? `https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`
-          : ''}
+          : undefined}
         allow="autoplay; encrypted-media"
         style={{
           position: 'absolute',

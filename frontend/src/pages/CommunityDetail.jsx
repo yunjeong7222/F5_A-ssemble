@@ -11,7 +11,7 @@ import CommunityEdit from './CommunityEdit';
 import Alert from '../utils/alert';
 import '../styles/Community.css';
 
-const CommunityDetail = () => {
+const CommunityDetail = ({ postId, onClose }) => {
   const navigate = useNavigate();
   const { id }   = useParams();
   const { user } = useAuthStore();

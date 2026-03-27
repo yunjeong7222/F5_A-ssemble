@@ -4,6 +4,7 @@ import { useWorkflow } from '../../hooks/useWorkflow';
 import useAuthStore from '../../store/authStore';
 import useWorkflowStore from '../../store/workflowStore';
 import '../../styles/Workflow.css';
+import Alert from '../../utils/alert';
 
 // ⭐ 7번 배포/최적화 전용 애니메이션 컴포넌트
 const OptimizationVisualizer = () => {
@@ -275,16 +276,24 @@ const WorkflowResult = ({ workflowResult }) => {
 };
 
   const displayData = workflowResult;
-
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text);
-    alert('프롬프트가 클립보드에 복사되었습니다! 🚀');
-  };
+  const [copiedStep, setCopiedStep] = useState(null);
+  const handleCopy = (text, identifier) => {
+  navigator.clipboard.writeText(text);
+  setCopiedStep(identifier);
+  setTimeout(() => setCopiedStep(null), 1500);
+};
 
   const handleSave = async () => {
   if (!isLoggedIn) {
-    alert('로그인 후 저장할 수 있어요!');
-    navigate('/login');
+    const result = await Alert.fire({
+      text: '로그인 후 저장할 수 있어요!',
+      confirmButtonText: '로그인하러 가기',
+      showCancelButton: true,
+      cancelButtonText: '취소',
+    });
+    if (result.isConfirmed) {
+      navigate('/login', { state: { from: location.pathname } });
+    }
     return;
   }
   setIsSaving(true);
@@ -514,10 +523,20 @@ const WorkflowResult = ({ workflowResult }) => {
                     <pre style={{ margin: 0, color: '#f8fafc', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.9rem', lineHeight: '1.6', fontFamily: "'Pretendard', sans-serif" }}>
                       {step.prompt_example}
                     </pre>
-                    <button onClick={() => handleCopy(step.prompt_example)} className="wr-copy-btn">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                      복사
+                    <button
+                      onClick={() => handleCopy(step.prompt_example, step.tool_name)}
+                      className="wr-copy-btn"
+                    >
+                      {copiedStep === step.tool_name ? (
+                        <svg width="16" height="16" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      ) : (
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                      {copiedStep === step.tool_name ? '복사완료' : '복사'}
                     </button>
                   </div>
 
@@ -584,7 +603,7 @@ const WorkflowResult = ({ workflowResult }) => {
           
           {/* 커뮤니티 저장 기능 */}
           <button onClick={handleSave} disabled={isSaving} className="wr-btn-primary">
-            {isSaving ? '저장 중...' : '내 워크플로우 저장'}
+            {isSaving ? '저장 중' : '내 워크플로우 저장'}
           </button>
         </div>
       </div>

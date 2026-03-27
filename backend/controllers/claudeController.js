@@ -137,6 +137,16 @@ const generateWorkflow = async (req, res) => {
             duration: "10분",
             tip: "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
             caution: "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
+          },
+          {
+            step_order: 2,
+            category: "영상 편집",
+            tool_name: "Vrew",
+            task: "AI 자동 자막 및 영상 편집",
+            prompt_example: "Vrew에 영상 업로드 후 자동 자막 생성 → 스크립트 기반으로 불필요한 구간 자동 컷편집 적용",
+            duration: "15분",
+            tip: "자막 폰트는 '굵게' 설정하고 배경 박스를 추가하면 숏폼 가독성이 높아져요",
+            caution: "자동 자막의 맞춤법 오류는 수동으로 꼭 확인하세요"
           }
         ]
       },

@@ -127,10 +127,10 @@ const CommunityMain = () => {
             className={`comm-filter-btn${activeFilter === '좋아요한 글' ? ' active' : ''}`}
               onClick={async () => {
                 if (!user) {
-                  await Alert.fire({ icon: 'warning', title: '로그인이 필요한 서비스입니다.' });
+                  await Alert.fire({text: '로그인이 필요한 서비스입니다.' });
                   return;
                 }
-                setActiveFilter('좋아요한 글');
+                setActiveFilter('좋아요한 글');   
               }}
             >
             좋아요한 글

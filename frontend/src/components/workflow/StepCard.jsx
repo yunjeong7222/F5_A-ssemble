@@ -1,9 +1,14 @@
 import React from 'react';
+import Alert from '../../utils/alert';
 
 const StepCard = ({ stepData }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(stepData.prompt)
-      .then(() => alert('프롬프트가 복사되었습니다!'))
+      .then(() => Alert.fire({
+        title: '프롬프트가 복사되었습니다!',
+        showConfirmButton: false,
+        timer: 1500,
+      }))
       .catch(err => console.error('복사 실패:', err));
   };
 

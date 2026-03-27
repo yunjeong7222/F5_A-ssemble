@@ -54,8 +54,6 @@ const Loading = ({ message, subMessage }) => {
       </div>
       
       <div style={{ width: '680px', height: '1px',margin:'32px 0 24px', backgroundColor: '#e2e8f0' }} />
-      
-    
     </div>
   );
 };

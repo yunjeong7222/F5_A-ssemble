@@ -46,7 +46,7 @@ export default function ProfileSection() {
 
     setLoading(true);
     try {
-      const res = await updateProfile({
+      const res = await updateProfile({ 
         email: user?.email,
         nickname,
         bio,

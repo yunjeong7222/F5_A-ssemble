@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { fetchWorkflowById, deleteWorkflow, updateWorkflow } from '../../api/workflows';
 import { getMyBookmarks, updateBookmarkPrompt, getBookmarkDetail } from '../../api/workflowBookmarks';
-import { getPosts } from '../../api/posts';
+import CommunityDetail from '../../pages/CommunityDetail';
 import { useNavigate } from 'react-router-dom';
+import Alert from '../../utils/alert';
 
 const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
   const [data, setData] = useState(null);
@@ -52,7 +53,11 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
     });
 
     if (!hasChanged) {
-      alert('변경된 내용이 없습니다.');
+      Alert.fire({
+      text: '변경된 내용이 없습니다.',
+      showConfirmButton: false,
+      timer: 1500,
+    });
       return;
     }
 
@@ -96,11 +101,11 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
       onClick={onClose}
     >
       <div
-        style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '640px', maxHeight: '80vh', overflowY: 'auto', padding: '28px' }}
+        style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '640px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '28px'}}
         onClick={(e) => e.stopPropagation()}
       >
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>불러오는 중...</div>
+          <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>불러오는 중</div>
         ) : !data ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>데이터를 불러올 수 없습니다.</div>
         ) : (
@@ -111,15 +116,15 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
                 <div style={{ fontSize: '11px', fontWeight: '700', color: '#6366f1', letterSpacing: '1px', marginBottom: '6px' }}>
                   {isBookmarked ? 'BOOKMARKED' : 'MY WORKFLOW'}
                 </div>
-                <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', margin: 0 }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
                   {data.title || data.user_input}
                 </h3>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    style={{ fontSize: '13px', fontWeight: '600', color: '#6366f1', background: '#ede9fe', border: 'none', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer' }}
+                    style={{ fontSize: '13px', fontWeight: '600', color: 'var(--primary)', background: '#ede9fe', border: 'none', borderRadius: '8px', padding: '6px 13px', cursor: 'pointer' }}
                   >
                     수정
                   </button>
@@ -127,31 +132,26 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
                   <>
                     <button
                       onClick={handleCancel}
-                      style={{ fontSize: '13px', fontWeight: '600', color: '#64748b', background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer' }}
+                      style={{ fontSize: '13px', fontWeight: '600', color: '#64748b', background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '6px 13px', cursor: 'pointer' }}
                     >
                       취소
                     </button>
                     <button
                       onClick={handleSave}
                       disabled={isSaving}
-                      style={{ fontSize: '13px', fontWeight: '600', color: '#fff', background: '#6366f1', border: 'none', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', opacity: isSaving ? 0.7 : 1 }}
+                      style={{ fontSize: '13px', fontWeight: '600', color: '#fff', background: 'var(--primary)', border: 'none', borderRadius: '8px', padding: '6px 13px', cursor: 'pointer', opacity: isSaving ? 0.7 : 1 }}
                     >
-                      {isSaving ? '저장 중...' : '저장'}
+                      {isSaving ? '저장 중' : '저장'}
                     </button>
                   </>
                 )}
-                <button
-                  onClick={onClose}
-                  style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#94a3b8' }}
-                >
-                  ✕
-                </button>
+               
               </div>
             </div>
 
             {/* 툴 플로우 */}
             {data.tools?.length > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '20px', padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '10px', padding: '14px 16px', background: '#f8fafc', borderRadius: '12px' }}>
                 {data.tools.map((tool, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
@@ -160,7 +160,7 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
                         alt={tool.tool_name}
                         style={{ width: '36px', height: '36px', objectFit: 'contain' }}
                       />
-                      <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>{tool.tool_name}</span>
+                      <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)' }}>{tool.tool_name}</span>
                     </div>
                     {i < data.tools.length - 1 && <span style={{ color: '#cbd5e1' }}>→</span>}
                   </div>
@@ -169,11 +169,12 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
             )}
 
             {/* 단계별 프롬프트 */}
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '4px' }}>
             {data.resultJson?.steps?.map((step, i) => {
               const stepKey = step.step_order ?? step.step;
               return (
                 <div key={i} style={{ border: `1px solid ${isEditing ? '#c7d2fe' : '#e2e8f0'}`, borderRadius: '12px', padding: '16px', marginBottom: '12px', transition: 'border-color .2s' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '11px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ width: '22px', height: '22px', background: '#6366f1', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700' }}>
                         {stepKey}
@@ -191,7 +192,7 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
                         value={editedPrompts[stepKey] || ''}
                         onChange={(e) => setEditedPrompts(prev => ({ ...prev, [stepKey]: e.target.value }))}
                         style={{
-                          width: '100%', minHeight: '70px',
+                          width: '100%', minHeight: '75px',
                           background: 'transparent', border: 'none', outline: 'none',
                           color: '#f8fafc', fontSize: '12px', lineHeight: '1.6',
                           fontFamily: 'Pretendard, sans-serif', resize: 'vertical',
@@ -221,6 +222,7 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
                 </div>
               );
             })}
+            </div>
           </>
         )}
       </div>
@@ -231,16 +233,27 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
 const WorkflowSection = ({ myWorkflows, setMyWorkflows, myPosts, setMyPosts }) => {
   const [workflowSubTab, setWorkflowSubTab] = useState('mine');
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);
+  const [selectedPostId, setSelectedPostId] = useState(null);
   const [bookmarkedWorkflows, setBookmarkedWorkflows] = useState([]);
   const navigate = useNavigate();
 
   const handleDeleteWorkflow = async (id) => {
-    if (!window.confirm('워크플로우를 삭제할까요?')) return;
+    const result = await Alert.fire({
+      text: '워크플로우를 삭제할까요?',
+      showCancelButton: true,
+      confirmButtonText: '삭제',
+      cancelButtonText: '취소',
+    });
+    if (!result.isConfirmed) return;
     try {
       await deleteWorkflow(id);
       setMyWorkflows(prev => prev.filter(wf => wf.id !== id));
     } catch {
-      alert('삭제에 실패했습니다.');
+      Alert.fire({
+        title: '삭제에 실패했습니다.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
   };
 
@@ -268,6 +281,19 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows, myPosts, setMyPosts }) =
         />
       )}
 
+      {selectedPostId && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={() => setSelectedPostId(null)}
+        >
+          <div
+            style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '720px', maxHeight: '90vh', overflowY: 'auto', padding: '28px', position: 'relative' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CommunityDetail postId={selectedPostId} onClose={() => setSelectedPostId(null)} />
+          </div>
+        </div>
+      )}
       {/* 탭 버튼 */}
       <div className="mypage-workflow-filter">
         <button

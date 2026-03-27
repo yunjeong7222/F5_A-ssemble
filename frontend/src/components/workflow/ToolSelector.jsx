@@ -203,7 +203,6 @@ const [isTransitioning, setIsTransitioning] = useState(false);
                               </div>
                             </div>
                           </div>
-                        {/* )} */}
                       </div>
                     );
               })}
