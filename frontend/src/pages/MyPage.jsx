@@ -131,121 +131,130 @@ export default function MyPage() {
 
     const subTabs = [
         {id: 'profile', label: '기본 정보'},
-        {id: 'password', label: '보안 설정'},
+        {id: 'password', label: '비밀번호 변경'},
         {id: 'account', label: '계정 관리'},
     ];
 
     return (
-        <div className="mypage-wrapper">
-            {/* 상단 프로필 카드 */}
-            <div className="mypage-profile-card">
-                <div className="mypage-profile-left">
-                    <div className="mypage-avatar-container">
-                        <div className="mypage-avatar-img-wrapper">
-                            <img
-                                src={user?.profile_url || 'https://placehold.co/90'}
-                                alt="profile"
-                                className="mypage-avatar-img"
+        <div className="mypage-section">
+            <div className="mypage-wrapper">
+                {/* 상단 프로필 카드 */}
+                <div className="mypage-profile-card">
+                    <div className="mypage-profile-left">
+                        <div className="mypage-avatar-container">
+                            <div className="mypage-avatar-img-wrapper">
+                                <img
+                                    src={user?.profile_url || 'https://placehold.co/90'}
+                                    alt="profile"
+                                    className="mypage-avatar-img"
+                                />
+                            </div>
+                            <div className="mypage-avatar-edit-btn" onClick={handleImageClick}>
+                                <span className="mypage-avatar-edit-label">+</span>
+                            </div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                style={{display: 'none'}}
                             />
                         </div>
-                        <div className="mypage-avatar-edit-btn" onClick={handleImageClick}>
-                            <span className="mypage-avatar-edit-label">+</span>
+                        <div>
+                            <div className="mypage-profile-user">
+                                <h2 className="mypage-profile-name">{user?.nickname || '유저'}</h2>
+                                <p className="mypage-profile-email">{user?.email || 'user@example.com'}</p>
+                            </div>
+                            {/* ✅ 추가: bio 표시 */}
+                            {user?.bio && <p className="mypage-profile-bio">{user.bio}</p>}
                         </div>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            accept="image/*"
-                            style={{display: 'none'}}
-                        />
                     </div>
-                    <div>
-                        <div className="mypage-profile-user">
-                            <h2 className="mypage-profile-name">{user?.nickname || '유저'}</h2>
-                            <p className="mypage-profile-email">{user?.email || 'user@example.com'}</p>
+
+                    <div className="mypage-profile-right">
+                        <div className="mypage-stats-box">
+                            <div className="mypage-stat-item mypage-stat-item--border">
+                                <p className="mypage-stat-number">{myWorkflows.length}</p>
+                                <p className="mypage-stat-label">내 워크플로우</p>
+                            </div>
+                            <div className="mypage-stat-item mypage-stat-item--border">
+                                <p className="mypage-stat-number">{bookmarkedWorkflows.length}</p>
+                                <p className="mypage-stat-label">북마크</p>
+                            </div>
+                            <div className="mypage-stat-item">
+                                <p className="mypage-stat-number">{myPosts.length}</p>
+                                <p className="mypage-stat-label">내가 쓴 글</p>
+                            </div>
                         </div>
-                        {/* ✅ 추가: bio 표시 */}
-                        {user?.bio && <p className="mypage-profile-bio">{user.bio}</p>}
                     </div>
                 </div>
 
-                <div className="mypage-profile-right">
-                    <div className="mypage-stats-box">
-                        <div className="mypage-stat-item mypage-stat-item--border">
-                            <p className="mypage-stat-number">{myWorkflows.length}</p>
-                            <p className="mypage-stat-label">내 워크플로우</p>
+                {/* A안: 사이드바 + 콘텐츠 2단 레이아웃 */}
+                <div className="mypage-layout">
+                    {/* 사이드바 */}
+                    <div className="mypage-sidebar">
+                        <div className="mypage-sidebar-group">
+                            <p className="mypage-sidebar-label">내 활동</p>
+                            {[
+                                {id: 'workflows', label: '내 워크플로우'},
+                                {id: 'bookmarks', label: '북마크'},
+                                {id: 'posts', label: '내가 쓴 글'},
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    className={`mypage-sidebar-item${activeTab === item.id ? ' mypage-sidebar-item--active' : ''}`}
+                                    onClick={() => setActiveTab(item.id)}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
                         </div>
-                        <div className="mypage-stat-item mypage-stat-item--border">
-                            <p className="mypage-stat-number">{bookmarkedWorkflows.length}</p>
-                            <p className="mypage-stat-label">북마크</p>
-                        </div>
-                        <div className="mypage-stat-item">
-                            <p className="mypage-stat-number">{myPosts.length}</p>
-                            <p className="mypage-stat-label">내가 쓴 글</p>
+                        <div className="mypage-sidebar-group">
+                            <p className="mypage-sidebar-label">설정</p>
+                            {[
+                                {id: 'profile', label: '기본 정보'},
+                                {id: 'password', label: '비밀번호 변경'},
+                                {id: 'account', label: '계정 관리'},
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    className={`mypage-sidebar-item${activeTab === item.id ? ' mypage-sidebar-item--active' : ''}`}
+                                    onClick={() => setActiveTab(item.id)}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* A안: 사이드바 + 콘텐츠 2단 레이아웃 */}
-            <div className="mypage-layout">
-                {/* 사이드바 */}
-                <div className="mypage-sidebar">
-                    <div className="mypage-sidebar-group">
-                        <p className="mypage-sidebar-label">내 활동</p>
-                        {[
-                            {id: 'workflows', label: '내 워크플로우'},
-                            {id: 'bookmarks', label: '북마크'},
-                            {id: 'posts', label: '내가 쓴 글'},
-                        ].map((item) => (
-                            <button
-                                key={item.id}
-                                className={`mypage-sidebar-item${activeTab === item.id ? ' mypage-sidebar-item--active' : ''}`}
-                                onClick={() => setActiveTab(item.id)}
-                            >
-                                {item.label}
-                            </button>
-                        ))}
+                    {/* 콘텐츠 */}
+                    <div className="mypage-content-box">
+                        <div key={activeTab} className="mypage-tab-content">
+                            {activeTab === 'profile' && (
+                                <ProfileSection
+                                    user={{...user, profile_url: user?.profile_url || 'https://placehold.co/32'}}
+                                />
+                            )}
+                            {activeTab === 'password' && <PasswordSection />}
+                            {activeTab === 'account' && (
+                                <AccountSection
+                                    workflowCount={myWorkflows.length}
+                                    bookmarkCount={bookmarkedWorkflows.length}
+                                />
+                            )}
+                            {(activeTab === 'workflows' || activeTab === 'bookmarks' || activeTab === 'posts') && (
+                                <WorkflowSection
+                                    myWorkflows={myWorkflows}
+                                    setMyWorkflows={setMyWorkflows}
+                                    bookmarkedWorkflows={bookmarkedWorkflows}
+                                    setBookmarkedWorkflows={setBookmarkedWorkflows}
+                                    myPosts={myPosts}
+                                    setMyPosts={setMyPosts}
+                                    workflowSubTab={activeTab} // ✅ activeTab 직접 전달
+                                    setWorkflowSubTab={setActiveTab} // ✅ setActiveTab 직접 전달
+                                />
+                            )}
+                        </div>
                     </div>
-                    <div className="mypage-sidebar-group">
-                        <p className="mypage-sidebar-label">설정</p>
-                        {[
-                            {id: 'profile', label: '기본 정보'},
-                            {id: 'password', label: '보안 설정'},
-                            {id: 'account', label: '계정 관리'},
-                        ].map((item) => (
-                            <button
-                                key={item.id}
-                                className={`mypage-sidebar-item${activeTab === item.id ? ' mypage-sidebar-item--active' : ''}`}
-                                onClick={() => setActiveTab(item.id)}
-                            >
-                                {item.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* 콘텐츠 */}
-                <div className="mypage-content-box">
-                    {activeTab === 'profile' && (
-                        <ProfileSection user={{...user, profile_url: user?.profile_url || 'https://placehold.co/32'}} />
-                    )}
-                    {activeTab === 'password' && <PasswordSection />}
-                    {activeTab === 'account' && (
-                        <AccountSection workflowCount={myWorkflows.length} bookmarkCount={bookmarkedWorkflows.length} />
-                    )}
-                    {(activeTab === 'workflows' || activeTab === 'bookmarks' || activeTab === 'posts') && (
-                        <WorkflowSection
-                            myWorkflows={myWorkflows}
-                            setMyWorkflows={setMyWorkflows}
-                            bookmarkedWorkflows={bookmarkedWorkflows}
-                            setBookmarkedWorkflows={setBookmarkedWorkflows}
-                            myPosts={myPosts}
-                            setMyPosts={setMyPosts}
-                            workflowSubTab={activeTab} // ✅ activeTab 직접 전달
-                            setWorkflowSubTab={setActiveTab} // ✅ setActiveTab 직접 전달
-                        />
-                    )}
                 </div>
             </div>
         </div>

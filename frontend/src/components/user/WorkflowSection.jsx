@@ -593,7 +593,7 @@ const WorkflowSection = ({myWorkflows, setMyWorkflows, myPosts, setMyPosts, work
 
             {/* 내가 쓴 글 — subTab 변수로 변경 */}
             {subTab === 'posts' && (
-                <div style={{display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px'}}>
+                <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                     {myPosts.map((post) => (
                         <div
                             key={post.id}
