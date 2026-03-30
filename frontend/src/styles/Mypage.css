@@ -822,8 +822,7 @@
     height: 3px;
     background: var(--border);
     border-radius: 999px;
-    margin-top: 5px;
-    padding: 0 3px;
+    margin: 5px 3px;
     overflow: hidden;
 }
 
