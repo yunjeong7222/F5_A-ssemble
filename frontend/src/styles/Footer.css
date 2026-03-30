@@ -52,8 +52,9 @@
     color: var(--color-text-tertiary);
 }
 
-@media (max-width: 1024px) {
+/* 태블릿 */
+@media (max-width: 1200px) {
     .footer {
-        padding: 40px 24px;
+    padding: 40px 30px;
     }
 }
