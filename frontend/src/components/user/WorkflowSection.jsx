@@ -51,7 +51,6 @@ const WorkflowDetailModal = ({workflowId, isBookmarked, onClose}) => {
         load();
     }, [workflowId, isBookmarked]);
 
-    // ✅ handleSave — Alert.fire 버전으로 단일 정의
     const handleSave = async () => {
         const hasChanged = data.resultJson.steps.some((s) => {
             const key = s.step_order ?? s.step;

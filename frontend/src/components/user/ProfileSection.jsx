@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { updateProfile } from '../../api/users';
 import useAuthStore from '../../store/authStore';
 import '../../styles/mypage.css';
+import Alert from '../../utils/alert'
 
 export default function ProfileSection() {
   const { user, updateUser } = useAuthStore();
@@ -55,14 +56,21 @@ export default function ProfileSection() {
 
       if (res.data.success) {
         updateUser(res.data.data);
-        alert('회원 정보가 성공적으로 변경되었습니다.');
+        Alert.fire ({
+          text: '회원 정보가 수정되었습니다.', 
+          showConfirmButton: false,
+          timer: 1500,
+        })
         setNickname('');
         setBio('');
       }
     } catch (err) {
       const msg = err.response?.data?.message || '';
       if (msg.includes('닉네임')) setNicknameStatus('error');
-      alert('저장 실패: ' + msg);
+       Alert.fire({
+          text: '저장 실패: ' + msg,
+          showConfirmButton: true,
+        });
     } finally {
       setLoading(false);
     }

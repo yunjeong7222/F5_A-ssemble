@@ -547,7 +547,7 @@
 }
 
 .profile-form-group {
-    margin-bottom: 18px;
+    margin-bottom: 12px;
     text-align: left;
 }
 
@@ -556,7 +556,6 @@
     display: block;
     font-weight: 600;
     font-size: 12px;
-    margin-bottom: 8px;
     color: var(--text-muted);
     letter-spacing: 0.8px;
     text-transform: uppercase;
@@ -564,7 +563,7 @@
 
 .profile-input {
     width: 100%;
-    padding: 14px 16px;
+    padding: 12px 16px;
     border-radius: var(--radius-md);
     border: 1.5px solid var(--border);
     box-sizing: border-box;
@@ -595,7 +594,7 @@
 
 .profile-input-hint {
     font-size: 13px;
-    margin-top: 6px;
+    margin-top: 5px;
     padding-left: 6px;
     color: var(--secondary);
     font-weight: 600;
@@ -715,11 +714,11 @@
 }
 
 .password-form-group {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .password-form-group--last {
-    margin-bottom: 26px;
+    margin-bottom: 15px;
 }
 
 .password-label {
@@ -797,7 +796,7 @@
 .password-status-text {
     font-size: 12px;
     text-align: left;
-    margin-top: 8px;
+    margin-top: 5px;
     font-weight: 600;
 }
 
@@ -814,7 +813,7 @@
 .password-match-text {
     font-size: 12px;
     text-align: left;
-    margin-top: 6px;
+    margin-top: 5px;
     font-weight: 600;
 }
 
@@ -873,7 +872,7 @@
     border: 1.5px solid var(--border);
     border-radius: var(--radius-md);
     padding: 20px 30px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .account-info-box h3 {
@@ -897,7 +896,7 @@
 .account-warning-box {
     border: 1.5px solid rgba(239, 68, 68, 0.4);
     border-radius: var(--radius-md);
-    padding: 24px 30px;
+    padding: 20px 26px;
     background: rgba(239, 68, 68, 0.04);
 }
 
@@ -905,7 +904,6 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    margin-bottom: 18px;
 }
 
 .account-warning-icon {
@@ -927,7 +925,7 @@
 }
 
 .account-delete-trigger-btn {
-    width: 100%;
+    width: 140px;
     padding: 14px;
     border-radius: var(--radius-md);
     border: 1.5px solid rgba(239, 68, 68, 0.4);
@@ -937,6 +935,7 @@
     cursor: pointer;
     font-size: 14px;
     transition: all 0.15s;
+    margin-left: auto;
 }
 
 .account-delete-trigger-btn:hover {

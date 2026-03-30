@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { updatePassword } from '../../api/users';
 import '../../styles/mypage.css';
+import Alert from '../../utils/alert'
 
 export default function PasswordSection() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
+  
   // 'none' | 'weak' | 'medium' | 'strong'
   const [passwordLevel, setPasswordLevel] = useState('none');
   const [currentStatus, setCurrentStatus] = useState('none');
@@ -41,7 +42,10 @@ export default function PasswordSection() {
     e.preventDefault();
 
     if (passwordLevel === 'weak' || passwordLevel === 'none') {
-      alert('새 비밀번호는 최소 8자 이상이어야 합니다.');
+      Alert.fire({
+        text: '비밀번호는 최소 8자 이상이어야 합니다.', 
+        showConfirmButton: '확인',
+      });
       return;
     }
 
@@ -57,7 +61,10 @@ export default function PasswordSection() {
     try {
       await updatePassword({ currentPassword, newPassword });
       setCurrentStatus('success');
-      alert('비밀번호가 성공적으로 변경되었습니다.');
+      Alert.fire({
+        text: '비밀번호가 성공적으로 변경되었습니다.', 
+        showConfirmButton: '확인',
+      });
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
