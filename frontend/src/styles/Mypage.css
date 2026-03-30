@@ -5,15 +5,26 @@
    ============================================================ */
 
 @keyframes mp-fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes mp-slideUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
-
 
 /* ════════════════════════════════════════════════════════════
    MyPage — 레이아웃
@@ -24,10 +35,8 @@
     margin: 0 auto;
     padding: 40px 24px;
     min-height: calc(100vh - var(--header-height));
-    font-family: 'Pretendard', sans-serif;
     animation: mp-fadeIn 0.5s ease;
 }
-
 
 /* ── 상단 프로필 카드 ── */
 
@@ -35,7 +44,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 30px;
+    padding: 35px 30px;
     border-radius: var(--radius-lg);
     background: var(--bg);
     border: 1.5px solid var(--border);
@@ -48,7 +57,6 @@
     align-items: center;
     gap: 20px;
 }
-
 
 /* ── 아바타 ── */
 
@@ -96,8 +104,7 @@
 .mypage-avatar-edit-label {
     font-size: 15px;
     color: #fff;
-    font-weight: 700;
-    font-family: 'Pretendard', sans-serif;
+    font-weight: 600;
     letter-spacing: 0.4px;
     width: 18px;
     height: 18px;
@@ -109,11 +116,13 @@
     cursor: pointer;
 }
 
-
 /* ── 프로필 텍스트 ── */
-
+.mypage-profile-user {
+    display: flex;
+    align-items: last baseline;
+    gap: 10px;
+}
 .mypage-profile-name {
-    margin: 0 0 4px;
     font-size: 22px;
     font-weight: 800;
     color: var(--text-primary);
@@ -121,9 +130,18 @@
 }
 
 .mypage-profile-email {
-    margin: 0 0 8px;
+    /* margin: 0 0 8px; */
     color: var(--text-muted);
     font-size: 14px;
+}
+.mypage-profile-bio {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 5px 10px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 0 10px 10px 10px;
 }
 
 .mypage-profile-badge {
@@ -132,12 +150,11 @@
     padding: 3px 10px;
     border-radius: 999px;
     color: var(--primary);
-    font-weight: 700;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
     gap: 4px;
 }
-
 
 /* ── 오른쪽 패널 ── */
 
@@ -148,41 +165,38 @@
     gap: 14px;
 }
 
-
 /* ── 통계 박스 ── */
 
 .mypage-stats-box {
     display: flex;
-    border: 1.5px solid var(--border);
+    border: 1.5px solid var(--bg);
     border-radius: var(--radius-md);
     background: var(--surface);
     overflow: hidden;
 }
 
 .mypage-stat-item {
-    padding: 10px 10px;
+    padding: 13px;
     text-align: center;
     min-width: 90px;
 }
 
 .mypage-stat-item--border {
-    border-right: 1.5px solid var(--border);
+    border-right: 1.5px solid var(--surface-hover);
 }
 
 .mypage-stat-number {
     margin: 0;
-    font-weight: 800;
+    font-weight: 700;
     font-size: 20px;
     color: var(--text-primary);
-    letter-spacing: -0.5px;
 }
 
 .mypage-stat-label {
     margin: 4px 0 0;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-muted);
 }
-
 
 /* ── 액션 버튼 ── */
 
@@ -195,8 +209,7 @@
     padding: 8px 16px;
     border-radius: var(--radius-sm);
     font-size: 13px;
-    font-weight: 700;
-    font-family: 'Pretendard', sans-serif;
+    font-weight: 600;
     cursor: pointer;
     border: 1.5px solid var(--border);
     background: var(--bg);
@@ -221,8 +234,7 @@
     padding: 8px 16px;
     border-radius: var(--radius-sm);
     font-size: 13px;
-    font-weight: 700;
-    font-family: 'Pretendard', sans-serif;
+    font-weight: 600;
     cursor: pointer;
     border: none;
     background: var(--primary);
@@ -238,6 +250,64 @@
     background: var(--primary-hover);
 }
 
+/* A안 사이드바 레이아웃 */
+.mypage-layout {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.mypage-sidebar {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.mypage-sidebar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mypage-sidebar-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 6px;
+}
+
+.mypage-sidebar-item {
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    font-family: 'Pretendard', sans-serif;
+}
+
+.mypage-sidebar-item:hover {
+    font-weight: 500;
+    background: var(--surface);
+    color: var(--primary);
+}
+
+.mypage-sidebar-item--active {
+    background: rgba(156, 136, 255, 0.12);
+    color: var(--primary);
+    font-weight: 5ß00;
+}
 
 /* ── 서브탭 바 (기본정보 / 보안 / 계정) ── */
 /* Tools.css cat-tab 패턴과 동일 */
@@ -258,7 +328,6 @@
 .mypage-subtab-btn {
     padding: 10px 20px;
     font-size: 14px;
-    font-family: 'Pretendard', sans-serif;
     font-weight: 500;
     color: var(--text-secondary);
     background: transparent;
@@ -276,20 +345,20 @@
 
 .mypage-subtab-btn--active {
     color: var(--primary);
-    font-weight: 700;
+    font-weight: 600;
     border-bottom-color: var(--primary);
 }
-
 
 /* ── 콘텐츠 박스 ── */
 
 .mypage-content-box {
+    min-height: 330px;
     background: var(--bg);
-    padding: 30px 40px;
+    padding: 30px;
     border-radius: var(--radius-lg);
     border: 1.5px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
-
 
 /* ── 워크플로우 섹션 ── */
 
@@ -310,7 +379,6 @@
 .mypage-filter-btn {
     padding: 6px 16px;
     font-size: 13px;
-    font-family: 'Pretendard', sans-serif;
     font-weight: 500;
     border: 1.5px solid var(--border);
     border-radius: 999px;
@@ -329,9 +397,8 @@
     background: rgba(156, 136, 255, 0.12);
     border-color: var(--primary);
     color: var(--primary);
-    font-weight: 700;
+    font-weight: 600;
 }
-
 
 /* ── 워크플로우 카드 (Tools.css tool-card 패턴과 동일) ── */
 
@@ -347,7 +414,7 @@
 }
 .mypage-post-card {
     padding: 15px;
-    height : 100px;
+    height: 100px;
     border-radius: var(--radius-md);
     border: 1.5px solid var(--border);
     background: var(--surface);
@@ -372,7 +439,7 @@
 
 .mypage-workflow-label {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--primary);
     letter-spacing: 0.8px;
     text-transform: uppercase;
@@ -386,7 +453,6 @@
     border-radius: var(--radius-sm);
     font-weight: 600;
     font-size: 12px;
-    font-family: 'Pretendard', sans-serif;
     cursor: pointer;
     transition: all 0.15s;
     margin-top: 2px;
@@ -398,12 +464,11 @@
     border-color: var(--primary);
 }
 
-
 /* ── 툴 아이템 ── */
 
 .mypage-workflow-tools {
     display: flex;
-    align-items:baseline;
+    align-items: baseline;
     gap: 16px;
     overflow-x: auto;
     scrollbar-width: none;
@@ -461,7 +526,6 @@
     flex-shrink: 0;
 }
 
-
 /* ════════════════════════════════════════════════════════════
    ProfileSection
 ════════════════════════════════════════════════════════════ */
@@ -476,7 +540,7 @@
 .profile-section-title {
     text-align: left;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
     letter-spacing: -0.3px;
     margin: 0 0 15px;
@@ -490,7 +554,7 @@
 /* Tools.css modal-section h4 패턴 참고 */
 .profile-label {
     display: block;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 12px;
     margin-bottom: 8px;
     color: var(--text-muted);
@@ -505,7 +569,6 @@
     border: 1.5px solid var(--border);
     box-sizing: border-box;
     font-size: 14px;
-    font-family: 'Pretendard', sans-serif;
     outline: none;
     background: var(--bg);
     color: var(--text-primary);
@@ -548,7 +611,6 @@
     outline: none;
     box-sizing: border-box;
     font-size: 14px;
-    font-family: 'Pretendard', sans-serif;
     color: var(--text-primary);
     background: var(--bg);
     transition: border-color 0.15s;
@@ -566,8 +628,7 @@
     border: none;
     background: var(--primary);
     color: #fff;
-    font-weight: 700;
-    font-family: 'Pretendard', sans-serif;
+    font-weight: 600;
     cursor: pointer;
     font-size: 15px;
     transition: background 0.15s;
@@ -582,7 +643,6 @@
     color: var(--text-muted);
     cursor: not-allowed;
 }
-
 
 /* ── Profile 수정 완료 모달 (Tools.css modal 패턴과 동일) ── */
 
@@ -634,8 +694,7 @@
     border: none;
     background: var(--primary);
     color: #fff;
-    font-weight: 700;
-    font-family: 'Pretendard', sans-serif;
+    font-weight: 600;
     cursor: pointer;
     font-size: 14px;
     transition: background 0.15s;
@@ -644,7 +703,6 @@
 .profile-modal-btn:hover {
     background: var(--primary-hover);
 }
-
 
 /* ════════════════════════════════════════════════════════════
    PasswordSection
@@ -666,7 +724,7 @@
 
 .password-label {
     display: block;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 12px;
     margin-bottom: 8px;
     text-align: left;
@@ -682,7 +740,6 @@
     border: 1.5px solid var(--border);
     box-sizing: border-box;
     font-size: 14px;
-    font-family: 'Pretendard', sans-serif;
     outline: none;
     background: var(--surface);
     color: var(--text-primary);
@@ -714,14 +771,28 @@
 .password-strength-fill {
     height: 100%;
     border-radius: 999px;
-    transition: width 0.4s ease, background-color 0.4s ease;
+    transition:
+        width 0.4s ease,
+        background-color 0.4s ease;
     width: 0%;
 }
 
-.password-strength-fill--weak   { width: 33.3%; background-color: #ef4444; }
-.password-strength-fill--medium { width: 66.6%; background-color: #f59e0b; }
-.password-strength-fill--strong { width: 100%;  background-color: var(--secondary); }
-.password-strength-fill--none   { width: 0%;    background-color: var(--border); }
+.password-strength-fill--weak {
+    width: 33.3%;
+    background-color: #ef4444;
+}
+.password-strength-fill--medium {
+    width: 66.6%;
+    background-color: #f59e0b;
+}
+.password-strength-fill--strong {
+    width: 100%;
+    background-color: var(--secondary);
+}
+.password-strength-fill--none {
+    width: 0%;
+    background-color: var(--border);
+}
 
 .password-status-text {
     font-size: 12px;
@@ -730,9 +801,15 @@
     font-weight: 600;
 }
 
-.password-status-text--weak   { color: #ef4444; }
-.password-status-text--medium { color: #f59e0b; }
-.password-status-text--strong { color: var(--secondary); }
+.password-status-text--weak {
+    color: #ef4444;
+}
+.password-status-text--medium {
+    color: #f59e0b;
+}
+.password-status-text--strong {
+    color: var(--secondary);
+}
 
 .password-match-text {
     font-size: 12px;
@@ -741,8 +818,12 @@
     font-weight: 600;
 }
 
-.password-match-text--ok    { color: var(--secondary); }
-.password-match-text--error { color: #ef4444; }
+.password-match-text--ok {
+    color: var(--secondary);
+}
+.password-match-text--error {
+    color: #ef4444;
+}
 
 .password-error-text {
     color: #ef4444;
@@ -758,8 +839,7 @@
     border: none;
     background: var(--primary);
     color: #fff;
-    font-weight: 700;
-    font-family: 'Pretendard', sans-serif;
+    font-weight: 600;
     cursor: pointer;
     font-size: 15px;
     transition: background 0.15s;
@@ -774,7 +854,6 @@
     color: var(--text-muted);
     cursor: not-allowed;
 }
-
 
 /* ════════════════════════════════════════════════════════════
    AccountSection
@@ -836,7 +915,7 @@
 
 .account-warning-title {
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0 0 2px;
     color: #ef4444;
 }
@@ -855,7 +934,6 @@
     background: transparent;
     color: #ef4444;
     font-weight: 600;
-    font-family: 'Pretendard', sans-serif;
     cursor: pointer;
     font-size: 14px;
     transition: all 0.15s;
@@ -865,7 +943,6 @@
     background: rgba(239, 68, 68, 0.08);
     border-color: #ef4444;
 }
-
 
 /* ── 탈퇴 확인 모달 (Tools.css modal 패턴과 동일) ── */
 
@@ -938,12 +1015,12 @@
     color: #ef4444;
     font-size: 11px;
     border-radius: 999px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .account-modal-consent-note {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-secondary);
     margin-top: 14px;
 }
@@ -955,7 +1032,6 @@
     border: 1.5px solid var(--border);
     margin-bottom: 10px;
     font-size: 14px;
-    font-family: 'Pretendard', sans-serif;
     outline: none;
     text-align: center;
     box-sizing: border-box;
@@ -986,7 +1062,6 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
-    font-family: 'Pretendard', sans-serif;
     background: transparent;
     color: var(--text-secondary);
     transition: all 0.15s;
@@ -1002,9 +1077,8 @@
     padding: 13px;
     border-radius: var(--radius-sm);
     border: none;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 14px;
-    font-family: 'Pretendard', sans-serif;
     background: #ef4444;
     color: #fff;
     cursor: pointer;
