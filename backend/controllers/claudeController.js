@@ -19,19 +19,32 @@ const suggest = async (req, res) => {
 
   // ✅ 이 블록 추가//////////////////////////////
   if (USE_MOCK) {
-    return res.status(200).json({
-      success: true,
-      data: {
-        purpose: "숏폼 제작",
-        recommended_categories: ["기획 및 스크립트", "편집 / 숏폼 변환"],
-        tools_by_category: {
-          "기획 및 스크립트": ["ChatGPT", "Claude", "Gemini","Notion AI"],
-          "편집 / 숏폼 변환": ["CapCut AI", "Vrew"]
-        },
-        reason: "숏폼 제작에 필요한 핵심 단계예요"
-      }
-    });
-  }
+  return res.status(200).json({
+    success: true,
+    data: {
+      purpose: "숏폼 제작",
+      recommended_categories: [
+        "기획 및 스크립트",
+        "영상 소스 생성",
+        "이미지 소스 생성",
+        "성우 / TTS",
+        "BGM",
+        "편집 / 숏폼 변환",
+        "업로드 최적화"
+      ],
+      tools_by_category: {
+        "기획 및 스크립트": ["ChatGPT", "Claude", "Gemini", "Notion AI"],
+        "영상 소스 생성": ["Runway", "Kling AI", "Pika", "Sora"],
+        "이미지 소스 생성": ["Midjourney", "DALL·E 3", "Stable Diffusion", "Adobe Firefly"],
+        "성우 / TTS": ["ElevenLabs", "CLOVA Dubbing", "Typecast", "Murf AI"],
+        "BGM": ["Suno AI", "Udio", "Soundraw", "Mubert"],
+        "편집 / 숏폼 변환": ["CapCut AI", "Vrew", "Runway", "Adobe Premiere"],
+        "업로드 최적화": ["Buffer", "Hootsuite", "Later", "Metricool"]
+      },
+      reason: "숏폼 제작에 필요한 핵심 단계예요"
+    }
+  });
+}
   ////////////////////////////////////////
   try {
     // DB에서 툴 목록 먼저 조회
@@ -121,37 +134,87 @@ const generateWorkflow = async (req, res) => {
   }
 
   // ✅ 이 블록 추가/////////////////////
-  if (USE_MOCK) {
-    return res.status(200).json({
-      success: true,
-      data: {
-        title: "숏폼 영상 제작 워크플로우",
-        total_time: "약 40분",
-        steps: [
-          {
-            step_order: 1,
-            category: "기획 및 스크립트",
-            tool_name: "ChatGPT",
-            task: "숏폼 스크립트 작성",
-            prompt_example: "30초 숏폼용 스크립트를 작성해줘. 주제는 AI 생산성 툴, 톤은 친근하게.",
-            duration: "10분",
-            tip: "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
-            caution: "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
-          },
-          {
-            step_order: 2,
-            category: "영상 편집",
-            tool_name: "Vrew",
-            task: "AI 자동 자막 및 영상 편집",
-            prompt_example: "Vrew에 영상 업로드 후 자동 자막 생성 → 스크립트 기반으로 불필요한 구간 자동 컷편집 적용",
-            duration: "15분",
-            tip: "자막 폰트는 '굵게' 설정하고 배경 박스를 추가하면 숏폼 가독성이 높아져요",
-            caution: "자동 자막의 맞춤법 오류는 수동으로 꼭 확인하세요"
-          }
-        ]
-      },
-    });
-  }
+ if (USE_MOCK) {
+  return res.status(200).json({
+    success: true,
+    data: {
+      title: "숏폼 영상 제작 워크플로우",
+      total_time: "약 90분",
+      steps: [
+        {
+          step_order: 1,
+          category: "기획 및 스크립트",
+          tool_name: "ChatGPT",
+          task: "숏폼 스크립트 작성",
+          prompt_example: "30초 숏폼용 스크립트를 작성해줘. 주제는 AI 생산성 툴, 톤은 친근하게.",
+          duration: "10분",
+          tip: "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
+          caution: "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
+        },
+        {
+          step_order: 2,
+          category: "영상 소스 생성",
+          tool_name: "Runway",
+          task: "스크립트 기반 영상 클립 생성",
+          prompt_example: "A person working at a desk with floating productivity app icons around them, cinematic, 4K, 9:16 vertical format, 5 seconds",
+          duration: "15분",
+          tip: "장면당 5초 이내로 짧게 나눠 생성하면 품질이 더 안정적이에요",
+          caution: "생성된 영상의 손·얼굴 디테일은 꼭 확인 후 사용하세요"
+        },
+        {
+          step_order: 3,
+          category: "이미지 소스 생성",
+          tool_name: "Midjourney",
+          task: "썸네일 및 배경 이미지 생성",
+          prompt_example: "A clean modern thumbnail for a productivity YouTube short, vibrant colors, minimal text space --ar 9:16 --v 6",
+          duration: "10분",
+          tip: "숏폼 비율인 9:16을 반드시 지정해야 잘려나가지 않아요",
+          caution: "상업적 사용 시 Midjourney 플랜 등급을 확인하세요"
+        },
+        {
+          step_order: 4,
+          category: "성우 / TTS",
+          tool_name: "ElevenLabs",
+          task: "스크립트 나레이션 음성 생성",
+          prompt_example: "스크립트 텍스트 입력 → 한국어 지원 보이스 선택 → Stability 0.5 / Clarity 0.75 설정 후 생성",
+          duration: "10분",
+          tip: "Stability를 낮출수록 더 자연스러운 억양이 나와요",
+          caution: "무료 플랜은 월 10,000자 제한이 있어요"
+        },
+        {
+          step_order: 5,
+          category: "BGM",
+          tool_name: "Suno AI",
+          task: "영상 분위기에 맞는 BGM 생성",
+          prompt_example: "upbeat lo-fi background music for a 30-second productivity tips video, no lyrics, energetic but calm",
+          duration: "5분",
+          tip: "가사 없는 버전으로 생성해야 나레이션과 충돌이 없어요",
+          caution: "상업용 사용 여부는 Suno 플랜별 저작권 정책을 확인하세요"
+        },
+        {
+          step_order: 6,
+          category: "편집 / 숏폼 변환",
+          tool_name: "Vrew",
+          task: "AI 자동 자막 및 컷편집",
+          prompt_example: "Vrew에 영상 업로드 → 자동 자막 생성 → 스크립트 기반 불필요 구간 자동 컷편집 적용",
+          duration: "15분",
+          tip: "자막 폰트는 굵게 설정하고 배경 박스를 추가하면 가독성이 높아져요",
+          caution: "자동 자막의 맞춤법 오류는 수동으로 꼭 확인하세요"
+        },
+        {
+          step_order: 7,
+          category: "업로드 최적화",
+          tool_name: "Buffer",
+          task: "SNS 채널 예약 업로드 및 최적화",
+          prompt_example: "Buffer에 영상 업로드 → TikTok·Instagram Reels·YouTube Shorts 동시 예약 → 최적 업로드 시간대 자동 추천 적용",
+          duration: "10분",
+          tip: "플랫폼별 해시태그는 5~10개가 가장 효과적이에요",
+          caution: "각 플랫폼 파일 크기 제한(TikTok 287MB, Reels 4GB)을 확인하세요"
+        }
+      ]
+    }
+  });
+}
 ///////////////////////////////////////////////
 
     const systemPrompt = `
