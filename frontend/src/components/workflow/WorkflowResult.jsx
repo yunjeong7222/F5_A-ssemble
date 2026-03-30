@@ -412,18 +412,7 @@ const WorkflowResult = ({ workflowResult }) => {
                     onError={(e) => { e.target.style.display='none'; }}
                   />
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ 
-                        fontSize: '0.85rem', 
-                        fontWeight: '700', 
-                        color: '#1e293b',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        wordBreak: 'keep-all',
-                        lineHeight: '1.4',
-                    }}>
+                    <div className="wr-flow-item-toolname">
                         {step.tool}
                     </div>
                     <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#10b981', marginTop: '2px' }}>{toolInfo.category.split('·')[0].trim()}</div>

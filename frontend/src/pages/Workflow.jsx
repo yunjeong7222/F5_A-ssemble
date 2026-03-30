@@ -10,8 +10,6 @@ const Workflow = () => {
   const { step, purpose, setPurpose, selectedTools, workflowResult, isLoading, resetWorkflow, prevStep } = useWorkflowStore();
   const { handleSuggestTools, handleCreateWorkflow } = useWorkflow();
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
-
   const SUGGEST_PROMPTS = {
     '유튜브 영상 제작': '유튜브 영상을 제작하고 싶은데 기획부터 영상, 편집, 업로드까지 전 과정에 필요한 AI 툴을 추천해줘',
     '무료 BGM 생성 및 동영상 제작': '무료로 배경음악을 생성하고 동영상까지 제작할 수 있는 AI 툴 조합을 추천해줘',

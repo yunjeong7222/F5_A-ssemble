@@ -7,23 +7,23 @@ import { addBookmark, removeBookmark, checkBookmark } from '../api/workflowBookm
 import useAuthStore from '../store/authStore';
 import EmbedPreview from '../components/community/EmbedPreview';
 import CommentList from '../components/community/CommentList';
-import CommunityEdit from './CommunityEdit';
+
 import Alert from '../utils/alert';
 import '../styles/Community.css';
 
 const CommunityDetail = ({ postId, onClose }) => {
   const navigate = useNavigate();
-  const { id }   = useParams();
+  const { id } = useParams();
   const { user } = useAuthStore();
 
-  const [post, setPost]           = useState(null);
-  const [workflow, setWorkflow]   = useState(null);
+  const [post, setPost] = useState(null);
+  const [workflow, setWorkflow] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLiked, setIsLiked]     = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [editablePrompts, setEditablePrompts] = useState({});
   const [isBookmarked, setIsBookmarked] = useState(false);
-
+  const [copiedStep, setCopiedStep] = useState(null);
   /* ── 게시글 + 워크플로우 로드 ── */
   useEffect(() => {
     const load = async () => {
@@ -45,20 +45,20 @@ const CommunityDetail = ({ postId, onClose }) => {
             : wfData.result_json;
 
           const steps = (resultJson?.steps || []).map(s => ({
-            step:          s.step_order ?? s.step,
-            tool:          s.tool_name  ?? s.tool,
-            shortName:     (s.tool_name ?? s.tool)?.slice(0, 5),
-            category:      s.category   || '',
-            tip:           s.tip        || '',
+            step: s.step_order ?? s.step,
+            tool: s.tool_name ?? s.tool,
+            shortName: (s.tool_name ?? s.tool)?.slice(0, 5),
+            category: s.category || '',
+            tip: s.tip || '',
             prompt_example: s.prompt_example || '',
-            thumbnail:     wfData.tools?.find(t => t.tool_name === (s.tool_name ?? s.tool))?.thumbnail || null,
+            thumbnail: wfData.tools?.find(t => t.tool_name === (s.tool_name ?? s.tool))?.thumbnail || null,
           }));
 
           setWorkflow({
-            title:    wfData.title,
+            title: wfData.title,
             category: resultJson?.workflows_category || steps[0]?.category || '',
             categories: [...new Set(steps.map(s => s.category).filter(Boolean))],
-            tools:    wfData.tools || [],
+            tools: wfData.tools || [],
             steps,
           });
 
@@ -67,10 +67,10 @@ const CommunityDetail = ({ postId, onClose }) => {
           steps.forEach(s => { initialPrompts[s.step] = s.prompt_example; });
           setEditablePrompts(initialPrompts);
         }
-      if (postData.workflow_id && user) {
-        const bmRes = await checkBookmark(postData.workflow_id);
-        setIsBookmarked(bmRes.data.data.isBookmarked);
-      }
+        if (postData.workflow_id && user) {
+          const bmRes = await checkBookmark(postData.workflow_id);
+          setIsBookmarked(bmRes.data.data.isBookmarked);
+        }
       } catch (err) {
         console.error('불러오기 실패:', err);
       } finally {
@@ -82,7 +82,13 @@ const CommunityDetail = ({ postId, onClose }) => {
 
   /* ── 좋아요 토글 ── */
   const handleLikeToggle = async () => {
-    if (!user) { alert('로그인 후 이용해주세요.'); return; }
+    if (!user) {
+      Alert.fire({
+        text: '로그인이 필요한 서비스입니다.',
+        showConfirmButton: '확인',
+      });
+      return;
+    }
     try {
       if (isLiked) {
         await unlikePost(id);
@@ -93,26 +99,44 @@ const CommunityDetail = ({ postId, onClose }) => {
       }
       setIsLiked(prev => !prev);
     } catch {
-      alert('좋아요 처리에 실패했습니다.');
+      Alert.fire({
+        text: '좋아요 처리에 실패했습니다.',
+        showConfirmButton: '확인',
+      });
     }
   };
 
   // 북마크 토글 함수 추가
   const handleBookmarkToggle = async () => {
-    if (!user) { alert('로그인 후 이용해주세요.'); return; }
+    if (!user) {
+      Alert.fire({
+        text: '로그인이 필요한 서비스입니다.',
+        showConfirmButton: '확인',
+      });
+      return;
+    }
     try {
       if (isBookmarked) {
         await removeBookmark(post.workflow_id);
       } else {
         await addBookmark(post.workflow_id);
-        alert('워크플로우를 북마크 했습니다.');
+        Alert.fire({
+          text: '워크플로우를 북마크 했습니다.',
+          showConfirmButton: '확인',
+        });
       }
       setIsBookmarked(prev => !prev);
     } catch (err) {
       if (err.response?.status === 409) {
-        alert('이미 북마크한 워크플로우입니다.');
+        Alert.fire({
+          text: '이미 북마크한 워크플로우입니다.',
+          showConfirmButton: '확인',
+        });
       } else {
-        alert('북마크 처리에 실패했습니다.');
+        Alert.fire({
+          text: '북마크 처리에 실패했습니다',
+          showConfirmButton: '확인',
+        });
       }
     }
   };
@@ -122,15 +146,19 @@ const CommunityDetail = ({ postId, onClose }) => {
     setEditablePrompts(prev => ({ ...prev, [step]: text }));
   };
 
-  const handleCopyPrompt = async (text) => {
+  const handleCopyPrompt = async (text, stepKey) => {
     try {
       await navigator.clipboard.writeText(text);
-      alert('프롬프트가 복사되었습니다!');
+      setCopiedStep(stepKey);
+      setTimeout(() => setCopiedStep(null), 2000);
     } catch {
-      alert('복사에 실패했습니다.');
+      Alert.fire({
+        text: '복사에 실패했습니다.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
   };
-
   /* ── text attachment (본문 설명) ── */
   const textContent = post?.attachments?.find(a => a.type === 'text')?.content || '';
 
@@ -165,7 +193,7 @@ const CommunityDetail = ({ postId, onClose }) => {
               <img
                 src={post.profile_url}
                 alt={post.nickname}
-                style={{ width: 35, height: 35, borderRadius: '50%', objectFit: 'cover'}}
+                style={{ width: 35, height: 35, borderRadius: '50%', objectFit: 'cover' }}
               />
             ) : (
               <span className="detail-avatar-user">
@@ -188,7 +216,6 @@ const CommunityDetail = ({ postId, onClose }) => {
                   className="detail-btn"
                   onClick={async () => {
                     const result = await Alert.fire({
-                      icon: 'warning',
                       title: '게시글을 삭제하시겠습니까?',
                       showCancelButton: true,
                       confirmButtonText: '삭제',
@@ -222,23 +249,23 @@ const CommunityDetail = ({ postId, onClose }) => {
               {likeCount}
             </button>
 
-            
+
             {post.workflow_id && post.user_id !== user?.id && (
-            <button
-              onClick={handleBookmarkToggle}
-              className={`detail-bookmark-btn${isBookmarked ? ' detail-bookmark-btn--active' : ''}`}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24"
-                fill={isBookmarked ? 'var(--primary)' : 'none'}
-                stroke="var(--primary)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <button
+                onClick={handleBookmarkToggle}
+                className={`detail-bookmark-btn${isBookmarked ? ' detail-bookmark-btn--active' : ''}`}
               >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
-            </button>
-          )}
+                <svg width="22" height="22" viewBox="0 0 24 24"
+                  fill={isBookmarked ? 'var(--primary)' : 'none'}
+                  stroke="var(--primary)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -318,9 +345,13 @@ const CommunityDetail = ({ postId, onClose }) => {
                       />
                       <button
                         className="detail-copy-btn-new"
-                        onClick={() => handleCopyPrompt(editablePrompts[step.step] || '')}
+                        onClick={() => handleCopyPrompt(editablePrompts[step.step] || '', step.step)}
                       >
-                        복사
+                        {copiedStep === step.step ? (
+                          <svg width="21" height="13" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : '복사'}
                       </button>
                     </div>
                   </div>
@@ -352,14 +383,14 @@ const CommunityDetail = ({ postId, onClose }) => {
 
       {/* ── 5. 태그 ── */}
       {workflow?.categories?.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '18px 0' }}>
-            {workflow.categories.map(cat => (
-              <span key={cat} className="comm-category-badge">
-                # {cat}
-              </span>
-            ))}
-          </div>
-        )}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '18px 0' }}>
+          {workflow.categories.map(cat => (
+            <span key={cat} className="comm-category-badge">
+              # {cat}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* ── 6. 댓글 ── */}
       <CommentList postId={id} />

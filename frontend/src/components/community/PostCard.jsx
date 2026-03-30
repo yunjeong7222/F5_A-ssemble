@@ -159,7 +159,18 @@ const PostCard = ({ post }) => {
 	};
 
 	return (
-		<div className="comm-card" onClick={() => navigate(`/community/${post.id}`)}>
+		<div className="comm-card"
+			onClick={() => {
+				if (!user) {
+					Alert.fire({
+						text: '로그인이 필요한 서비스입니다.',
+						showConfirmButton: '확인',
+					});
+					return;
+				}
+				navigate(`/community/${post.id}`);
+			}}
+		>
 			{renderThumbnail()}
 
 			<div className="comm-card-content">

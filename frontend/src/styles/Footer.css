@@ -51,3 +51,9 @@
     font-size: 13px;
     color: var(--color-text-tertiary);
 }
+
+@media (max-width: 1024px) {
+    .footer {
+        padding: 40px 24px;
+    }
+}

@@ -2,6 +2,7 @@ import useWorkflowStore from '../store/workflowStore';
 import { suggestTools, createWorkflow } from '../api/claude';
 import { saveWorkflow } from '../api/workflows';
 import { getTools  } from '../api/tools';
+import Alert from '../utils/alert'
 
 export const useWorkflow = () => {
   const { setStep, setRecommendedTools, setWorkflowResult, setIsLoading, recommendedTools } = useWorkflowStore();
@@ -43,7 +44,10 @@ export const useWorkflow = () => {
 
   } catch (error) {
     console.error('툴 추천 오류:', error);
-    alert('AI 툴 추천을 불러오는데 실패했습니다.');
+    Alert.fire({
+        text: 'AI 툴 추천을 불러오는데 실패했습니다.',
+        showConfirmButton: true,
+    });
   } finally {
     setIsLoading(false);
   }
@@ -76,7 +80,11 @@ export const useWorkflow = () => {
 
     // ✅ 방어 코드 추가: 선택된 툴이 없으면 중단
     if (selectedToolObjects.length === 0) {
-      alert("최소 1개 이상의 AI 툴을 선택해 주세요.");
+      Alert.fire({
+        text: '최소 1개 이상의 AI 툴을 선택해 주세요.',
+        showConfirmButton: false,
+        timer : 1500,
+    });
       setIsLoading(false);
       return;
     }
@@ -107,7 +115,11 @@ export const useWorkflow = () => {
     setStep(3);
   } catch (error) {
     console.error('워크플로우 생성 오류:', error);
-    alert('워크플로우를 생성하는데 실패했습니다.');
+    Alert.fire({
+        text: '워크플로우를 생성하는데 실패했습니다.',
+        showConfirmButton: false,
+        timer : 1500,
+    });
   } finally {
     setIsLoading(false);
   }
@@ -130,12 +142,21 @@ console.log('workflows_category 값:', workflowResult?.workflows_category);
         tool_ids: selectedTools,
       });
 
-      alert('워크플로우가 저장되었습니다!');
+  
+      Alert.fire({
+        text: '워크플로우가 저장되었습니다!',
+        showConfirmButton: false,
+        timer : 1500,
+     });
       return response.data.id;   // 저장된 워크플로우 ID 반환 
 
     } catch (error) {
       console.error('워크플로우 저장 오류:', error);
-      alert('저장에 실패했습니다. 다시 시도해주세요.');
+      Alert.fire({
+        text: '저장에 실패했습니다. 다시 시도해주세요.',
+        showConfirmButton: false,
+        timer : 1500,
+     });
     } finally {
       setIsLoading(false);
     }

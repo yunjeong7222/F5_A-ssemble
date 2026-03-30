@@ -5,21 +5,22 @@ import { fetchMyWorkflows } from '../api/workflows';
 import { getMyBookmarks } from '../api/workflowBookmarks';
 import { uploadFile } from '../utils/uploadFile';
 import '../styles/Community.css';
+import Alert from '../utils/alert'
 
 const CommunityWrite = () => {
   const navigate = useNavigate();
 
-  const [postTitle, setPostTitle]       = useState('');
-  const [postContent, setPostContent]   = useState('');
+  const [postTitle, setPostTitle] = useState('');
+  const [postContent, setPostContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [myWorkflows, setMyWorkflows]               = useState([]);
+  const [myWorkflows, setMyWorkflows] = useState([]);
   const [isLoadingWorkflows, setIsLoadingWorkflows] = useState(true);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState(null);
-  const [editablePrompts, setEditablePrompts]       = useState({});
-  
+  const [editablePrompts, setEditablePrompts] = useState({});
+
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl]     = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
 
   const [uploadType, setUploadType] = useState('file'); // 'file' | 'youtube'
@@ -36,29 +37,29 @@ const CommunityWrite = () => {
         const list = res.data.data || [];
         const bmRes = await getMyBookmarks();
         const bmList = bmRes.data.data || [];
-        
+
         const parseWf = (wf) => {
-        const resultJson = typeof wf.result_json === 'string'
-          ? JSON.parse(wf.result_json)
-          : wf.result_json;
-        const steps = resultJson?.steps || [];
-        return {
-          id: wf.id,
-          title: wf.title,
-          category: steps.map(s => s.category).filter(Boolean)[0] || '',
-          categories: [...new Set(steps.map(s => s.category).filter(Boolean))],
-          toolsText: wf.tools?.map(t => t.name).join(' · ') || '',
-          steps: steps.map(s => ({
-            step: s.step_order ?? s.step,
-            tool: s.tool_name  ?? s.tool,
-            shortName: (s.tool_name ?? s.tool)?.slice(0, 5),
-            category: s.category,
-            description: s.tip || '',
-            prompt_example: s.prompt_example || '',
-            thumbnail: wf.tools?.find(t => t.name === (s.tool_name ?? s.tool))?.thumbnail || null,
-          })),
+          const resultJson = typeof wf.result_json === 'string'
+            ? JSON.parse(wf.result_json)
+            : wf.result_json;
+          const steps = resultJson?.steps || [];
+          return {
+            id: wf.id,
+            title: wf.title,
+            category: steps.map(s => s.category).filter(Boolean)[0] || '',
+            categories: [...new Set(steps.map(s => s.category).filter(Boolean))],
+            toolsText: wf.tools?.map(t => t.name).join(' · ') || '',
+            steps: steps.map(s => ({
+              step: s.step_order ?? s.step,
+              tool: s.tool_name ?? s.tool,
+              shortName: (s.tool_name ?? s.tool)?.slice(0, 5),
+              category: s.category,
+              description: s.tip || '',
+              prompt_example: s.prompt_example || '',
+              thumbnail: wf.tools?.find(t => t.name === (s.tool_name ?? s.tool))?.thumbnail || null,
+            })),
+          };
         };
-      };
         setMyWorkflows(list.map(parseWf));
         setBookmarkedWorkflows(bmList.map(parseWf));
 
@@ -71,9 +72,9 @@ const CommunityWrite = () => {
     loadWorkflows();
   }, []);
 
-  const selectedWorkflow = 
-  myWorkflows.find(w => w.id === selectedWorkflowId) ||
-  bookmarkedWorkflows.find(w => w.id === selectedWorkflowId);
+  const selectedWorkflow =
+    myWorkflows.find(w => w.id === selectedWorkflowId) ||
+    bookmarkedWorkflows.find(w => w.id === selectedWorkflowId);
 
   useEffect(() => {
     if (selectedWorkflow?.steps) {
@@ -93,7 +94,12 @@ const CommunityWrite = () => {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 50 * 1024 * 1024) {
-      alert('파일 크기는 50MB를 초과할 수 없습니다.');
+      Alert.fire({
+        text: '파일 크기는 50MB를 초과할 수 없습니다.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
       e.target.value = '';
       return;
     }
@@ -114,24 +120,36 @@ const CommunityWrite = () => {
 
   const getYoutubeId = (url) => {
     return url?.match(/[?&]v=([^&]+)/)?.[1] ||
-           url?.match(/youtu\.be\/([^?]+)/)?.[1] || null;
+      url?.match(/youtu\.be\/([^?]+)/)?.[1] || null;
   };
 
   const CATEGORY_PLACEHOLDER = {
-    '기획 및 스크립트':  '/icons/category-1.png',
-    '영상 소스 생성':    '/icons/category-2.png',
-    '이미지 소스 생성':  '/icons/category-3.png',
-    '성우 / TTS':       '/icons/category-4.png',
-    'BGM':              '/icons/category-5.png',
-    '편집 / 숏폼 변환':  '/icons/category-6.png',
-    '업로드 최적화':     '/icons/category-7.png',
+    '기획 및 스크립트': '/icons/category-1.png',
+    '영상 소스 생성': '/icons/category-2.png',
+    '이미지 소스 생성': '/icons/category-3.png',
+    '성우 / TTS': '/icons/category-4.png',
+    'BGM': '/icons/category-5.png',
+    '편집 / 숏폼 변환': '/icons/category-6.png',
+    '업로드 최적화': '/icons/category-7.png',
   };
 
   const handleSubmit = async () => {
-    if (!postTitle.trim())                                      return alert('게시글 제목을 입력해주세요.');
-    if (uploadType === 'youtube' && !getYoutubeId(youtubeUrl)) return alert('올바른 유튜브 URL을 입력해주세요.');
-    if (!selectedWorkflowId)                                    return alert('공유할 레시피(워크플로우)를 선택해주세요.');
-    if (!postContent.trim())                                    return alert('워크플로우 설명을 작성해주세요.');
+    if (!postTitle.trim()) {
+      await Alert.fire({ text: '게시글 제목을 입력해주세요.', showConfirmButton: false, timer: 1500 });
+      return;
+    }
+    if (uploadType === 'youtube' && !getYoutubeId(youtubeUrl)) {
+      await Alert.fire({ text: '올바른 유튜브 URL을 입력해주세요.', showConfirmButton: false, timer: 1500 });
+      return;
+    }
+    if (!selectedWorkflowId) {
+      await Alert.fire({ text: '공유할 레시피(워크플로우)를 선택해주세요.', showConfirmButton: false, timer: 1500 });
+      return;
+    }
+    if (!postContent.trim()) {
+      await Alert.fire({ text: '워크플로우 설명을 작성해주세요.', showConfirmButton: false, timer: 1500 });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -142,14 +160,14 @@ const CommunityWrite = () => {
           const fileUrl = await uploadFile(selectedFile);
           const fileType = selectedFile.type.startsWith('video/') ? 'video' : 'image';
           attachments.push({ type: fileType, url: fileUrl });
-      } else {
+        } else {
           const category = selectedWorkflow?.categories?.[0] || selectedWorkflow?.category || '';
           const placeholderUrl = CATEGORY_PLACEHOLDER[category] || '/icons/category-1.png';
           attachments.push({ type: 'image', url: placeholderUrl });
-        } 
+        }
       } else {
-      attachments.push({ type: 'youtube', url: youtubeUrl });
-     }
+        attachments.push({ type: 'youtube', url: youtubeUrl });
+      }
 
       attachments.push({ type: 'text', content: postContent });
 
@@ -159,11 +177,19 @@ const CommunityWrite = () => {
         attachments,
       });
 
-      alert('게시글이 성공적으로 등록되었습니다! 🎉');
+      await Alert.fire({ 
+        text: '게시글이 성공적으로 등록되었습니다!', 
+        showConfirmButton: false, 
+        timer: 1500 
+      });
       navigate('/community');
     } catch (error) {
       console.error('게시글 작성 실패:', error);
-      alert('게시글 등록에 실패했습니다. 다시 시도해주세요.');
+      Alert.fire({
+        text: '게시글 등록에 실패했습니다. 다시 시도해주세요.', 
+        showConfirmButton: false, 
+        timer: 1500 
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -174,7 +200,7 @@ const CommunityWrite = () => {
       prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
   };
-  
+
   return (
     <div className="write-wrapper">
       <div className="write-container">
@@ -283,7 +309,7 @@ const CommunityWrite = () => {
               </div>
             )}
 
-            {!isLoadingWorkflows && myWorkflows.length === 0 && bookmarkedWorkflows.length === 0 &&(
+            {!isLoadingWorkflows && myWorkflows.length === 0 && bookmarkedWorkflows.length === 0 && (
               <div className="write-no-recipe">
                 <div className="write-no-recipe-icon">✦</div>
                 <h3 className="write-no-recipe-title">저장된 워크플로우가 없어요</h3>
@@ -301,57 +327,57 @@ const CommunityWrite = () => {
             {/* 워크플로우 목록 — 카테고리 함께 표시 */}
             {!isLoadingWorkflows && myWorkflows.length > 0 && !selectedWorkflow && (
               <div>
-              <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
-              {[
-                { key: 'my',         label: `내 워크플로우 (${myWorkflows.length})` },
-                { key: 'bookmarked', label: `북마크 (${bookmarkedWorkflows.length})` },
-              ].map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`comm-filter-btn ${activeTab === tab.key ? 'active' : ''}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* 목록 */}
-            {(() => {
-              const list = activeTab === 'my' ? myWorkflows : bookmarkedWorkflows;
-              if (list.length === 0) {
-                return (
-                  <div className="write-no-recipe">
-                    <div className="write-no-recipe-icon">✦</div>
-                    <p className="write-no-recipe-desc">
-                      {activeTab === 'my' ? '저장된 워크플로우가 없어요' : '북마크한 워크플로우가 없어요'}
-                    </p>
-                  </div>
-                );
-              }
-              return (
-                <div className="write-wf-list">
-                  {list.map(item => (
-                    <div
-                      key={item.id}
-                      onClick={() => setSelectedWorkflowId(item.id)}
-                      className="write-wf-item"
+                <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+                  {[
+                    { key: 'my', label: `내 워크플로우 (${myWorkflows.length})` },
+                    { key: 'bookmarked', label: `북마크 (${bookmarkedWorkflows.length})` },
+                  ].map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setActiveTab(tab.key)}
+                      className={`comm-filter-btn ${activeTab === tab.key ? 'active' : ''}`}
                     >
-                      <div className="write-wf-icon">✦</div>
-                      <div style={{ flex: 1 }}>
-                        <strong className="write-wf-title">{item.title}</strong>
-                        <span className="write-wf-tools">{item.toolsText}</span>
-                      </div>
-                      {item.category && (
-                        <span className="write-cat-badge" style={{ flexShrink: 0 }}>
-                          {item.category}
-                        </span>
-                      )}
-                    </div>
+                      {tab.label}
+                    </button>
                   ))}
                 </div>
-              );
-            })()}
+
+                {/* 목록 */}
+                {(() => {
+                  const list = activeTab === 'my' ? myWorkflows : bookmarkedWorkflows;
+                  if (list.length === 0) {
+                    return (
+                      <div className="write-no-recipe">
+                        <div className="write-no-recipe-icon">✦</div>
+                        <p className="write-no-recipe-desc">
+                          {activeTab === 'my' ? '저장된 워크플로우가 없어요' : '북마크한 워크플로우가 없어요'}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="write-wf-list">
+                      {list.map(item => (
+                        <div
+                          key={item.id}
+                          onClick={() => setSelectedWorkflowId(item.id)}
+                          className="write-wf-item"
+                        >
+                          <div className="write-wf-icon">✦</div>
+                          <div style={{ flex: 1 }}>
+                            <strong className="write-wf-title">{item.title}</strong>
+                            <span className="write-wf-tools">{item.toolsText}</span>
+                          </div>
+                          {item.category && (
+                            <span className="write-cat-badge" style={{ flexShrink: 0 }}>
+                              {item.category}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -410,7 +436,7 @@ const CommunityWrite = () => {
                                 ) : (
                                   step.shortName
                                 )}
-                                </div>
+                              </div>
                               <span className="write-flow-name">{step.tool}</span>
                             </div>
                             {index < selectedWorkflow.steps.length - 1 && (

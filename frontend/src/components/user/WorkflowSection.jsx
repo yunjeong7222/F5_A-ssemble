@@ -11,6 +11,7 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editedPrompts, setEditedPrompts] = useState({});
+  const [copiedStep, setCopiedStep] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -54,10 +55,10 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
 
     if (!hasChanged) {
       Alert.fire({
-      text: '변경된 내용이 없습니다.',
-      showConfirmButton: false,
-      timer: 1500,
-    });
+        text: '변경된 내용이 없습니다.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
       return;
     }
 
@@ -77,10 +78,18 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
 
       setData(prev => ({ ...prev, resultJson: updatedResultJson }));
       setIsEditing(false);
-      alert('저장되었습니다!');
+      Alert.fire({
+        text: '저장되었습니다!',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       console.error('저장 실패:', err);
-      alert('저장에 실패했습니다.');
+      Alert.fire({
+        text: '저장에 실패했습니다.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } finally {
       setIsSaving(false);
     }
@@ -101,7 +110,7 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
       onClick={onClose}
     >
       <div
-        style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '640px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '28px'}}
+        style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '640px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '28px' }}
         onClick={(e) => e.stopPropagation()}
       >
         {isLoading ? (
@@ -145,7 +154,7 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
                     </button>
                   </>
                 )}
-               
+
               </div>
             </div>
 
@@ -170,58 +179,67 @@ const WorkflowDetailModal = ({ workflowId, isBookmarked, onClose }) => {
 
             {/* 단계별 프롬프트 */}
             <div style={{ overflowY: 'auto', flex: 1, paddingRight: '4px' }}>
-            {data.resultJson?.steps?.map((step, i) => {
-              const stepKey = step.step_order ?? step.step;
-              return (
-                <div key={i} style={{ border: `1px solid ${isEditing ? '#c7d2fe' : '#e2e8f0'}`, borderRadius: '12px', padding: '16px', marginBottom: '12px', transition: 'border-color .2s' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '11px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ width: '22px', height: '22px', background: '#6366f1', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700' }}>
-                        {stepKey}
+              {data.resultJson?.steps?.map((step, i) => {
+                const stepKey = step.step_order ?? step.step;
+                return (
+                  <div key={i} style={{ border: `1px solid ${isEditing ? '#c7d2fe' : '#e2e8f0'}`, borderRadius: '12px', padding: '16px', marginBottom: '12px', transition: 'border-color .2s' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '11px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ width: '22px', height: '22px', background: '#6366f1', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700' }}>
+                          {stepKey}
+                        </span>
+                        <strong style={{ fontSize: '14px', color: '#1e293b' }}>{step.tool_name ?? step.tool}</strong>
+                      </div>
+                      <span style={{ fontSize: '11px', background: '#f1f5f9', color: '#64748b', padding: '3px 10px', borderRadius: '20px', fontWeight: '600' }}>
+                        {step.category}
                       </span>
-                      <strong style={{ fontSize: '14px', color: '#1e293b' }}>{step.tool_name ?? step.tool}</strong>
                     </div>
-                    <span style={{ fontSize: '11px', background: '#f1f5f9', color: '#64748b', padding: '3px 10px', borderRadius: '20px', fontWeight: '600' }}>
-                      {step.category}
-                    </span>
-                  </div>
 
-                  <div style={{ background: '#0f172a', borderRadius: '8px', padding: '12px', position: 'relative' }}>
-                    {isEditing ? (
-                      <textarea
-                        value={editedPrompts[stepKey] || ''}
-                        onChange={(e) => setEditedPrompts(prev => ({ ...prev, [stepKey]: e.target.value }))}
-                        style={{
-                          width: '100%', minHeight: '75px',
-                          background: 'transparent', border: 'none', outline: 'none',
-                          color: '#f8fafc', fontSize: '12px', lineHeight: '1.6',
-                          fontFamily: 'Pretendard, sans-serif', resize: 'vertical',
-                          boxSizing: 'border-box',
-                        }}
-                      />
-                    ) : (
-                      <>
-                        <pre style={{ margin: 0, color: '#f8fafc', fontSize: '12px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', lineHeight: '1.6', fontFamily: 'Pretendard, sans-serif' }}>
-                          {editedPrompts[stepKey]}
-                        </pre>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(editedPrompts[stepKey] || '').then(() => alert('복사됐습니다!'))}
-                          style={{ position: 'absolute', bottom: '8px', right: '8px', background: '#334155', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', cursor: 'pointer' }}
-                        >
-                          복사
-                        </button>
-                      </>
+                    <div style={{ background: '#0f172a', borderRadius: '8px', padding: '12px', position: 'relative' }}>
+                      {isEditing ? (
+                        <textarea
+                          value={editedPrompts[stepKey] || ''}
+                          onChange={(e) => setEditedPrompts(prev => ({ ...prev, [stepKey]: e.target.value }))}
+                          style={{
+                            width: '100%', minHeight: '75px',
+                            background: 'transparent', border: 'none', outline: 'none',
+                            color: '#f8fafc', fontSize: '12px', lineHeight: '1.6',
+                            fontFamily: 'Pretendard, sans-serif', resize: 'vertical',
+                            boxSizing: 'border-box',
+                          }}
+                        />
+                      ) : (
+                        <>
+                          <pre style={{ margin: 0, color: '#f8fafc', fontSize: '12px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', lineHeight: '1.6', fontFamily: 'Pretendard, sans-serif' }}>
+                            {editedPrompts[stepKey]}
+                          </pre>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(editedPrompts[stepKey] || '').then(() => {
+                                setCopiedStep(stepKey);
+                                setTimeout(() => setCopiedStep(null), 2000);
+                              });
+                            }}
+                            style={{ position: 'absolute', bottom: '8px', right: '8px', background: '#334155', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', cursor: 'pointer' }}
+                          >
+                            {copiedStep === stepKey ? (
+                              <svg width="16" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            ) : '복사'}
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {step.tip && (
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#854d0e', background: '#fefce8', padding: '8px 12px', borderRadius: '8px' }}>
+                        💡 {step.tip}
+                      </div>
                     )}
                   </div>
-
-                  {step.tip && (
-                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#854d0e', background: '#fefce8', padding: '8px 12px', borderRadius: '8px' }}>
-                      💡 {step.tip}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
             </div>
           </>
         )}
@@ -338,7 +356,7 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows, myPosts, setMyPosts }) =
         >
           <div className="mypage-workflow-card-header">
             <span className="mypage-workflow-label">
-             {wf.title}
+              {wf.title}
             </span>
             <button
               onClick={(e) => { e.stopPropagation(); handleDeleteWorkflow(wf.id); }}
@@ -379,48 +397,48 @@ const WorkflowSection = ({ myWorkflows, setMyWorkflows, myPosts, setMyPosts }) =
       ))}
 
       {/* 내가 쓴 글 */}
-    {workflowSubTab === 'posts' && (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-        {myPosts.map(post => (
-        <div
-            key={post.id}
-            className="mypage-post-card"
-            onClick={() => navigate(`/community/${post.id}`)}
-            style={{ cursor: 'pointer', display: 'flex', gap: '20px', alignItems: 'center' }}
-        >
-            {post.thumbnail_url && (
-            <img
-                src={post.thumbnail_url}
-                alt={post.title}
-                style={{ width: '140px', height: '80px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
-            />
-            )}
-            <div style={{ flex: 1, minWidth: 0 }}>
-            <strong style={{ display: 'block', fontSize: '15px', color: '#1e293b', marginBottom: '7px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {post.title}
-            </strong>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#94a3b8' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-                </svg>
-                <span>{post.view_count || 0}</span>
+      {workflowSubTab === 'posts' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+          {myPosts.map(post => (
+            <div
+              key={post.id}
+              className="mypage-post-card"
+              onClick={() => navigate(`/community/${post.id}`)}
+              style={{ cursor: 'pointer', display: 'flex', gap: '20px', alignItems: 'center' }}
+            >
+              {post.thumbnail_url && (
+                <img
+                  src={post.thumbnail_url}
+                  alt={post.title}
+                  style={{ width: '140px', height: '80px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
+                />
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <strong style={{ display: 'block', fontSize: '15px', color: '#1e293b', marginBottom: '7px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {post.title}
+                </strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#94a3b8' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span>{post.view_count || 0}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" strokeWidth="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                    <span style={{ color: '#ef4444', fontSize: '12px' }}>{post.like_count || 0}</span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    {new Date(post.created_at).toLocaleDateString('ko-KR')}
+                  </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" strokeWidth="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <span style={{ color: '#ef4444', fontSize: '12px' }}>{post.like_count || 0}</span>
-                </div>
-                <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                {new Date(post.created_at).toLocaleDateString('ko-KR')}
-                </span>
+              </div>
             </div>
-            </div>
+          ))}
         </div>
-        ))}
-    </div>
-    )}
+      )}
     </div>
   );
 };
