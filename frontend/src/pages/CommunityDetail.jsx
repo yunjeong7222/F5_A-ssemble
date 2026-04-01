@@ -14,7 +14,7 @@ import '../styles/Community.css';
 const CommunityDetail = ({ postId, onClose }) => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { user } = useAuthStore();
+  const { user, isLoggedIn } = useAuthStore();
 
   const [post, setPost] = useState(null);
   const [workflow, setWorkflow] = useState(null);
@@ -24,6 +24,7 @@ const CommunityDetail = ({ postId, onClose }) => {
   const [editablePrompts, setEditablePrompts] = useState({});
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [copiedStep, setCopiedStep] = useState(null);
+  
   /* ── 게시글 + 워크플로우 로드 ── */
   useEffect(() => {
     const load = async () => {
@@ -79,6 +80,12 @@ const CommunityDetail = ({ postId, onClose }) => {
     };
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/community');
+    }
+  }, [isLoggedIn]);
 
   /* ── 좋아요 토글 ── */
   const handleLikeToggle = async () => {

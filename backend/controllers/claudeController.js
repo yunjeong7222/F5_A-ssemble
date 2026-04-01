@@ -1,9 +1,9 @@
 const Anthropic = require("@anthropic-ai/sdk");
 const db = require("../config/db");
 
-const client = new Anthropic({ 
-  apiKey: process.env.ANTHROPIC_API_KEY, 
-  timeout: 60 * 1000,
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  // timeout: 60 * 1000,
 });
 
 // ✅ 이 줄 추가 — 테스트 중엔 true, 실제 배포 시 false//////////////////
@@ -19,32 +19,28 @@ const suggest = async (req, res) => {
 
   // ✅ 이 블록 추가//////////////////////////////
   if (USE_MOCK) {
-  return res.status(200).json({
-    success: true,
-    data: {
-      purpose: "숏폼 제작",
-      recommended_categories: [
-        "기획 및 스크립트",
-        "영상 소스 생성",
-        "이미지 소스 생성",
-        "성우 / TTS",
-        "BGM",
-        "편집 / 숏폼 변환",
-        "업로드 최적화"
-      ],
-      tools_by_category: {
-        "기획 및 스크립트": ["ChatGPT", "Claude", "Gemini", "Notion AI"],
-        "영상 소스 생성": ["Runway", "Kling AI", "Pika", "Sora"],
-        "이미지 소스 생성": ["Midjourney", "DALL·E 3", "Stable Diffusion", "Adobe Firefly"],
-        "성우 / TTS": ["ElevenLabs", "CLOVA Dubbing", "Typecast", "Murf AI"],
-        "BGM": ["Suno AI", "Udio", "Soundraw", "Mubert"],
-        "편집 / 숏폼 변환": ["CapCut AI", "Vrew", "Runway", "Adobe Premiere"],
-        "업로드 최적화": ["Buffer", "Hootsuite", "Later", "Metricool"]
-      },
-      reason: "숏폼 제작에 필요한 핵심 단계예요"
-    }
-  });
-}
+    return res.status(200).json({
+      success: true,
+      data: {
+        purpose: "유튜브 영상 제작 풀 워크플로우",
+        recommended_categories: [
+          "기획 및 스크립트",
+          "영상 소스 생성",
+          "성우 / TTS",
+          "편집 / 숏폼 변환",
+          "업로드 최적화"
+        ],
+        tools_by_category: {
+          "기획 및 스크립트": ["ChatGPT", "Claude", "Gemini", "Perplexity"],
+          "영상 소스 생성": ["PixVerse AI", "Kling AI", "Colossyan Creator", "Leonardo AI"],
+          "성우 / TTS": ["ElevenLabs", "Vrew", "Typecast", "LOVO AI"],
+          "편집 / 숏폼 변환": ["CapCut AI", "Submagic", "FlexClip", "Adobe Premiere"],
+          "업로드 최적화": ["YouTube Studio", "VidIQ", "Buffer", "Metricool"]
+        },
+        reason: "숏폼 제작에 필요한 핵심 단계예요"
+      }
+    });
+  }
   ////////////////////////////////////////
   try {
     // DB에서 툴 목록 먼저 조회
@@ -134,90 +130,91 @@ const generateWorkflow = async (req, res) => {
   }
 
   // ✅ 이 블록 추가/////////////////////
- if (USE_MOCK) {
-  return res.status(200).json({
-    success: true,
-    data: {
-      title: "숏폼 영상 제작 워크플로우",
-      total_time: "약 90분",
-      steps: [
+  if (USE_MOCK) {
+    const mockData = {
+      "title": "유튜브 영상 제작 풀 워크플로우",
+      "total_time": "약 75분",
+      "steps": [
         {
-          step_order: 1,
-          category: "기획 및 스크립트",
-          tool_name: "ChatGPT",
-          task: "숏폼 스크립트 작성",
-          prompt_example: "30초 숏폼용 스크립트를 작성해줘. 주제는 AI 생산성 툴, 톤은 친근하게.",
-          duration: "10분",
-          tip: "주제를 구체적으로 입력할수록 좋은 결과가 나와요",
-          caution: "생성된 스크립트는 반드시 직접 검토 후 사용하세요"
+          "step_order": 1,
+          "category": "기획 및 스크립트",
+          "tool_name": "ChatGPT",
+          "task": "유튜브 영상 기획 및 스크립트 작성",
+          "prompt_example": "너는 유튜브 채널 전문 기획자야. 주제는 '[주제]'이고, 타겟은 [타겟 시청자]야. 영상 제목 3개, 썸네일 문구, 도입-본론-마무리 구조의 5분 분량 스크립트를 작성해줘. 말투는 친근하고 자연스럽게, 자막으로 들어갈 문장 단위로 줄바꿈해서 출력해줘.",
+          "duration": "15분",
+          "tip": "주제와 타겟을 구체적으로 쓸수록 퀄리티가 올라가요. 예: '30대 직장인을 위한 재테크 입문'",
+          "caution": "생성된 스크립트는 반드시 직접 읽어보고 어색한 부분 수정 후 사용하세요"
         },
         {
-          step_order: 2,
-          category: "영상 소스 생성",
-          tool_name: "Runway",
-          task: "스크립트 기반 영상 클립 생성",
-          prompt_example: "A person working at a desk with floating productivity app icons around them, cinematic, 4K, 9:16 vertical format, 5 seconds",
-          duration: "15분",
-          tip: "장면당 5초 이내로 짧게 나눠 생성하면 품질이 더 안정적이에요",
-          caution: "생성된 영상의 손·얼굴 디테일은 꼭 확인 후 사용하세요"
+          "step_order": 2,
+          "category": "영상 소스 생성",
+          "tool_name": "Leonardo AI",
+          "task": "영상 배경 및 썸네일 이미지 생성",
+          "prompt_example": "프롬프트: 'cinematic wide shot of a modern workspace with soft natural lighting, clean desk setup, warm tones, shallow depth of field, professional atmosphere, 16:9 ratio'\n(의미: 부드러운 자연광의 모던 작업 공간, 따뜻한 색감, 배경 흐림, 전문적인 분위기, 가로 비율)",
+          "duration": "15분",
+          "tip": "Image Guidance 기능으로 레퍼런스 이미지를 참고시키면 원하는 스타일에 더 가깝게 나와요",
+          "caution": "유튜브 일반 영상은 16:9 가로 비율로 생성하세요. 썸네일용은 1280x720 기준으로 설정하세요"
         },
         {
-          step_order: 3,
-          category: "이미지 소스 생성",
-          tool_name: "Midjourney",
-          task: "썸네일 및 배경 이미지 생성",
-          prompt_example: "A clean modern thumbnail for a productivity YouTube short, vibrant colors, minimal text space --ar 9:16 --v 6",
-          duration: "10분",
-          tip: "숏폼 비율인 9:16을 반드시 지정해야 잘려나가지 않아요",
-          caution: "상업적 사용 시 Midjourney 플랜 등급을 확인하세요"
+          "step_order": 3,
+          "category": "성우 / TTS",
+          "tool_name": "Vrew",
+          "task": "스크립트 TTS 음성 생성",
+          "prompt_example": "① Vrew 실행 → [새 프로젝트] → [텍스트로 시작하기] 선택\n② 1단계 스크립트 붙여넣기\n③ AI 목소리 선택 → '지윤' 또는 '현우' (자연스러운 한국어)\n④ 미리듣기 확인 후 [음성 파일로 내보내기] → MP3 저장",
+          "duration": "10분",
+          "tip": "문장 끝 마침표가 있어야 호흡이 자연스럽게 끊겨요. 쉼표로 호흡 길이 조절도 가능해요",
+          "caution": "무료 플랜은 월 TTS 생성 시간 제한이 있어요. 최종본 확정 후 한 번에 생성하세요"
         },
         {
-          step_order: 4,
-          category: "성우 / TTS",
-          tool_name: "ElevenLabs",
-          task: "스크립트 나레이션 음성 생성",
-          prompt_example: "스크립트 텍스트 입력 → 한국어 지원 보이스 선택 → Stability 0.5 / Clarity 0.75 설정 후 생성",
-          duration: "10분",
-          tip: "Stability를 낮출수록 더 자연스러운 억양이 나와요",
-          caution: "무료 플랜은 월 10,000자 제한이 있어요"
+          "step_order": 4,
+          "category": "편집 / 숏폼 변환",
+          "tool_name": "CapCut AI",
+          "task": "영상 편집 및 자막 합성",
+          "prompt_example": "① CapCut 실행 → [새 프로젝트] → Leonardo AI 이미지 + Vrew MP3 업로드\n② [자동 캡션] 선택 → 언어 '한국어' 설정\n③ BGM 삽입 → 볼륨 20~30% 설정\n④ 내보내기 → 1920x1080 (유튜브 기준) MP4",
+          "duration": "20분",
+          "tip": "CapCut AI의 [자동 컷] 기능을 쓰면 무음 구간을 자동으로 잘라줘서 편집 시간이 줄어요",
+          "caution": "자동 캡션 생성 후 고유명사, 영어 단어 오인식 여부를 꼭 검토하세요"
         },
         {
-          step_order: 5,
-          category: "BGM",
-          tool_name: "Suno AI",
-          task: "영상 분위기에 맞는 BGM 생성",
-          prompt_example: "upbeat lo-fi background music for a 30-second productivity tips video, no lyrics, energetic but calm",
-          duration: "5분",
-          tip: "가사 없는 버전으로 생성해야 나레이션과 충돌이 없어요",
-          caution: "상업용 사용 여부는 Suno 플랜별 저작권 정책을 확인하세요"
-        },
-        {
-          step_order: 6,
-          category: "편집 / 숏폼 변환",
-          tool_name: "Vrew",
-          task: "AI 자동 자막 및 컷편집",
-          prompt_example: "Vrew에 영상 업로드 → 자동 자막 생성 → 스크립트 기반 불필요 구간 자동 컷편집 적용",
-          duration: "15분",
-          tip: "자막 폰트는 굵게 설정하고 배경 박스를 추가하면 가독성이 높아져요",
-          caution: "자동 자막의 맞춤법 오류는 수동으로 꼭 확인하세요"
-        },
-        {
-          step_order: 7,
-          category: "업로드 최적화",
-          tool_name: "Buffer",
-          task: "SNS 채널 예약 업로드 및 최적화",
-          prompt_example: "Buffer에 영상 업로드 → TikTok·Instagram Reels·YouTube Shorts 동시 예약 → 최적 업로드 시간대 자동 추천 적용",
-          duration: "10분",
-          tip: "플랫폼별 해시태그는 5~10개가 가장 효과적이에요",
-          caution: "각 플랫폼 파일 크기 제한(TikTok 287MB, Reels 4GB)을 확인하세요"
+          "step_order": 5,
+          "category": "업로드 최적화",
+          "tool_name": "YouTube Studio",
+          "task": "유튜브 영상 업로드 및 최적화",
+          "prompt_example": "① YouTube Studio 접속 → [콘텐츠 업로드] 클릭\n② 제목 예시: '[주제] 완벽 정리 | 초보자도 바로 따라하는 법'\n③ 설명란 첫 줄에 핵심 키워드 포함 요약 문장 작성\n④ 태그: '[주제], AI툴, 유튜브, 크리에이터' 입력\n⑤ 예약 게시 → 오후 6~9시 사이로 설정",
+          "duration": "15분",
+          "tip": "챕터 기능 활용하면 시청 유지율이 올라가요. 설명란에 타임스탬프를 꼭 추가하세요",
+          "caution": "썸네일은 1280x720 고화질로 별도 제작해서 업로드하면 클릭률이 올라가요"
         }
       ]
     }
-  });
-}
-///////////////////////////////////////////////
+    // GIF 조회 추가
+    const toolNames = [...new Set(mockData.steps.map(s => s.tool_name))];
+    const [gifRows] = await db.promise().query(
+      `SELECT name, tutorial_gif_url_1, tutorial_gif_url_2 FROM tools WHERE name IN (?)`,
+      [toolNames]
+    );
+    console.log('gif 조회 결과:', gifRows);
+    const gifMap = {};
+    gifRows.forEach(r => {
+      if (!gifMap[r.name] || r.tutorial_gif_url_1) {
+        gifMap[r.name] = {
+          gif1: r.tutorial_gif_url_1 || null,
+          gif2: r.tutorial_gif_url_2 || null,
+        };
+      }
+    });
 
-    const systemPrompt = `
+    mockData.steps = mockData.steps.map(step => ({
+      ...step,
+      tutorial_gif_url_1: gifMap[step.tool_name]?.gif1 || null,
+      tutorial_gif_url_2: gifMap[step.tool_name]?.gif2 || null,
+    }));
+
+    return res.status(200).json({ success: true, data: mockData });
+  }
+  ///////////////////////////////////////////////
+
+  const systemPrompt = `
     너는 영상 크리에이터를 위한 AI 툴 워크플로우 전문가야.
     사용자가 선택한 AI 툴 조합으로 단계별 워크플로우를 만들어줘.
     AI를 처음 쓰는 초보자도 바로 따라할 수 있게 쉽고 구체적으로 작성해.
@@ -315,7 +312,7 @@ const generateWorkflow = async (req, res) => {
     }
     `
 
-    const userPrompt = `
+  const userPrompt = `
     사용자 목적: "${user_input}"
     선택한 툴 조합 (category는 반드시 그대로 사용할 것):
     ${selected_tools.map((t, i) => `- step ${i + 1}, category: "${t.category}", tool: "${t.name}"`).join("\n")}
@@ -324,42 +321,63 @@ const generateWorkflow = async (req, res) => {
   try {
     const message = await client.messages.create({
       model: "claude-sonnet-4-5",
-      max_tokens: 4096,
+      max_tokens: 8096,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });
 
     // 기존 파싱 코드 삭제하고 아래 코드로 교체해!
-  const raw = message.content[0].text;
-  const jsonMatch = raw.match(/\{[\s\S]*\}/); // 중괄호 영역 추출
+    const raw = message.content[0].text;
+    const jsonMatch = raw.match(/\{[\s\S]*\}/); // 중괄호 영역 추출
 
-  if (!jsonMatch) {
-    return res.status(500).json({ success: false, message: "Claude가 JSON 포맷을 반환하지 않았습니다." });
-  }
-
-  const jsonString = jsonMatch[0];
-
-  try {
-    // 여기서 에러가 나면 catch 블록으로 빠짐
-    const parsed = JSON.parse(jsonString);
-
-    return res.status(200).json({ success: true, data: parsed });
-
-  } catch (parseError) {
-    // 🚨 파싱 에러 발생 시 서버를 죽이지 않고 원인 출력
-    console.error("=== 🚨 JSON 파싱 에러 발생 ===");
-    console.error("원인:", parseError.message);
-    console.error("Claude가 내려준 텍스트 (이 안의 문법이 틀렸음):");
-    console.error(jsonString);
-    console.error("=================================");
-    
-    return res.status(500).json({ success: false, message: "AI 응답 파싱 오류. 다시 시도해주세요." });
-  }
-
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, message: "Claude API 오류" });
+    if (!jsonMatch) {
+      return res.status(500).json({ success: false, message: "Claude가 JSON 포맷을 반환하지 않았습니다." });
     }
-  };
+
+    const jsonString = jsonMatch[0];
+
+    try {
+      // 여기서 에러가 나면 catch 블록으로 빠짐
+      const parsed = JSON.parse(jsonString);
+
+      const toolNames = parsed.steps.map(s => s.tool_name);
+      console.log('툴 이름 목록:', toolNames);
+      const [gifRows] = await db.promise().query(
+        `SELECT name, tutorial_gif_url_1, tutorial_gif_url_2 FROM tools WHERE name IN (?)`,
+        [toolNames]
+      );
+      console.log('gif 조회 결과:', gifRows);
+      const gifMap = {};
+      gifRows.forEach(r => {
+        if (!gifMap[r.name] || r.tutorial_gif_url_1) {
+          gifMap[r.name] = {
+            gif1: r.tutorial_gif_url_1 || null,
+            gif2: r.tutorial_gif_url_2 || null,
+          };
+        }
+      });
+      parsed.steps = parsed.steps.map(step => ({
+        ...step,
+        tutorial_gif_url_1: gifMap[step.tool_name]?.gif1 || null,
+        tutorial_gif_url_2: gifMap[step.tool_name]?.gif2 || null,
+      }));
+      return res.status(200).json({ success: true, data: parsed });
+
+    } catch (parseError) {
+      // 🚨 파싱 에러 발생 시 서버를 죽이지 않고 원인 출력
+      console.error("=== 🚨 JSON 파싱 에러 발생 ===");
+      console.error("원인:", parseError.message);
+      console.error("Claude가 내려준 텍스트 (이 안의 문법이 틀렸음):");
+      console.error(jsonString);
+      console.error("=================================");
+
+      return res.status(500).json({ success: false, message: "AI 응답 파싱 오류. 다시 시도해주세요." });
+    }
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: "Claude API 오류" });
+  }
+};
 
 module.exports = { suggest, generateWorkflow };

@@ -107,6 +107,8 @@ export const useWorkflow = () => {
           prompt_example: s.prompt_example,
           tip: s.tip,
           precautions: s.caution,
+          tutorial_gif_url_1: s.tutorial_gif_url_1 || null, 
+          tutorial_gif_url_2: s.tutorial_gif_url_2 || null, 
         };
       })
     };

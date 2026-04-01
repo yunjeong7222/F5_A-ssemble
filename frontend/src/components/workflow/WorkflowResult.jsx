@@ -16,17 +16,17 @@ const OptimizationVisualizer = () => {
   React.useEffect(() => {
     let animationFrame;
     const animate = () => {
-      const duration = 3000; 
-      const pause = 3000; 
+      const duration = 3000;
+      const pause = 3000;
       const totalCycle = duration + pause;
-      
+
       const now = performance.now();
       const cycleTime = now % totalCycle;
-      
+
       if (cycleTime < duration) {
         const progress = cycleTime / duration;
         const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-        
+
         setViews(Math.floor(easeOut * 79));
         setCtr((easeOut * 8.5).toFixed(1));
         setSeo(Math.floor(easeOut * 32));
@@ -43,96 +43,96 @@ const OptimizationVisualizer = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
- const cards = [
-  {
-    label: 'Total Views',
-    sub: 'more views per video',
-    accent: '#2563eb',
-    iconColor: '#2563eb',
-    trend: 'more',
-    trendColor: '#2563eb',
-    val: views.toLocaleString(),
-    unit: '%',
-    icon: (
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'Click-Thru',
-    sub: 'than manual methods',
-    accent: '#d97706',
-    iconColor: '#d97706',
-    trend: 'faster',
-    trendColor: '#d97706',
-    val: ctr,
-    unit: 'x',
-    icon: (
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'SEO Score',
-    sub: 'subscribers growth',
-    accent: '#10b981',
-    iconColor: '#10b981',
-    trend: 'more',
-    trendColor: '#10b981',
-    val: seo,
-    unit: '%',
-    icon: (
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'Time Saved',
-    sub: 'creators like you',
-    accent: '#7c3aed',
-    iconColor: '#7c3aed',
-    trend: 'users',
-    trendColor: '#7c3aed',
-    val: time,
-    unit: 'M+',
-    icon: (
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/>
-      </svg>
-    ),
-  },
-];
+  const cards = [
+    {
+      label: 'Total Views',
+      sub: 'more views per video',
+      accent: '#2563eb',
+      iconColor: '#2563eb',
+      trend: 'more',
+      trendColor: '#2563eb',
+      val: views.toLocaleString(),
+      unit: '%',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Click-Thru',
+      sub: 'than manual methods',
+      accent: '#d97706',
+      iconColor: '#d97706',
+      trend: 'faster',
+      trendColor: '#d97706',
+      val: ctr,
+      unit: 'x',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      ),
+    },
+    {
+      label: 'SEO Score',
+      sub: 'subscribers growth',
+      accent: '#10b981',
+      iconColor: '#10b981',
+      trend: 'more',
+      trendColor: '#10b981',
+      val: seo,
+      unit: '%',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Time Saved',
+      sub: 'creators like you',
+      accent: '#7c3aed',
+      iconColor: '#7c3aed',
+      trend: 'users',
+      trendColor: '#7c3aed',
+      val: time,
+      unit: 'M+',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z" />
+        </svg>
+      ),
+    },
+  ];
 
-return (
-  <div className="wr-opt-container">
-    {cards.map((item, idx) => (
-      <div key={idx} className="wr-opt-card">
-        <div className="wr-opt-header">
-          <div className="wr-opt-icon" style={{ color: item.iconColor }}>
-            {item.icon}
+  return (
+    <div className="wr-opt-container">
+      {cards.map((item, idx) => (
+        <div key={idx} className="wr-opt-card">
+          <div className="wr-opt-header">
+            <div className="wr-opt-icon" style={{ color: item.iconColor }}>
+              {item.icon}
+            </div>
+          </div>
+          <div>
+            <div className="wr-opt-value">
+              <span className="tb-counter" style={{ fontSize: '3rem', fontWeight: '600', color: '#0f172a', letterSpacing: '-0.04em' }}>
+                {item.val}
+              </span>
+              <span className="wr-opt-unit">{item.unit}</span>
+            </div>
+            <div className="wr-opt-trend" style={{ color: item.trendColor, fontSize: '1.3rem', fontWeight: '600' }}>
+              {item.trend}
+            </div>
+            <div className="wr-opt-label" style={{ color: '#94a3b8' }}>
+              {item.sub}
+            </div>
           </div>
         </div>
-        <div>
-          <div className="wr-opt-value">
-            <span className="tb-counter" style={{ fontSize: '3rem', fontWeight: '600', color: '#0f172a', letterSpacing: '-0.04em' }}>
-              {item.val}
-            </span>
-            <span className="wr-opt-unit">{item.unit}</span>
-          </div>
-          <div className="wr-opt-trend" style={{ color: item.trendColor, fontSize: '1.3rem', fontWeight: '600'}}>
-            {item.trend}
-          </div>
-          <div className="wr-opt-label" style={{ color: '#94a3b8'}}>
-            {item.sub}
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
 };
 
 // 🎨 카테고리별 시각화 컴포넌트
@@ -150,8 +150,8 @@ const CategoryVisualizer = ({ category }) => {
         </div>
         <div className="wr-cat-ai">
           <strong style={{ color: '#4f46e5', display: 'block', marginBottom: '6px', fontSize: '0.85rem' }}>✨ AI의 답변</strong>
-          1. 오프닝 (0~3초): 강렬한 한 줄로 시선 강탈<br/>
-          2. 본론 (3~45초): 숫자·사례로 신뢰감 형성<br/>
+          1. 오프닝 (0~3초): 강렬한 한 줄로 시선 강탈<br />
+          2. 본론 (3~45초): 숫자·사례로 신뢰감 형성<br />
           3. 결론 (45~60초): 저장 유도 + 다음 편 예고
         </div>
       </div>
@@ -216,7 +216,7 @@ const CategoryVisualizer = ({ category }) => {
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderBottom: '2px solid #334155', paddingBottom: '2px', position: 'relative' }}>
             {[...Array(31)].map((_, i) => {
               const distanceFromCenter = Math.abs(i - 15);
-              const maxBarHeight = Math.max(12, 65 - (distanceFromCenter * 3.5)); 
+              const maxBarHeight = Math.max(12, 65 - (distanceFromCenter * 3.5));
               const delay = (Math.sin(i * 0.4) + Math.cos(i * 0.3)) * 0.4;
               return (<div key={i} style={{ width: '6px', height: `${maxBarHeight}px`, background: 'linear-gradient(to top, #6366f1, #a855f7, #ec4899, #f97316)', borderRadius: '3px', transformOrigin: 'bottom', animation: `eqSmoothBounce 0.75s ease-in-out infinite alternate ${delay}s`, boxShadow: '0 0 8px rgba(168, 85, 247, 0.2)' }}></div>);
             })}
@@ -250,7 +250,7 @@ const WorkflowResult = ({ workflowResult }) => {
   const { handleSaveWorkflow } = useWorkflow(); // 추가
   const { isLoggedIn } = useAuthStore();        // 추가
   const [isSaving, setIsSaving] = useState(false); // 추가
-  
+
   const [expandedSteps, setExpandedSteps] = useState([0]);
   const [closingSteps, setClosingSteps] = useState([]);
 
@@ -265,44 +265,44 @@ const WorkflowResult = ({ workflowResult }) => {
 
   const toggleStep = (index) => {
     if (expandedSteps.includes(index)) {
-        setClosingSteps(prev => [...prev, index]);
-        setTimeout(() => {
-            setExpandedSteps(prev => prev.filter(i => i !== index));
-            setClosingSteps(prev => prev.filter(i => i !== index));
-        }, 300);
+      setClosingSteps(prev => [...prev, index]);
+      setTimeout(() => {
+        setExpandedSteps(prev => prev.filter(i => i !== index));
+        setClosingSteps(prev => prev.filter(i => i !== index));
+      }, 300);
     } else {
-        setExpandedSteps(prev => [...prev, index]);
+      setExpandedSteps(prev => [...prev, index]);
     }
-};
+  };
 
   const displayData = workflowResult;
   const [copiedStep, setCopiedStep] = useState(null);
   const handleCopy = (text, identifier) => {
-  navigator.clipboard.writeText(text);
-  setCopiedStep(identifier);
-  setTimeout(() => setCopiedStep(null), 1500);
-};
+    navigator.clipboard.writeText(text);
+    setCopiedStep(identifier);
+    setTimeout(() => setCopiedStep(null), 1500);
+  };
 
   const handleSave = async () => {
-  if (!isLoggedIn) {
-    const result = await Alert.fire({
-      text: '로그인 후 저장할 수 있어요!',
-      confirmButtonText: '로그인하러 가기',
-      showCancelButton: true,
-      cancelButtonText: '취소',
-    });
-    if (result.isConfirmed) {
-      navigate('/login', { state: { from: location.pathname } });
+    if (!isLoggedIn) {
+      const result = await Alert.fire({
+        text: '로그인 후 저장할 수 있어요!',
+        confirmButtonText: '로그인하러 가기',
+        showCancelButton: true,
+        cancelButtonText: '취소',
+      });
+      if (result.isConfirmed) {
+        navigate('/login', { state: { from: location.pathname } });
+      }
+      return;
     }
-    return;
-  }
-  setIsSaving(true);
-  try {
-    await handleSaveWorkflow();
-  } finally {
-    setIsSaving(false);
-  }
-};
+    setIsSaving(true);
+    try {
+      await handleSaveWorkflow();
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const toolDirectory = {
     'ChatGPT': { domain: 'openai.com', category: '기획 · 아이디어', desc: '대화형 AI로 대본 초안 및 아이디어를 기획합니다.' },
@@ -318,14 +318,14 @@ const WorkflowResult = ({ workflowResult }) => {
 
   const getToolInfo = (toolName, stepCategory) => {
     if (toolDirectory[toolName]) return toolDirectory[toolName];
-    
-    const guessedDomain = `${toolName.toLowerCase().replace(/\s/g, '')}.com`; 
-    
-    return { 
-      domain: guessedDomain, 
-      link: `https://www.google.com/search?q=${toolName} AI`, 
-      category: stepCategory || '기획 · 아이디어', 
-      desc: `${toolName} 도구를 활용하여 작업을 최적화합니다.` 
+
+    const guessedDomain = `${toolName.toLowerCase().replace(/\s/g, '')}.com`;
+
+    return {
+      domain: guessedDomain,
+      link: `https://www.google.com/search?q=${toolName} AI`,
+      category: stepCategory || '기획 · 아이디어',
+      desc: `${toolName} 도구를 활용하여 작업을 최적화합니다.`
     };
   };
 
@@ -344,7 +344,7 @@ const WorkflowResult = ({ workflowResult }) => {
 
   return (
     <div className="wr-main-container">
-      
+
       {/* 1. 메인 퍼플 배너 */}
       <div className="wr-banner">
         <div className="wr-banner-deco"></div>
@@ -398,7 +398,7 @@ const WorkflowResult = ({ workflowResult }) => {
       {/* 2. 동적 WORKFLOW FLOW 영역 */}
       <div className="wr-flow-box">
         <h4 className="wr-flow-title">WORKFLOW FLOW</h4>
-        
+
         <div className="workflow-scroll wr-flow-list">
           {displayData.steps.map((step, index) => {
             const toolInfo = getToolInfo(step.tool, step.category_display);
@@ -409,11 +409,11 @@ const WorkflowResult = ({ workflowResult }) => {
                     src={step.thumbnail || `https://www.google.com/s2/favicons?domain=${toolInfo.domain}&sz=64`}
                     alt={step.tool}
                     style={{ width: '45px', height: '45px', objectFit: 'contain' }}
-                    onError={(e) => { e.target.style.display='none'; }}
+                    onError={(e) => { e.target.style.display = 'none'; }}
                   />
                   <div style={{ textAlign: 'center' }}>
                     <div className="wr-flow-item-toolname">
-                        {step.tool}
+                      {step.tool}
                     </div>
                     <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#10b981', marginTop: '2px' }}>{toolInfo.category.split('·')[0].trim()}</div>
                   </div>
@@ -441,15 +441,15 @@ const WorkflowResult = ({ workflowResult }) => {
 
           return (
             <div key={index} className="wr-step-item" style={{ border: `1px solid ${isExpanded ? '#c7d2fe' : '#e2e8f0'}` }}>
-              
+
               <div onClick={() => toggleStep(index)} className="wr-step-header" style={{ backgroundColor: isExpanded ? '#fafaf9' : '#ffffff' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  
-                  <a 
-                    href={toolInfo.domain.startsWith('http') ? toolInfo.domain : `https://${toolInfo.domain}`} 
-                    target="_blank" 
+
+                  <a
+                    href={toolInfo.domain.startsWith('http') ? toolInfo.domain : `https://${toolInfo.domain}`}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()} 
+                    onClick={(e) => e.stopPropagation()}
                     className="wr-step-link"
                   >
                     <img
@@ -458,18 +458,18 @@ const WorkflowResult = ({ workflowResult }) => {
                       style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'contain' }}
                     />
                   </a>
-                  
+
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#6366f1' }}>STEP {step.step}</span>
                       <span className="wr-step-badge">{step.tool}</span>
                       <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>⏱ {step.estimated_time}</span>
-                      
-                      <a 
-                        href={toolInfo.domain.startsWith('http') ? toolInfo.domain : `https://${toolInfo.domain}`} 
-                        target="_blank" 
+
+                      <a
+                        href={toolInfo.domain.startsWith('http') ? toolInfo.domain : `https://${toolInfo.domain}`}
+                        target="_blank"
                         rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()} 
+                        onClick={(e) => e.stopPropagation()}
                         className="wr-step-link-text"
                       >
                         공식 사이트 ↗
@@ -490,24 +490,45 @@ const WorkflowResult = ({ workflowResult }) => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   style={{
-                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      flexShrink: 0,
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    flexShrink: 0,
                   }}
-              >
+                >
                   <polyline points="6 9 12 15 18 9" />
-              </svg>
+                </svg>
               </div>
 
               {(isExpanded || isClosing) && (
-                  <div className={`wr-step-content ${isClosing ? 'wr-step-content-close' : 'wr-step-content-open'}`}>
+                <div className={`wr-step-content ${isClosing ? 'wr-step-content-close' : 'wr-step-content-open'}`}>
                   <div style={{ marginBottom: '20px' }}>
-                    <CategoryVisualizer category={toolInfo.category} />
-                  </div>                  
+                    {step.tutorial_gif_url_1 || step.tutorial_gif_url_2 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {step.tutorial_gif_url_1 && (
+                          <video
+                            src={step.tutorial_gif_url_1}
+                            autoPlay loop muted playsInline
+                            controls 
+                            style={{ width: '100%', borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                          />
+                        )}
+                        {step.tutorial_gif_url_2 && (
+                          <video
+                            src={step.tutorial_gif_url_2}
+                            autoPlay loop muted playsInline
+                            controls 
+                            style={{ width: '100%', borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <CategoryVisualizer category={toolInfo.category} />
+                    )}
+                  </div>
                   <div style={{ marginBottom: '8px', fontSize: '0.85rem', fontWeight: '600', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     📋 복사 가능한 프롬프트
                   </div>
-                  
+
                   <div className="wr-prompt-box">
                     <pre style={{ margin: 0, color: '#f8fafc', whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.9rem', lineHeight: '1.6', fontFamily: "'Pretendard', sans-serif" }}>
                       {step.prompt_example}
@@ -529,7 +550,7 @@ const WorkflowResult = ({ workflowResult }) => {
                     </button>
                   </div>
 
-                  <div style={{ border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4', padding: '16px', borderRadius: '12px', marginTop:'20px' }}>
+                  <div style={{ border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4', padding: '16px', borderRadius: '12px', marginTop: '20px' }}>
                     <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#166534', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ backgroundColor: '#22c55e', color: '#ffffff', borderRadius: '8px', width: '22px', height: '22px', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
                         <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
@@ -554,7 +575,7 @@ const WorkflowResult = ({ workflowResult }) => {
                         </div>
                       </div>
                     )}
-                    
+
                     {step.precautions && (
                       <div style={{ border: '1px solid #fecdd3', backgroundColor: '#fff1f2', padding: '16px', borderRadius: '12px' }}>
                         <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#9f1239', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -581,15 +602,15 @@ const WorkflowResult = ({ workflowResult }) => {
           <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>저장하거나 직접 게시글로 등록해보세요</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
-          
+
           <button onClick={() => setStep(2)} className="wr-btn-outline">
             ← 이전 단계
           </button>
-          
+
           <button onClick={() => setStep(1)} className="wr-btn-outline">
             ↻ 다시 만들기
           </button>
-          
+
           {/* 커뮤니티 저장 기능 */}
           <button onClick={handleSave} disabled={isSaving} className="wr-btn-primary">
             {isSaving ? '저장 중' : '내 워크플로우 저장'}
