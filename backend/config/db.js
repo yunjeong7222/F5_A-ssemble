@@ -8,6 +8,9 @@ const conn= mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  ssl: {
+    rejectUnauthorized: true
+  },
   connectionLimit: 10,        
   waitForConnections: true,   // 연결이 꽉 찼을 때 대기 여부
   queueLimit: 0               // 대기 줄의 제한 (0은 무제한)
