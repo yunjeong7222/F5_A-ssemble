@@ -2,7 +2,7 @@ import {useState, useEffect, useRef} from 'react';
 import {useNavigate, Link} from 'react-router-dom';
 import {register, checkDuplicate} from '../api/auth';
 import Alert from '../utils/alert';
-import '../styles/auth.css';
+import '../styles/Auth.css';
 
 const Signup = () => {
     const navigate = useNavigate();

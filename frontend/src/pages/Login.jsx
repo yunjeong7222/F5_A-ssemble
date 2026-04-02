@@ -3,7 +3,7 @@ import {useNavigate, useLocation} from 'react-router-dom';
 import {login, resetPassword} from '../api/auth';
 import {updateProfile} from '../api/users';
 import useAuthStore from '../store/authStore';
-import '../styles/auth.css';
+import '../styles/Auth.css';
 import logoImg from '../assets/common/logo-c.png';
 
 /* ── 임시 비밀번호 생성 유틸 ── */

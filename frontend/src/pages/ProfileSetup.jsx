@@ -2,7 +2,7 @@ import {useState, useRef, useEffect} from 'react';
 import {useNavigate, useLocation} from 'react-router-dom';
 import supabase from '../config/supabase';
 import Alert from '../utils/alert';
-import '../styles/auth.css';
+import '../styles/Auth.css';
 import defaultImg from '../assets/common/logo-m.png';
 
 const ProfileSetup = () => {
