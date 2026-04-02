@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {deleteAccount} from '../../api/users';
 import useAuthStore from '../../store/authStore';
-import '../../styles/mypage.css';
+import '../../styles/Mypage.css';
 import Alert from '../../utils/alert';
 
 export default function AccountSection({workflowCount = 0, bookmarkCount = 0}) {

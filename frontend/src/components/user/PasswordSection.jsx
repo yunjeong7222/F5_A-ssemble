@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import {updatePassword} from '../../api/users';
-import '../../styles/mypage.css';
+import '../../styles/Mypage.css';
 import Alert from '../../utils/alert';
 
 export default function PasswordSection() {

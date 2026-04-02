@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {updateProfile} from '../../api/users';
 import useAuthStore from '../../store/authStore';
-import '../../styles/mypage.css';
+import '../../styles/Mypage.css';
 import Alert from '../../utils/alert';
 
 export default function ProfileSection() {
