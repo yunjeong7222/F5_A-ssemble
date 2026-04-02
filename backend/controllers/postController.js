@@ -65,7 +65,7 @@ const getPosts = async (req, res, next) => {
 
 // 내가 좋아요한 글
 // GET /posts/liked 
-  const getLikedPosts = async (req, res, next) => {
+const getLikedPosts = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { category } = req.query;
@@ -109,19 +109,20 @@ const getPost = async (req, res, next) => {
 
     // 게시글 + 작성자
     const [posts] = await db.promise().query(
-      `SELECT p.*, u.nickname, u.profile_url,
-              COUNT(DISTINCT l.user_id) AS like_count,
-              COUNT(DISTINCT c.id) AS comment_count,
-              EXISTS(
-                SELECT 1 FROM likes
-                WHERE likes.post_id = p.id AND likes.user_id = ?
-              ) AS is_liked
-       FROM posts p
-       JOIN users u ON u.id = p.user_id
-       LEFT JOIN likes l ON l.post_id = p.id
-       LEFT JOIN comments c ON c.post_id = p.id
-       WHERE p.id = ?
-       GROUP BY p.id`,
+      `SELECT p.id, p.user_id, p.workflow_id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at, p.updated_at,
+          u.nickname, u.profile_url,
+          COUNT(DISTINCT l.user_id) AS like_count,
+          COUNT(DISTINCT c.id) AS comment_count,
+          EXISTS(
+            SELECT 1 FROM likes
+            WHERE likes.post_id = p.id AND likes.user_id = ?
+          ) AS is_liked
+   FROM posts p
+   JOIN users u ON u.id = p.user_id
+   LEFT JOIN likes l ON l.post_id = p.id
+   LEFT JOIN comments c ON c.post_id = p.id
+   WHERE p.id = ?
+   GROUP BY p.id, p.user_id, p.workflow_id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at, p.updated_at, u.nickname, u.profile_url`,
       [userId ?? null, id]
     );
 
@@ -158,41 +159,41 @@ const createPost = async (req, res, next) => {
     }
 
     if (workflow_id) {
-  // 내 북마크 복사본 먼저 확인
-  const [bookmarkRows] = await db.promise().query(
-    'SELECT custom_result_json FROM workflow_bookmarks WHERE user_id = ? AND workflow_id = ?',
-    [userId, workflow_id]
-  );
-
-  let resultJson;
-  if (bookmarkRows.length > 0) {
-    resultJson = typeof bookmarkRows[0].custom_result_json === 'string'
-      ? JSON.parse(bookmarkRows[0].custom_result_json)
-      : bookmarkRows[0].custom_result_json;
-  } else {
-    const [wfRows] = await db.promise().query(
-      'SELECT result_json FROM workflows WHERE id = ?', [workflow_id]
-    );
-    if (wfRows.length > 0) {
-      resultJson = typeof wfRows[0].result_json === 'string'
-        ? JSON.parse(wfRows[0].result_json)
-        : wfRows[0].result_json;
-    }
-  }
-
-  if (resultJson) {
-    const steps = resultJson?.steps ?? [];
-    const tags = [...new Set(steps.map(s => s.category))];
-    console.log('📌 추출된 tags:', tags);
-    if (tags.length > 0) {
-      await db.promise().query(
-        'INSERT INTO workflow_tags (workflow_id, category_name) VALUES ?',
-        [tags.map(tag => [workflow_id, tag])]
+      // 내 북마크 복사본 먼저 확인
+      const [bookmarkRows] = await db.promise().query(
+        'SELECT custom_result_json FROM workflow_bookmarks WHERE user_id = ? AND workflow_id = ?',
+        [userId, workflow_id]
       );
-      console.log('✅ workflow_tags insert 완료');
+
+      let resultJson;
+      if (bookmarkRows.length > 0) {
+        resultJson = typeof bookmarkRows[0].custom_result_json === 'string'
+          ? JSON.parse(bookmarkRows[0].custom_result_json)
+          : bookmarkRows[0].custom_result_json;
+      } else {
+        const [wfRows] = await db.promise().query(
+          'SELECT result_json FROM workflows WHERE id = ?', [workflow_id]
+        );
+        if (wfRows.length > 0) {
+          resultJson = typeof wfRows[0].result_json === 'string'
+            ? JSON.parse(wfRows[0].result_json)
+            : wfRows[0].result_json;
+        }
+      }
+
+      if (resultJson) {
+        const steps = resultJson?.steps ?? [];
+        const tags = [...new Set(steps.map(s => s.category))];
+        console.log('📌 추출된 tags:', tags);
+        if (tags.length > 0) {
+          await db.promise().query(
+            'INSERT INTO workflow_tags (workflow_id, category_name) VALUES ?',
+            [tags.map(tag => [workflow_id, tag])]
+          );
+          console.log('✅ workflow_tags insert 완료');
+        }
+      }
     }
-  }
-}
 
     // 첫 번째 image/video attachment에서 thumbnail_url, media_url 추출
     let thumbnail_url = null;
