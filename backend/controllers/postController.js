@@ -52,8 +52,8 @@ const getPosts = async (req, res, next) => {
     }
 
     query += sort === 'likes'
-      ? ' GROUP BY p.id ORDER BY like_count DESC, p.created_at DESC'
-      : ' GROUP BY p.id ORDER BY p.created_at DESC';
+      ? ' GROUP BY p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at, u.id, u.nickname, u.profile_url ORDER BY like_count DESC, p.created_at DESC'
+      : ' GROUP BY p.id, p.title, p.thumbnail_url, p.media_url, p.view_count, p.created_at, u.id, u.nickname, u.profile_url ORDER BY p.created_at DESC';
 
     const [posts] = await db.promise().query(query, params);
     return res.status(200).json({ success: true, data: posts });
