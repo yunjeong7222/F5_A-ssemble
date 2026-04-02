@@ -11,7 +11,7 @@ const conn= mysql.createPool({
   ssl: {
     rejectUnauthorized: true
   },
-  connectionLimit: 10,        // 동시에 유지할 연결 수
+  connectionLimit: 10,        
   waitForConnections: true,   // 연결이 꽉 찼을 때 대기 여부
   queueLimit: 0               // 대기 줄의 제한 (0은 무제한)
 });
