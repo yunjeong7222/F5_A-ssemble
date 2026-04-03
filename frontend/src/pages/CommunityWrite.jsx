@@ -157,9 +157,8 @@ const CommunityWrite = () => {
 
       if (uploadType === 'file') {
         if (selectedFile) {
-          const fileUrl = await uploadFile(selectedFile);
-          const fileType = selectedFile.type.startsWith('video/') ? 'video' : 'image';
-          attachments.push({ type: fileType, url: fileUrl });
+          const { url, type } = await uploadFile(selectedFile);
+          attachments.push({ type, url });
         } else {
           const category = selectedWorkflow?.categories?.[0] || selectedWorkflow?.category || '';
           const placeholderUrl = CATEGORY_PLACEHOLDER[category] || '/icons/category-1.png';

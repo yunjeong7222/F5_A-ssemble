@@ -9,15 +9,15 @@ const CommunityEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [postTitle, setPostTitle]       = useState('');
-  const [postContent, setPostContent]   = useState('');
+  const [postTitle, setPostTitle] = useState('');
+  const [postContent, setPostContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading]       = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [uploadType, setUploadType] = useState('file');
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl]     = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [existingMediaUrl, setExistingMediaUrl] = useState(null);
   const [existingMediaType, setExistingMediaType] = useState(null);
   const fileInputRef = useRef(null);
@@ -55,7 +55,7 @@ const CommunityEdit = () => {
 
   const getYoutubeId = (url) => {
     return url?.match(/[?&]v=([^&]+)/)?.[1] ||
-           url?.match(/youtu\.be\/([^?]+)/)?.[1] || null;
+      url?.match(/youtu\.be\/([^?]+)/)?.[1] || null;
   };
 
   const handleFileChange = (e) => {
@@ -94,9 +94,8 @@ const CommunityEdit = () => {
         attachments.push({ type: 'youtube', url: youtubeUrl });
       } else {
         if (selectedFile) {
-          const fileUrl = await uploadFile(selectedFile);
-          const fileType = selectedFile.type.startsWith('video/') ? 'video' : 'image';
-          attachments.push({ type: fileType, url: fileUrl });
+          const { url, type } = await uploadFile(selectedFile);
+          attachments.push({ type, url });
         } else if (existingMediaUrl) {
           attachments.push({ type: existingMediaType, url: existingMediaUrl });
         }
