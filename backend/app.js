@@ -17,7 +17,10 @@ const workflowBookmarkRouter = require('./routes/workflowBookmarks');
 
 // CORS 오류 처리를 위한 미들웨어 적용 -> 배포시 해당 코드 지워야함
 // 기본적으로 전부 열어두는것은 원칙상 안됨.
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL, // 환경변수로 관리
+  credentials: true,
+}));
 app.use(express.static("public"));
 app.use(express.urlencoded({extended : true}));
 app.use(express.json());
