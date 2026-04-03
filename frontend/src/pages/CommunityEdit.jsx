@@ -94,7 +94,10 @@ const CommunityEdit = () => {
         attachments.push({ type: 'youtube', url: youtubeUrl });
       } else {
         if (selectedFile) {
-          const { url, type } = await uploadFile(selectedFile);
+          const { url, type, thumbnailUrl } = await uploadFile(selectedFile);
+          if (type === 'video' && thumbnailUrl) {
+            attachments.push({ type: 'image', url: thumbnailUrl }); 
+          }
           attachments.push({ type, url });
         } else if (existingMediaUrl) {
           attachments.push({ type: existingMediaType, url: existingMediaUrl });

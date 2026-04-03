@@ -157,37 +157,41 @@ const CommunityWrite = () => {
 
       if (uploadType === 'file') {
         if (selectedFile) {
-          const { url, type } = await uploadFile(selectedFile);
+          const { url, type, thumbnailUrl } = await uploadFile(selectedFile);
+          if (type === 'video' && thumbnailUrl) {
+            attachments.push({ type: 'image', url: thumbnailUrl }); // 카드용 썸네일
+          }
           attachments.push({ type, url });
-        } else {
+        }
+        else {
           const category = selectedWorkflow?.categories?.[0] || selectedWorkflow?.category || '';
           const placeholderUrl = CATEGORY_PLACEHOLDER[category] || '/icons/category-1.png';
           attachments.push({ type: 'image', url: placeholderUrl });
-        }
+       }
       } else {
         attachments.push({ type: 'youtube', url: youtubeUrl });
       }
 
       attachments.push({ type: 'text', content: postContent });
-
+console.log('attachments:', JSON.stringify(attachments, null, 2));
       await createPost({
         title: postTitle,
         workflow_id: selectedWorkflowId,
         attachments,
       });
 
-      await Alert.fire({ 
-        text: '게시글이 성공적으로 등록되었습니다!', 
-        showConfirmButton: false, 
-        timer: 1500 
+      await Alert.fire({
+        text: '게시글이 성공적으로 등록되었습니다!',
+        showConfirmButton: false,
+        timer: 1500
       });
       navigate('/community');
     } catch (error) {
       console.error('게시글 작성 실패:', error);
       Alert.fire({
-        text: '게시글 등록에 실패했습니다. 다시 시도해주세요.', 
-        showConfirmButton: false, 
-        timer: 1500 
+        text: '게시글 등록에 실패했습니다. 다시 시도해주세요.',
+        showConfirmButton: false,
+        timer: 1500
       });
     } finally {
       setIsSubmitting(false);

@@ -3,10 +3,10 @@ const db = require('../config/db');
 // 썸네일 추출 유틸
 const extractThumbnail = (type, url) => {
   if (type === 'image') return url;
-  if (type === 'video') return url?.replace(/\.(mp4|mov|avi)$/, '.jpg');
+  if (type === 'video') return null;
   if (type === 'youtube') {
-    // 원본 URL에서 ID 추출
-    const id = url?.match(/[?&]v=([^&]+)/)?.[1];
+    const id = url?.match(/[?&]v=([^&]+)/)?.[1] ||
+               url?.match(/youtu\.be\/([^?]+)/)?.[1];
     return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
   }
   return null;
