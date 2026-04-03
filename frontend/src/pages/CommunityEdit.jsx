@@ -107,11 +107,11 @@ const CommunityEdit = () => {
       attachments.push({ type: 'text', content: postContent });
 
       await updatePost(id, { title: postTitle, attachments });
-      Alert.fire({ icon: 'success', title: '게시글이 수정되었습니다.' });
+      Alert.fire({title: '게시글이 수정되었습니다.' });
       navigate(`/community/${id}`);
     } catch (err) {
       console.error('수정 실패:', err);
-      Alert.fire({ icon: 'error', title: '수정에 실패했습니다.' });
+      Alert.fire({title: '수정에 실패했습니다.' });
     } finally {
       setIsSubmitting(false);
     }

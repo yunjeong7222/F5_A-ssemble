@@ -167,13 +167,13 @@ const CommunityWrite = () => {
           const category = selectedWorkflow?.categories?.[0] || selectedWorkflow?.category || '';
           const placeholderUrl = CATEGORY_PLACEHOLDER[category] || '/icons/category-1.png';
           attachments.push({ type: 'image', url: placeholderUrl });
-       }
+        }
       } else {
         attachments.push({ type: 'youtube', url: youtubeUrl });
       }
 
       attachments.push({ type: 'text', content: postContent });
-console.log('attachments:', JSON.stringify(attachments, null, 2));
+      console.log('attachments:', JSON.stringify(attachments, null, 2));
       await createPost({
         title: postTitle,
         workflow_id: selectedWorkflowId,
